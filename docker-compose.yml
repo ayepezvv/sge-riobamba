@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  sge_db:
+    image: postgis/postgis:15-3.4
+    container_name: sge_postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sge_admin
+      POSTGRES_PASSWORD: SgeSuperSecretPassword123!
+      POSTGRES_DB: sge_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - sge_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sge_admin -d sge_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  sge_pgdata:

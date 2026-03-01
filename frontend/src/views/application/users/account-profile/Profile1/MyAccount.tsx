@@ -1,0 +1,272 @@
+'use client';
+
+import { useState } from 'react';
+
+// material-ui
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+
+// project imports
+import SubCard from 'ui-component/cards/SubCard';
+import AnimateButton from 'ui-component/extended/AnimateButton';
+
+import { gridSpacing } from 'store/constant';
+
+// assets
+import DesktopWindowsTwoToneIcon from '@mui/icons-material/DesktopWindowsTwoTone';
+import HighlightOffTwoToneIcon from '@mui/icons-material/HighlightOffTwoTone';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import SmartphoneTwoToneIcon from '@mui/icons-material/SmartphoneTwoTone';
+import PhoneIphoneTwoToneIcon from '@mui/icons-material/PhoneIphoneTwoTone';
+
+const deviceStateSX = { display: 'inline-flex', alignItems: 'center', '& >svg': { width: 12, height: 12, mr: 0.5 } };
+
+// select options
+const currencies = [
+  { value: 'Washington', label: 'Washington' },
+  { value: 'India', label: 'India' },
+  { value: 'Africa', label: 'Africa' },
+  { value: 'New-York', label: 'New York' },
+  { value: 'Malaysia', label: 'Malaysia' }
+];
+
+const experiences = [
+  { value: 'Startup', label: 'Startup' },
+  { value: '2-year', label: '2 year' },
+  { value: '3-year', label: '3 year' },
+  { value: '4-year', label: '4 year' },
+  { value: '5-year', label: '5 year' }
+];
+
+// ==============================|| PROFILE 1 - MY ACCOUNT ||============================== //
+
+export default function MyAccount() {
+  const [currency, setCurrency] = useState('Washington');
+  const handleChange1 = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrency(event.target.value);
+  };
+
+  const [experience, setExperience] = useState('Startup');
+  const handleChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setExperience(event.target.value);
+  };
+
+  const [state1, setState1] = useState({
+    checkedB: false
+  });
+  const [state2, setState2] = useState({
+    checkedB: false
+  });
+  const [state3, setState3] = useState({
+    checkedB: true
+  });
+
+  const handleSwitchChange1 = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setState1({ ...state1, [event.target.name]: event.target.checked });
+  };
+  const handleSwitchChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setState2({ ...state2, [event.target.name]: event.target.checked });
+  };
+  const handleSwitchChange3 = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setState3({ ...state3, [event.target.name]: event.target.checked });
+  };
+
+  return (
+    <Grid container spacing={gridSpacing}>
+      <Grid size={12}>
+        <SubCard title="General Settings">
+          <form noValidate autoComplete="off">
+            <Grid container spacing={gridSpacing}>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TextField
+                  id="outlined-basic5"
+                  fullWidth
+                  label="Username"
+                  helperText="Your Profile URL: https://pc.com/Ashoka_Tano_16"
+                  defaultValue="Asoka_Tana_16"
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TextField id="outlined-basic6" fullWidth label="Account Email" defaultValue="demo@sample.com" />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TextField id="outlined-select-language" select fullWidth label="Language" value={currency} onChange={handleChange1}>
+                  {currencies.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TextField
+                  id="outlined-select-experience1"
+                  select
+                  fullWidth
+                  label="Signing Using"
+                  value={experience}
+                  onChange={handleChange2}
+                >
+                  {experiences.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            </Grid>
+          </form>
+        </SubCard>
+      </Grid>
+      <Grid size={12}>
+        <SubCard title="Advance Settings">
+          <Stack sx={{ gap: gridSpacing }}>
+            <Box>
+              <Typography variant="subtitle1" sx={{ textTransform: 'uppercase' }}>
+                Secure Browsing
+              </Typography>
+              <FormControlLabel
+                control={<Switch checked={state1.checkedB} onChange={handleSwitchChange1} name="checkedB" color="primary" />}
+                label="Browsing Securely ( https ) when it's necessary"
+              />
+            </Box>
+            <Box>
+              <Typography variant="subtitle1" sx={{ textTransform: 'uppercase' }}>
+                Login Notifications
+              </Typography>
+              <FormControlLabel
+                control={<Switch checked={state2.checkedB} onChange={handleSwitchChange2} name="checkedB" color="primary" />}
+                label="Notify when login attempted from other place"
+              />
+            </Box>
+            <Box>
+              <Typography variant="subtitle1" sx={{ textTransform: 'uppercase' }}>
+                Login Approvals
+              </Typography>
+              <FormControlLabel
+                control={<Switch checked={state3.checkedB} onChange={handleSwitchChange3} name="checkedB" color="primary" />}
+                label="Approvals is not required when login from unrecognized devices."
+              />
+            </Box>
+            <Box>
+              <Divider />
+            </Box>
+            <Box>
+              <Typography variant="subtitle1" sx={{ textTransform: 'uppercase' }}>
+                Recognized Devices
+              </Typography>
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
+                  <DesktopWindowsTwoToneIcon sx={{ fontSize: '1.15rem' }} />
+                  <Typography variant="subtitle1">
+                    Cent Desktop{' '}
+                    <Typography component="span" variant="caption">
+                      | 4351 Deans Lane, Chelmsford
+                    </Typography>{' '}
+                  </Typography>
+                </Stack>
+                <Typography sx={{ ...deviceStateSX, color: 'success.dark' }} variant="subtitle2">
+                  <FiberManualRecordIcon />
+                  Current Active
+                  <IconButton size="large" aria-label="remove">
+                    <HighlightOffTwoToneIcon sx={{ fontSize: '1.15rem' }} />
+                  </IconButton>
+                </Typography>
+              </Stack>
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
+                  <SmartphoneTwoToneIcon sx={{ fontSize: '1.15rem' }} />
+                  <Typography variant="subtitle1">
+                    Imho Tablet{' '}
+                    <Typography component="span" variant="caption">
+                      | 4185 Michigan Avenue
+                    </Typography>{' '}
+                  </Typography>
+                </Stack>
+                <Typography sx={{ ...deviceStateSX, color: 'grey.400' }} variant="caption">
+                  <FiberManualRecordIcon />
+                  Active 5 days ago
+                  <IconButton size="large" aria-label="remove">
+                    <HighlightOffTwoToneIcon sx={{ fontSize: '1.15rem' }} />
+                  </IconButton>
+                </Typography>
+              </Stack>
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
+                  <PhoneIphoneTwoToneIcon sx={{ fontSize: '1.15rem' }} />
+                  <Typography variant="subtitle1">
+                    Albs Mobile{' '}
+                    <Typography component="span" variant="caption">
+                      | 3462 Fairfax Drive, Montcalm
+                    </Typography>{' '}
+                  </Typography>
+                </Stack>
+                <Typography sx={{ ...deviceStateSX, color: 'grey.400' }} variant="subtitle2">
+                  <FiberManualRecordIcon />
+                  Active 1 month ago
+                  <IconButton size="large" aria-label="remove">
+                    <HighlightOffTwoToneIcon sx={{ fontSize: '1.15rem' }} />
+                  </IconButton>
+                </Typography>
+              </Stack>
+            </Box>
+            <Box>
+              <Divider />
+            </Box>
+            <Box>
+              <Typography variant="subtitle1" sx={{ textTransform: 'uppercase' }}>
+                Active Sessions
+              </Typography>
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
+                  <DesktopWindowsTwoToneIcon sx={{ fontSize: '1.15rem', color: 'success.dark' }} />
+                  <Typography variant="subtitle1">
+                    Ceto Desktop{' '}
+                    <Typography component="span" variant="caption">
+                      | 4351 Deans Lane, Chelmsford
+                    </Typography>{' '}
+                  </Typography>
+                </Stack>
+                <Button variant="text" sx={{ color: 'error.main' }}>
+                  Logout
+                </Button>
+              </Stack>
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
+                  <SmartphoneTwoToneIcon sx={{ fontSize: '1.15rem', color: 'success.dark' }} />
+                  <Typography variant="subtitle1">
+                    Moon Tablet{' '}
+                    <Typography component="span" variant="caption">
+                      | 4185 Michigan Avenue
+                    </Typography>
+                  </Typography>
+                </Stack>
+                <Button variant="text" sx={{ color: 'error.main' }}>
+                  Logout
+                </Button>
+              </Stack>
+            </Box>
+          </Stack>
+          <Divider sx={{ mt: 2 }} />
+          <Stack direction="row" sx={{ justifyContent: 'flex-end', mt: 3 }}>
+            <Stack direction="row" sx={{ gap: 2 }}>
+              <AnimateButton>
+                <Button variant="contained">Update Profile</Button>
+              </AnimateButton>
+              <Button sx={{ color: 'error.main' }}>Clear</Button>
+            </Stack>
+          </Stack>
+        </SubCard>
+      </Grid>
+    </Grid>
+  );
+}
