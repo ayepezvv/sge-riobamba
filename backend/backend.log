@@ -55,3 +55,25 @@ INFO:     192.168.1.21:64716 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
 INFO:     192.168.1.21:64716 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
 INFO:     192.168.1.21:55922 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
 INFO:     192.168.1.21:55922 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:59081 - "OPTIONS /api/users/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:59082 - "OPTIONS /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:59081 - "GET /api/users/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:59082 - "GET /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:55287 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:55287 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:37400 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     192.168.1.8:37400 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.8:37400 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.8:37400 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.8:37402 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:44402 - "OPTIONS /api/users/ HTTP/1.1" 200 OK
+INFO:     192.168.1.8:44414 - "OPTIONS /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.8:44402 - "GET /api/users/ HTTP/1.1" 200 OK
+INFO:     192.168.1.8:44414 - "GET /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.8:44414 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:44426 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:44440 - "OPTIONS /api/users/ HTTP/1.1" 200 OK
+INFO:     192.168.1.8:44440 - "POST /api/users/ HTTP/1.1" 200 OK
+INFO:     192.168.1.8:44440 - "GET /api/users/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:64839 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:64839 - "GET /api/menu/widget HTTP/1.1" 404 Not Found

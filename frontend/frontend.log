@@ -694,3 +694,8 @@ redux-persist failed to create sync storage. falling back to noop storage.
  GET /dashboard/default 200 in 403ms (compile: 321ms, render: 83ms)
  ○ Compiling /usuarios ...
  GET /usuarios 200 in 7.0s (compile: 6.9s, render: 53ms)
+ ✓ Compiled in 538ms
+ GET / 200 in 316ms (compile: 7ms, render: 309ms)
+ GET /login 200 in 104ms (compile: 4ms, render: 99ms)
+ GET /dashboard/default 200 in 58ms (compile: 5ms, render: 53ms)
+ GET /usuarios 200 in 226ms (compile: 166ms, render: 60ms)
