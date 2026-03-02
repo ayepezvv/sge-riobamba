@@ -41,12 +41,12 @@ export default function JWTLogin({ ...others }) {
 
   const [checked, setChecked] = useState(true);
 
-  const [showPassword, setShowPassword] = useState(false);
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
+  const [showContraseña, setShowPassword] = useState(false);
+  const handleClickShowContraseña = () => {
+    setShowContraseña(!showPassword);
   };
 
-  const handleMouseDownPassword = (event: MouseEvent) => {
+  const handleMouseDownContraseña = (event: MouseEvent) => {
     event.preventDefault()!;
   };
 
@@ -63,9 +63,9 @@ export default function JWTLogin({ ...others }) {
       validationSchema={Yup.object().shape({
         email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
         password: Yup.string()
-          .required('Password is required')
-          .test('no-leading-trailing-whitespace', 'Password can not start or end with spaces', (value) => value === value.trim())
-          .max(10, 'Password must be less than 10 characters')
+          .required('Contraseña is required')
+          .test('no-leading-trailing-whitespace', 'Contraseña can not start or end with spaces', (value) => value === value.trim())
+          .max(10, 'Contraseña must be less than 10 characters')
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         try {
@@ -89,7 +89,7 @@ export default function JWTLogin({ ...others }) {
       {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
         <form noValidate onSubmit={handleSubmit} {...others}>
           <CustomFormControl fullWidth error={Boolean(touched.email && errors.email)}>
-            <InputLabel htmlFor="outlined-adornment-email-login">Email Address / Username</InputLabel>
+            <InputLabel htmlFor="outlined-adornment-email-login">Correo electrónico / Username</InputLabel>
             <OutlinedInput
               id="outlined-adornment-email-login"
               type="email"
@@ -106,10 +106,10 @@ export default function JWTLogin({ ...others }) {
           </CustomFormControl>
 
           <CustomFormControl fullWidth error={Boolean(touched.password && errors.password)}>
-            <InputLabel htmlFor="outlined-adornment-password-login">Password</InputLabel>
+            <InputLabel htmlFor="outlined-adornment-password-login">Contraseña</InputLabel>
             <OutlinedInput
               id="outlined-adornment-password-login"
-              type={showPassword ? 'text' : 'password'}
+              type={showContraseña ? 'text' : 'password'}
               value={values.password}
               name="password"
               onBlur={handleBlur}
@@ -118,16 +118,16 @@ export default function JWTLogin({ ...others }) {
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
+                    onClick={handleClickShowContraseña}
+                    onMouseDown={handleMouseDownContraseña}
                     edge="end"
                     size="large"
                   >
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                    {showContraseña ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
                 </InputAdornment>
               }
-              label="Password"
+              label="Contraseña"
             />
             {touched.password && errors.password && (
               <FormHelperText error id="standard-weight-helper-text-password-login">
@@ -158,7 +158,7 @@ export default function JWTLogin({ ...others }) {
                 }
                 sx={{ textDecoration: 'none', color: 'secondary.main' }}
               >
-                Forgot Password?
+                Forgot Contraseña?
               </Typography>
             </Grid>
           </Grid>
@@ -171,7 +171,7 @@ export default function JWTLogin({ ...others }) {
           <Box sx={{ mt: 2 }}>
             <AnimateButton>
               <Button color="secondary" disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained">
-                Sign In
+                {isSubmitting ? 'Iniciando sesión...' : 'Ingresar'}
               </Button>
             </AnimateButton>
           </Box>

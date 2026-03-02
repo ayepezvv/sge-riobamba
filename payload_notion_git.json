@@ -1,0 +1,41 @@
+{
+  "children": [
+    {
+      "object": "block",
+      "type": "heading_2",
+      "heading_2": {
+        "rich_text": [{ "type": "text", "text": { "content": "Datos de Configuración (Git)" } }]
+      }
+    },
+    {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "Repositorio Oficial: " }, "annotations": {"bold": true}},
+          { "type": "text", "text": { "content": "https://github.com/ayepezvv/sge-riobamba.git" } }
+        ]
+      }
+    },
+    {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "Cuenta de Git (Email): " }, "annotations": {"bold": true}},
+          { "type": "text", "text": { "content": "ayepezv@gmail.com" } }
+        ]
+      }
+    },
+    {
+      "object": "block",
+      "type": "bulleted_list_item",
+      "bulleted_list_item": {
+        "rich_text": [
+          { "type": "text", "text": { "content": "Firma de Commits Automáticos: " }, "annotations": {"bold": true}},
+          { "type": "text", "text": { "content": "Arquitecto SGE-15" } }
+        ]
+      }
+    }
+  ]
+}

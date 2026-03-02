@@ -1,0 +1,12 @@
+{
+  "children": [
+    {
+      "object": "block",
+      "type": "to_do",
+      "to_do": {
+        "rich_text": [{ "type": "text", "text": { "content": "Esquemas Pydantic, Seguridad JWT y Endpoints de Usuarios/Auth creados" } }],
+        "checked": true
+      }
+    }
+  ]
+}

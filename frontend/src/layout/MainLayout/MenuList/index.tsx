@@ -86,7 +86,7 @@ function MenuList() {
       case 'group':
         if (item.url && item.id !== lastItemId) {
           return (
-            <List key={item.id}>
+            <List key={`${item.id}-${index}`}>
               <NavItem item={item} level={1} isParents setSelectedID={() => setSelectedID('')} />
               <Activity mode={!isHorizontal && index !== 0 ? 'visible' : 'hidden'}>
                 <Divider sx={{ py: 0.5 }} />
@@ -97,7 +97,7 @@ function MenuList() {
 
         return (
           <NavGroup
-            key={item.id}
+            key={`${item.id}-${index}`}
             setSelectedID={setSelectedID}
             selectedID={selectedID}
             item={item}
@@ -108,7 +108,7 @@ function MenuList() {
         );
       default:
         return (
-          <Typography key={item.id} variant="h6" align="center" sx={{ color: 'error.main' }}>
+          <Typography key={`${item.id}-${index}`} variant="h6" align="center" sx={{ color: 'error.main' }}>
             Menu Items Error
           </Typography>
         );

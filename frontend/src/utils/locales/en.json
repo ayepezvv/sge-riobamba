@@ -1,13 +1,13 @@
 {
-  "dashboard": "Dashboard",
-  "default": "Default",
-  "analytics": "Analytics",
-  "widget": "Widget",
+  "dashboard": "Panel de Control",
+  "default": "Principal",
+  "analytics": "Métricas",
+  "widget": "Componentes",
   "statistics": "Statistics",
   "data": "Data",
   "chart": "Chart",
-  "application": "Application",
-  "users": "Users",
+  "application": "Aplicación",
+  "users": "Usuarios",
   "user": "User",
   "posts": "Posts",
   "social-profile": "Social Profile",
@@ -195,5 +195,7 @@
   "message": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiatnulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollitanim id est laborum.",
   "account-settings": "Account settings",
   "logout": "Logout",
-  "more-items": "More Items"
+  "more-items": "More Items",
+  "admin": "Administración",
+  "user-management": "Gestión de Usuarios"
 }

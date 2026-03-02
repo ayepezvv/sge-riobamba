@@ -1,4 +1,5 @@
 // menu import
+import admin from './admin';
 import dashboard from './dashboard';
 import application from './application';
 import forms from './forms';
@@ -15,7 +16,7 @@ import { NavItemType } from 'types';
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems: { items: NavItemType[] } = {
-  items: [dashboard, application, forms, elements, samplePage, pages, utilities, support, other]
+  items: [admin, dashboard, application, forms, elements, samplePage, pages, utilities, support, other]
 };
 
 export default menuItems;

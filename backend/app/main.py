@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes import auth, users, roles
 
 app = FastAPI(
     title="SGE API",
@@ -6,6 +8,19 @@ app = FastAPI(
     description="Backend del Sistema de Gestión Empresarial"
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://192.168.1.15:3000", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 @app.get("/health", tags=["Health"])
 def health_check():
     return {"status": "ok", "message": "Servidor SGE activo y funcionando."}
+
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(users.router, prefix="/api/users", tags=["users"])
+app.include_router(roles.router, prefix="/api/roles", tags=["roles"])

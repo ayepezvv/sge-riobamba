@@ -60,8 +60,8 @@ export const JWTProvider = ({ children }: { children: ReactElement }) => {
         const serviceToken = window.localStorage.getItem('serviceToken');
         if (serviceToken && verifyToken(serviceToken)) {
           setSession(serviceToken);
-          const response = await axios.get('/api/account/me');
-          const { user } = response.data;
+          const response = await axios.get('/api/users/me');
+          const user = response.data;
           dispatch({
             type: LOGIN,
             payload: {
@@ -86,9 +86,18 @@ export const JWTProvider = ({ children }: { children: ReactElement }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await axios.post('/api/account/login', { email, password });
-    const { serviceToken, user } = response.data;
+    const params = new URLSearchParams();
+    params.append('username', email);
+    params.append('password', password);
+    const response = await axios.post('/api/auth/login', params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+    const serviceToken = response.data.access_token;
     setSession(serviceToken);
+    
+    const meResponse = await axios.get('/api/users/me');
+    const user = meResponse.data;
+    
     dispatch({
       type: LOGIN,
       payload: {
