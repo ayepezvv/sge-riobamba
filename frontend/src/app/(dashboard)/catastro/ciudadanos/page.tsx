@@ -1,16 +1,31 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+// material-ui
+import { useTheme } from '@mui/material/styles';
 import { 
   Chip, Box, Button, Dialog, DialogTitle, DialogContent, DialogContentText,
   DialogActions, TextField, FormControl, InputLabel, 
   Select, MenuItem, Snackbar, Alert, Typography,
-  Tabs, Tab, Grid, Switch, FormControlLabel, IconButton, Tooltip
+  Tabs, Tab, Grid, Switch, FormControlLabel, IconButton, Tooltip,
+  Card, CardContent, Avatar, Divider, InputAdornment, OutlinedInput
 } from '@mui/material';
+
+// icons
 import EditIcon from '@mui/icons-material/Edit';
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import EmailTwoToneIcon from '@mui/icons-material/EmailTwoTone';
+import PhoneTwoToneIcon from '@mui/icons-material/PhoneTwoTone';
+import BusinessIcon from '@mui/icons-material/Business';
+import PersonIcon from '@mui/icons-material/Person';
+import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
+import CakeIcon from '@mui/icons-material/Cake';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import WcIcon from '@mui/icons-material/Wc';
+
 import MainCard from 'ui-component/cards/MainCard';
 import axios from 'utils/axios';
 
@@ -54,11 +69,12 @@ const initialFormData = {
   ref_identificacion: ''
 };
 
-// ==============================|| PADRÓN DE CIUDADANOS ||============================== //
+// ==============================|| PADRÓN DE CIUDADANOS (CONTACT LIST) ||============================== //
 
 export default function CiudadanosPage() {
+  const theme = useTheme();
   const [ciudadanos, setCiudadanos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // UI State
   const [open, setOpen] = useState(false);
@@ -66,22 +82,27 @@ export default function CiudadanosPage() {
   const [tabValue, setTabValue] = useState(0);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
 
+  // Contact List State
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+
   // Dialog State (Desactivar)
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [selectedUserForStatus, setSelectedUserForStatus] = useState<any>(null);
 
   // Form State
   const [formData, setFormData] = useState({ ...initialFormData });
 
   const fetchCiudadanos = async () => {
-    setLoading(true);
     try {
       const response = await axios.get('/api/ciudadanos/');
       setCiudadanos(response.data);
+      
+      // Update selected user if it was modified
+      if (selectedUser) {
+        const updatedUser = response.data.find((u: any) => u.id === selectedUser.id);
+        if (updatedUser) setSelectedUser(updatedUser);
+      }
     } catch (error) {
       console.error("Error fetching citizens:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -103,7 +124,7 @@ export default function CiudadanosPage() {
       ...ciudadano,
       tipo_persona: ciudadano.tipo_persona || 'Natural',
       porcentaje_discapacidad: ciudadano.porcentaje_discapacidad || 0,
-      fecha_nacimiento: ciudadano.fecha_nacimiento || '',
+      fecha_nacimiento: ciudadano.fecha_nacimiento ? ciudadano.fecha_nacimiento.substring(0,10) : '',
     });
     setTabValue(0);
     setOpen(true);
@@ -171,122 +192,261 @@ export default function CiudadanosPage() {
       handleClose();
       fetchCiudadanos();
     } catch (error: any) {
-      console.error("Error saving citizen:", error);
-      const errorMsg = error.response?.data?.detail || 'Error al guardar. Verifique los datos o cédula duplicada.';
+      const errorMsg = error.response?.data?.detail || 'Error al guardar. Verifique los datos.';
       setToast({ open: true, message: typeof errorMsg === 'string' ? errorMsg : 'La identificación ya existe o es inválida.', severity: 'error' });
     }
   };
 
-  const handleToggleStatusClick = (row: any) => {
-    setSelectedUserForStatus(row);
-    setConfirmOpen(true);
-  };
-
   const handleConfirmStatusChange = async () => {
-    if (!selectedUserForStatus) return;
+    if (!selectedUser) return;
     try {
-      await axios.patch(`/api/ciudadanos/${selectedUserForStatus.id}/status`);
+      await axios.patch(`/api/ciudadanos/${selectedUser.id}/status`);
       setToast({ open: true, message: 'Estado modificado exitosamente', severity: 'success' });
       setConfirmOpen(false);
       fetchCiudadanos();
     } catch (error: any) {
-      console.error("Error changing status:", error);
       setToast({ open: true, message: 'Error al cambiar estado.', severity: 'error' });
       setConfirmOpen(false);
     }
   };
 
-  const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { 
-      field: 'tipo_persona', 
-      headerName: 'Tipo', 
-      width: 120,
-      renderCell: (params) => {
-        return params.value === 'Natural' ? (
-          <Chip label="Natural" color="primary" variant="outlined" size="small" />
-        ) : (
-          <Chip label="Jurídica" color="secondary" variant="outlined" size="small" />
-        );
-      }
-    },
-    { field: 'identificacion', headerName: 'Identificación', width: 140 },
-    { 
-      field: 'nombre_completo', 
-      headerName: 'Nombre / Razón Social', 
-      flex: 1, 
-      minWidth: 250,
-      valueGetter: (params, row) => {
-        return row.tipo_persona === 'Natural' 
-          ? `${row.nombres || ''} ${row.apellidos || ''}`
-          : row.razon_social || '';
-      }
-    },
-    { field: 'celular', headerName: 'Celular', width: 140 },
-    { 
-      field: 'is_active', 
-      headerName: 'Estado', 
-      width: 100,
-      renderCell: (params) => {
-        const isActive = params.value ?? true; // Default true if legacy records exist
-        return isActive ? (
-          <Chip label="Activo" color="success" size="small" />
-        ) : (
-          <Chip label="Inactivo" color="error" size="small" />
-        );
-      }
-    },
-    {
-      field: 'acciones',
-      headerName: 'Acciones',
-      width: 120,
-      sortable: false,
-      renderCell: (params) => {
-        const isActive = params.row.is_active ?? true;
-        return (
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title="Editar">
-              <IconButton color="primary" onClick={() => handleOpenEdit(params.row)}>
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={isActive ? "Desactivar" : "Activar"}>
-              <IconButton 
-                color={isActive ? "error" : "success"} 
-                onClick={() => handleToggleStatusClick(params.row)}
-              >
-                {isActive ? <BlockIcon /> : <CheckCircleOutlineIcon />}
-              </IconButton>
-            </Tooltip>
-          </Box>
-        );
-      }
-    }
-  ];
+  // Filtrado simple
+  const filteredCiudadanos = ciudadanos.filter((c: any) => {
+    const searchString = `${c.identificacion} ${c.nombres} ${c.apellidos} ${c.razon_social}`.toLowerCase();
+    return searchString.includes(searchQuery.toLowerCase());
+  });
 
   return (
-    <MainCard 
-      title="Padrón de Ciudadanos y Clientes"
-      secondary={
-        <Button variant="contained" color="primary" onClick={handleOpenNew}>
-          + Nuevo Ciudadano
-        </Button>
-      }
-    >
-      <Box sx={{ height: 500, width: '100%', mt: 2 }}>
-        <DataGrid
-          rows={ciudadanos}
-          columns={columns}
-          loading={loading}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 10 },
-            },
-          }}
-          pageSizeOptions={[10, 25, 50]}
-          disableRowSelectionOnClick
-        />
-      </Box>
+    <MainCard title="Padrón de Ciudadanos y Clientes" content={false}>
+      <CardContent>
+        {/* HEADER BAR */}
+        <Grid container spacing={2} justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={8} md={6}>
+            <OutlinedInput
+              id="input-search-contact"
+              placeholder="Buscar por nombre, cédula o RUC..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              startAdornment={
+                <InputAdornment position="start">
+                  <SearchIcon color="secondary" />
+                </InputAdornment>
+              }
+              size="small"
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={6} sx={{ textAlign: 'right' }}>
+            <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleOpenNew}>
+              Nuevo Ciudadano
+            </Button>
+          </Grid>
+        </Grid>
+
+        {/* SPLIT VIEW (LIST vs DETAILS) */}
+        <Grid container spacing={3}>
+          {/* Left Column: List */}
+          <Grid item xs={12} md={selectedUser ? 8 : 12}>
+            {filteredCiudadanos.map((row: any, index) => {
+              const isNatural = row.tipo_persona === 'Natural';
+              const titleName = isNatural ? `${row.nombres || ''} ${row.apellidos || ''}` : row.razon_social;
+              const isActive = row.is_active ?? true;
+              const isSelected = selectedUser?.id === row.id;
+
+              return (
+                <Card 
+                  key={index} 
+                  sx={{ 
+                    bgcolor: isSelected ? (theme.palette.mode === 'dark' ? 'dark.main' : 'primary.light') : (theme.palette.mode === 'dark' ? 'dark.main' : 'background.paper'),
+                    mb: 1, 
+                    border: '1px solid', 
+                    borderColor: isSelected ? 'primary.main' : 'divider',
+                    cursor: 'pointer',
+                    '&:hover': { borderColor: 'primary.main', bgcolor: theme.palette.mode === 'dark' ? 'dark.800' : 'grey.50' }
+                  }}
+                  onClick={() => setSelectedUser(row)}
+                >
+                  <CardContent sx={{ p: 2, pb: '16px !important' }}>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item>
+                        <Avatar
+                          sx={{ 
+                            width: 40, height: 40, 
+                            bgcolor: isNatural ? theme.palette.primary.light : theme.palette.secondary.light,
+                            color: isNatural ? theme.palette.primary.dark : theme.palette.secondary.dark
+                          }}
+                        >
+                          {isNatural ? <PersonIcon /> : <BusinessIcon />}
+                        </Avatar>
+                      </Grid>
+                      <Grid item xs zeroMinWidth>
+                        <Typography variant="h5" component="div">{titleName}</Typography>
+                        <Typography variant="caption" color="textSecondary">{row.identificacion} • {row.tipo_persona}</Typography>
+                      </Grid>
+                      
+                      {/* Mostrar iconos rapido en la lista si no esta seleccionado o si hay espacio */}
+                      <Grid item>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                           {isActive ? <Chip label="Activo" color="success" size="small" /> : <Chip label="Inactivo" color="error" size="small" />}
+                        </Box>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </Grid>
+
+          {/* Right Column: Details (Sliding Panel) */}
+          {selectedUser && (
+            <Grid item xs={12} md={4}>
+              <Card sx={{ border: '1px solid', borderColor: 'divider', height: '100%', position: 'relative' }}>
+                <CardContent>
+                  <IconButton 
+                    sx={{ position: 'absolute', top: 8, right: 8 }} 
+                    onClick={() => setSelectedUser(null)}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                  
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2 }}>
+                    <Avatar
+                      sx={{ 
+                        width: 80, height: 80, mb: 2,
+                        bgcolor: selectedUser.tipo_persona === 'Natural' ? theme.palette.primary.light : theme.palette.secondary.light,
+                        color: selectedUser.tipo_persona === 'Natural' ? theme.palette.primary.dark : theme.palette.secondary.dark
+                      }}
+                    >
+                      {selectedUser.tipo_persona === 'Natural' ? <PersonIcon fontSize="large" /> : <BusinessIcon fontSize="large" />}
+                    </Avatar>
+                    <Typography variant="h4" textAlign="center">
+                      {selectedUser.tipo_persona === 'Natural' ? `${selectedUser.nombres} ${selectedUser.apellidos}` : selectedUser.razon_social}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                      {selectedUser.identificacion}
+                    </Typography>
+                    <Chip 
+                      label={selectedUser.tipo_persona} 
+                      color={selectedUser.tipo_persona === 'Natural' ? 'primary' : 'secondary'} 
+                      size="small" 
+                      variant="outlined" 
+                    />
+                  </Box>
+
+                  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3, mb: 3 }}>
+                    <Button variant="outlined" startIcon={<EditIcon />} onClick={() => handleOpenEdit(selectedUser)}>
+                      Editar
+                    </Button>
+                    <Button 
+                      variant="outlined" 
+                      color={(selectedUser.is_active ?? true) ? "error" : "success"}
+                      startIcon={(selectedUser.is_active ?? true) ? <BlockIcon /> : <CheckCircleOutlineIcon />} 
+                      onClick={() => setConfirmOpen(true)}
+                    >
+                      {(selectedUser.is_active ?? true) ? "Bloquear" : "Activar"}
+                    </Button>
+                  </Box>
+
+                  <Divider />
+
+                  <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Typography variant="subtitle1" color="primary">Información de Contacto</Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <EmailTwoToneIcon color="secondary" fontSize="small" />
+                          <Box>
+                            <Typography variant="caption" color="textSecondary" display="block">Correo</Typography>
+                            <Typography variant="body2">{selectedUser.correo_principal || 'No registrado'}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <PhoneTwoToneIcon color="secondary" fontSize="small" />
+                          <Box>
+                            <Typography variant="caption" color="textSecondary" display="block">Teléfonos</Typography>
+                            <Typography variant="body2">{selectedUser.celular} / {selectedUser.telefono_fijo || 'N/A'}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                    </Grid>
+
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="subtitle1" color="primary">Datos Demográficos / Comerciales</Typography>
+                    
+                    <Grid container spacing={2}>
+                      {selectedUser.tipo_persona === 'Natural' && selectedUser.fecha_nacimiento && (
+                        <Grid item xs={12} sm={6}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <CakeIcon color="secondary" fontSize="small" />
+                            <Box>
+                              <Typography variant="caption" color="textSecondary" display="block">Nacimiento</Typography>
+                              <Typography variant="body2">{selectedUser.fecha_nacimiento}</Typography>
+                            </Box>
+                          </Box>
+                        </Grid>
+                      )}
+                      {selectedUser.tipo_persona === 'Natural' && selectedUser.genero && (
+                        <Grid item xs={12} sm={6}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <WcIcon color="secondary" fontSize="small" />
+                            <Box>
+                              <Typography variant="caption" color="textSecondary" display="block">Género</Typography>
+                              <Typography variant="body2">{selectedUser.genero}</Typography>
+                            </Box>
+                          </Box>
+                        </Grid>
+                      )}
+                      {selectedUser.tipo_persona === 'Juridica' && selectedUser.tipo_empresa && (
+                        <Grid item xs={12}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <BusinessIcon color="secondary" fontSize="small" />
+                            <Box>
+                              <Typography variant="caption" color="textSecondary" display="block">Estructura</Typography>
+                              <Typography variant="body2">{selectedUser.tipo_empresa} - {selectedUser.naturaleza_juridica}</Typography>
+                            </Box>
+                          </Box>
+                        </Grid>
+                      )}
+                    </Grid>
+
+                    {/* Beneficios (Si aplican) */}
+                    {(selectedUser.tiene_discapacidad || selectedUser.aplica_tercera_edad) && (
+                      <>
+                        <Divider sx={{ my: 1 }} />
+                        <Typography variant="subtitle1" color="primary">Beneficios de Ley</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+                          <AssignmentIndIcon color="secondary" />
+                          <Box>
+                            {selectedUser.aplica_tercera_edad && <Chip label="Tercera Edad" size="small" color="info" sx={{ mr: 1 }} />}
+                            {selectedUser.tiene_discapacidad && <Chip label={`Discapacidad (${selectedUser.porcentaje_discapacidad}%)`} size="small" color="warning" />}
+                          </Box>
+                        </Box>
+                      </>
+                    )}
+                    
+                    {/* Referencias Anidadas */}
+                    {selectedUser.referencias && selectedUser.referencias.length > 0 && (
+                      <>
+                        <Divider sx={{ my: 1 }} />
+                        <Typography variant="subtitle1" color="primary">Referencias Registradas</Typography>
+                        {selectedUser.referencias.map((ref: any, idx: number) => (
+                           <Box key={idx} sx={{ p: 1.5, bgcolor: 'background.default', borderRadius: 1, border: '1px dashed', borderColor: 'divider' }}>
+                             <Typography variant="body2" fontWeight="bold">{ref.tipo_referencia}</Typography>
+                             <Typography variant="body2">{ref.nombres} {ref.apellidos}</Typography>
+                             <Typography variant="caption" color="textSecondary">CI: {ref.identificacion || 'N/A'}</Typography>
+                           </Box>
+                        ))}
+                      </>
+                    )}
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
+        </Grid>
+      </CardContent>
 
       {/* Modal UX Premium con Tabs */}
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>

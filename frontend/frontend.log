@@ -1054,3 +1054,12 @@ redux-persist failed to create sync storage. falling back to noop storage.
  GET /widget/statistics 200 in 2.4s (compile: 2.1s, render: 227ms)
  GET /catastro/ciudadanos 200 in 50ms (compile: 4ms, render: 45ms)
  GET /catastro/ciudadanos 200 in 42ms (compile: 5ms, render: 37ms)
+ ✓ Compiled in 382ms
+redux-persist failed to create sync storage. falling back to noop storage.
+ GET /catastro/ciudadanos 200 in 834ms (compile: 175ms, render: 659ms)
+ GET /catastro/ciudadanos 200 in 75ms (compile: 8ms, render: 67ms)
+ ✓ Compiled in 372ms
+ ✓ Compiled in 165ms
+redux-persist failed to create sync storage. falling back to noop storage.
+ GET /catastro/ciudadanos 200 in 837ms (compile: 175ms, render: 662ms)
+ GET /catastro/ciudadanos 200 in 59ms (compile: 6ms, render: 52ms)

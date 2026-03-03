@@ -99,3 +99,35 @@ INFO:     192.168.1.21:55077 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
 INFO:     192.168.1.21:55077 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
 INFO:     192.168.1.21:56943 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
 INFO:     192.168.1.21:56943 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:52519 - "OPTIONS /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:52519 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:56333 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:56333 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:49682 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.21:49682 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.21:49682 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:49682 - "OPTIONS /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:49682 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:52206 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:52206 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:58524 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:58524 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:54123 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:54123 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:58050 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:58050 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:57802 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:57802 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:53929 - "OPTIONS /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:53929 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:51733 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:51747 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.21:51747 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.21:51747 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:51748 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:51750 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:51750 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:49810 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:49810 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:59908 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:59908 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
