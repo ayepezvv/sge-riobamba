@@ -16,6 +16,8 @@ class Predio(AuditMixin, Base):
     calle_principal_id = Column(Integer, ForeignKey("calles.id", ondelete="SET NULL"), nullable=True)
     calle_secundaria_id = Column(Integer, ForeignKey("calles.id", ondelete="SET NULL"), nullable=True)
     numero_casa = Column(String(50), nullable=True)
+    foto_fachada = Column(String(255), nullable=True)
+    croquis = Column(String(255), nullable=True)
     
     # Geometria (Puede ser un poligono del lote o un punto si no hay catastro exacto)
     geometria = Column(Geometry(geometry_type='GEOMETRY', srid=4326), nullable=True)
