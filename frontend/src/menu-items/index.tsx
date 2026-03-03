@@ -1,22 +1,10 @@
-// menu import
 import admin from './admin';
-import dashboard from './dashboard';
-import application from './application';
-import forms from './forms';
-import elements from './elements';
-import samplePage from './sample-page';
-import pages from './pages';
-import utilities from './utilities';
-import support from './support';
-import other from './other';
-
-// types
+import catastro from './catastro';
+import gis from './gis';
 import { NavItemType } from 'types';
 
-// ==============================|| MENU ITEMS ||============================== //
-
 const menuItems: { items: NavItemType[] } = {
-  items: [admin, dashboard, application, forms, elements, samplePage, pages, utilities, support, other]
+  items: [admin, catastro, gis]
 };
 
 export default menuItems;

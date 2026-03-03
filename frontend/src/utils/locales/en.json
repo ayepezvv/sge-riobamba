@@ -198,5 +198,8 @@
   "more-items": "More Items",
   "admin": "Administración",
   "user-management": "Gestión de Usuarios",
-  "role-management": "Gestión de Roles"
+  "role-management": "Gestión de Roles",
+  "catastro-comercial": "Catastro y Comercial",
+  "padron-ciudadanos": "Padrón de Ciudadanos",
+  "gis": "Georreferenciación (GIS)"
 }

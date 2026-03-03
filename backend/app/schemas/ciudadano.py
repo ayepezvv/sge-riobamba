@@ -58,6 +58,7 @@ class CiudadanoBase(BaseModel):
     tiene_discapacidad: Optional[bool] = False
     porcentaje_discapacidad: Optional[float] = 0.0
     aplica_tercera_edad: Optional[bool] = False
+    is_active: Optional[bool] = True
     
     tipo_empresa: Optional[str] = None
     naturaleza_juridica: Optional[str] = None

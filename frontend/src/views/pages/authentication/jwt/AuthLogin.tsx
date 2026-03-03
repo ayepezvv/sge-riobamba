@@ -41,12 +41,12 @@ export default function JWTLogin({ ...others }) {
 
   const [checked, setChecked] = useState(true);
 
-  const [showContraseña, setShowPassword] = useState(false);
-  const handleClickShowContraseña = () => {
-    setShowContraseña(!showPassword);
+  const [showPassword, setShowPassword] = useState(false);
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
-  const handleMouseDownContraseña = (event: MouseEvent) => {
+  const handleMouseDownPassword = (event: MouseEvent) => {
     event.preventDefault()!;
   };
 
@@ -56,8 +56,8 @@ export default function JWTLogin({ ...others }) {
   return (
     <Formik
       initialValues={{
-        email: 'info@codedthemes.com',
-        password: '123456',
+        email: '',
+        password: '',
         submit: null
       }}
       validationSchema={Yup.object().shape({
@@ -109,7 +109,7 @@ export default function JWTLogin({ ...others }) {
             <InputLabel htmlFor="outlined-adornment-password-login">Contraseña</InputLabel>
             <OutlinedInput
               id="outlined-adornment-password-login"
-              type={showContraseña ? 'text' : 'password'}
+              type={showPassword ? 'text' : 'password'}
               value={values.password}
               name="password"
               onBlur={handleBlur}
@@ -118,12 +118,12 @@ export default function JWTLogin({ ...others }) {
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="toggle password visibility"
-                    onClick={handleClickShowContraseña}
-                    onMouseDown={handleMouseDownContraseña}
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
                     edge="end"
                     size="large"
                   >
-                    {showContraseña ? <Visibility /> : <VisibilityOff />}
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
                 </InputAdornment>
               }

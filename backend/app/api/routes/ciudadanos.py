@@ -65,3 +65,38 @@ def add_referencia(
     db.commit()
     db.refresh(db_item)
     return db_item
+
+@router.put("/{ciudadano_id}", response_model=CiudadanoResponse)
+def update_ciudadano(
+    ciudadano_id: int,
+    item_in: dict, # Using dict directly for dynamic partial update
+    db: Session = Depends(deps.get_db), 
+    current_user: User = Depends(deps.get_current_user)
+):
+    db_item = db.query(Ciudadano).filter(Ciudadano.id == ciudadano_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Ciudadano no encontrado")
+        
+    for field, value in item_in.items():
+        if hasattr(db_item, field) and field != "referencias":
+            setattr(db_item, field, value)
+            
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+@router.patch("/{ciudadano_id}/status", response_model=CiudadanoResponse)
+def toggle_ciudadano_status(
+    ciudadano_id: int, 
+    db: Session = Depends(deps.get_db), 
+    current_user: User = Depends(deps.get_current_user)
+):
+    db_item = db.query(Ciudadano).filter(Ciudadano.id == ciudadano_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Ciudadano no encontrado")
+    
+    db_item.is_active = not db_item.is_active
+    db.commit()
+    db.refresh(db_item)
+    return db_item

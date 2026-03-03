@@ -32,7 +32,8 @@ class Ciudadano(AuditMixin, Base):
     # Beneficios de Ley
     tiene_discapacidad = Column(Boolean, default=False)
     porcentaje_discapacidad = Column(Float, default=0.0)
-    aplica_tercera_edad = Column(Boolean, default=False) # Se validara via backend usando fecha_nacimiento
+    aplica_tercera_edad = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
 
     # Especificos Persona Juridica
     tipo_empresa = Column(String(50), nullable=True) # Publica, Privada
