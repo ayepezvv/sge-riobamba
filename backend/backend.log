@@ -35,3 +35,29 @@ INFO:     192.168.1.21:58397 - "POST /api/roles/ HTTP/1.1" 200 OK
 INFO:     192.168.1.21:58397 - "GET /api/roles/ HTTP/1.1" 200 OK
 INFO:     192.168.1.21:58653 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
 INFO:     192.168.1.21:58653 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:65449 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:65449 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:56697 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:56697 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:59148 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:59148 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:62826 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:62826 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:51060 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:51060 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:51090 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:51090 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:60315 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:60315 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:56921 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:56921 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:54993 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:54993 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:52069 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:52069 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:60876 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:60876 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:61158 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:61158 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:63986 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:63986 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
