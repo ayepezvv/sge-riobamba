@@ -61,7 +61,14 @@ export const JWTProvider = ({ children }: { children: ReactElement }) => {
         if (serviceToken && verifyToken(serviceToken)) {
           setSession(serviceToken);
           const response = await axios.get('/api/users/me');
-          const user = response.data;
+          const rawUser = response.data;
+          const user = {
+            ...rawUser,
+            id: String(rawUser.id),
+            name: `${rawUser.nombres} ${rawUser.apellidos}`,
+            email: rawUser.correo,
+            role: 'Admin'
+          };
           dispatch({
             type: LOGIN,
             payload: {
@@ -74,8 +81,9 @@ export const JWTProvider = ({ children }: { children: ReactElement }) => {
             type: LOGOUT
           });
         }
-      } catch (err) {
-        console.error(err);
+      } catch (err: any) {
+        console.error("JWT Init Error:", err);
+        setSession(null);
         dispatch({
           type: LOGOUT
         });
@@ -96,7 +104,14 @@ export const JWTProvider = ({ children }: { children: ReactElement }) => {
     setSession(serviceToken);
     
     const meResponse = await axios.get('/api/users/me');
-    const user = meResponse.data;
+    const rawUser = meResponse.data;
+    const user = {
+      ...rawUser,
+      id: String(rawUser.id),
+      name: `${rawUser.nombres} ${rawUser.apellidos}`,
+      email: rawUser.correo,
+      role: 'Admin'
+    };
     
     dispatch({
       type: LOGIN,

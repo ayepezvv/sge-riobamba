@@ -1,79 +1,37 @@
-INFO:     Started server process [352802]
+INFO:     Started server process [388774]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     Uvicorn running on http://192.168.1.15:8000 (Press CTRL+C to quit)
-/home/ayepez/.openclaw/workspace/sge/backend/venv/lib/python3.12/site-packages/jwt/api_jwt.py:153: InsecureKeyLengthWarning: The HMAC key is 25 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
-  return self._jws.encode(
-INFO:     192.168.2.142:50305 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50305 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     192.168.1.21:62281 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
 /home/ayepez/.openclaw/workspace/sge/backend/venv/lib/python3.12/site-packages/jwt/api_jwt.py:371: InsecureKeyLengthWarning: The HMAC key is 25 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
   decoded = self.decode_complete(
-INFO:     192.168.2.142:50305 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50312 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50312 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50312 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50312 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50312 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50324 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50324 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50331 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50331 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50331 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50331 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50331 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50339 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50343 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50367 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50387 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50428 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50428 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50428 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50428 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50428 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50433 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50433 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50436 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50436 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50440 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50440 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.2.142:50454 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.2.142:50454 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.21:49338 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     192.168.1.21:49338 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.1.21:49338 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.1.21:49338 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.21:49338 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.21:57061 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.21:57061 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.21:50360 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.21:50360 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.21:58776 - "OPTIONS /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.21:58776 - "GET /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.21:59963 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.21:59963 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.21:64716 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.21:64716 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.21:55922 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.21:55922 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.21:59081 - "OPTIONS /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.21:59082 - "OPTIONS /api/roles/ HTTP/1.1" 200 OK
-INFO:     192.168.1.21:59081 - "GET /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.21:59082 - "GET /api/roles/ HTTP/1.1" 200 OK
-INFO:     192.168.1.21:55287 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.21:55287 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.8:37400 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     192.168.1.8:37400 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.1.8:37400 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.1.8:37400 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.8:37402 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.8:44402 - "OPTIONS /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.8:44414 - "OPTIONS /api/roles/ HTTP/1.1" 200 OK
-INFO:     192.168.1.8:44402 - "GET /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.8:44414 - "GET /api/roles/ HTTP/1.1" 200 OK
-INFO:     192.168.1.8:44414 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.8:44426 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.8:44440 - "OPTIONS /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.8:44440 - "POST /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.8:44440 - "GET /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.21:64839 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.21:64839 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:62281 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.21:62281 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:62281 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:60304 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:60304 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:61908 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:61908 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:58685 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:58685 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:61314 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:61314 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:55515 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.21:55515 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.21:55515 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:55515 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:53819 - "OPTIONS /api/permissions/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:53820 - "OPTIONS /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:53819 - "GET /api/permissions/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:53820 - "GET /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:53819 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:53819 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:54696 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:54696 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:49220 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:49220 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.21:58397 - "OPTIONS /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:58397 - "POST /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:58397 - "GET /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.21:58653 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.21:58653 - "GET /api/menu/widget HTTP/1.1" 404 Not Found

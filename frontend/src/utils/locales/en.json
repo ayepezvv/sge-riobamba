@@ -197,5 +197,6 @@
   "logout": "Logout",
   "more-items": "More Items",
   "admin": "Administración",
-  "user-management": "Gestión de Usuarios"
+  "user-management": "Gestión de Usuarios",
+  "role-management": "Gestión de Roles"
 }

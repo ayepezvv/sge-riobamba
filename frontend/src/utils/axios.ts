@@ -29,7 +29,7 @@ axiosServices.interceptors.response.use(
     if (error.response?.status === 401 && !window.location.href.includes('/login')) {
       window.location.pathname = '/login';
     }
-    return Promise.reject((error.response && error.response.data) || 'Wrong Services');
+    return Promise.reject((error.response && error.response.data) || error || 'Wrong Services');
   }
 );
 

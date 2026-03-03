@@ -12,6 +12,15 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+class UserUpdate(BaseModel):
+    cedula: Optional[str] = None
+    nombres: Optional[str] = None
+    apellidos: Optional[str] = None
+    correo: Optional[EmailStr] = None
+    password: Optional[str] = None
+    is_active: Optional[bool] = None
+    role_id: Optional[int] = None
+
 class UserResponse(UserBase):
     id: int
 

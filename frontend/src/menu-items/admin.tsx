@@ -1,11 +1,12 @@
 // assets
-import { IconUsers } from '@tabler/icons-react';
+import { IconUsers, IconShieldLock } from '@tabler/icons-react';
 
 // types
 import { NavItemType } from 'types';
 
 const icons = {
-  IconUsers: IconUsers
+  IconUsers: IconUsers,
+  IconShieldLock: IconShieldLock
 };
 
 // ==============================|| MENU ITEMS - ADMINISTRACION ||============================== //
@@ -22,6 +23,14 @@ const admin: NavItemType = {
       type: 'item',
       url: '/usuarios',
       icon: icons.IconUsers,
+      breadcrumbs: false
+    },
+    {
+      id: 'role-management',
+      title: 'role-management',
+      type: 'item',
+      url: '/roles',
+      icon: icons.IconShieldLock,
       breadcrumbs: false
     }
   ]
