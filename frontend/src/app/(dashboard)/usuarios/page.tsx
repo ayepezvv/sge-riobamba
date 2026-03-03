@@ -1,53 +1,64 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { useEffect, useState, MouseEvent } from 'react';
+import { useTheme } from '@mui/material/styles';
 import { 
   Chip, Box, Button, Dialog, DialogTitle, DialogContent, DialogContentText,
   DialogActions, TextField, FormControl, InputLabel, 
-  Select, MenuItem, Snackbar, Alert, IconButton, Tooltip 
+  Select, MenuItem, Snackbar, Alert, Typography,
+  Grid, Card, CardContent, Avatar, Menu, IconButton, Tooltip
 } from '@mui/material';
+
+// Icons
 import EditIcon from '@mui/icons-material/Edit';
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
+import EmailTwoToneIcon from '@mui/icons-material/EmailTwoTone';
+import ChatBubbleTwoToneIcon from '@mui/icons-material/ChatBubbleTwoTone';
+import PhoneTwoToneIcon from '@mui/icons-material/PhoneTwoTone';
+import AddIcon from '@mui/icons-material/Add';
+
 import MainCard from 'ui-component/cards/MainCard';
 import axios from 'utils/axios';
 
-// ==============================|| GESTIÓN DE USUARIOS ||============================== //
+const initialFormData = {
+  cedula: '',
+  nombres: '',
+  apellidos: '',
+  correo: '',
+  password: '',
+  role_id: ''
+};
+
+// ==============================|| GESTIÓN DE USUARIOS (CARD VIEW) ||============================== //
 
 export default function UsuariosPage() {
+  const theme = useTheme();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
-  const [loading, setLoading] = useState(true);
   
-  // Modal state (Create / Edit)
+  // UI State
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({
-    cedula: '',
-    nombres: '',
-    apellidos: '',
-    correo: '',
-    password: '',
-    role_id: ''
-  });
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
 
-  // Modal confirmación (Status Toggle)
+  // Dialog State (Desactivar)
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedUserForStatus, setSelectedUserForStatus] = useState<any>(null);
 
-  // Snackbar state
-  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
+  // Form State
+  const [formData, setFormData] = useState({ ...initialFormData });
+
+  // Menu State para las tarjetas
+  const [anchorEl, setAnchorEl] = useState<{ [key: number]: HTMLElement | null }>({});
 
   const fetchUsers = async () => {
-    setLoading(true);
     try {
       const response = await axios.get('/api/users/');
       setUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -67,18 +78,19 @@ export default function UsuariosPage() {
 
   const handleOpenNew = () => {
     setEditingId(null);
-    setFormData({ cedula: '', nombres: '', apellidos: '', correo: '', password: '', role_id: '' });
+    setFormData({ ...initialFormData });
     setOpen(true);
   };
 
   const handleOpenEdit = (user: any) => {
+    handleMenuClose(user.id);
     setEditingId(user.id);
     setFormData({
       cedula: user.cedula,
       nombres: user.nombres,
       apellidos: user.apellidos,
       correo: user.correo,
-      password: '', // Blank password on edit means it won't be updated unless typed
+      password: '', // Blank password on edit means it won't be updated
       role_id: user.role_id ? user.role_id.toString() : ''
     });
     setOpen(true);
@@ -86,7 +98,7 @@ export default function UsuariosPage() {
   
   const handleClose = () => {
     setOpen(false);
-    setFormData({ cedula: '', nombres: '', apellidos: '', correo: '', password: '', role_id: '' });
+    setFormData({ ...initialFormData });
   };
 
   const handleChange = (e: any) => {
@@ -102,20 +114,18 @@ export default function UsuariosPage() {
       };
 
       if (editingId) {
-        // Edit Mode: remove password if empty to avoid overriding with blank
         if (!payload.password) {
           delete payload.password;
         }
         await axios.put(`/api/users/${editingId}`, payload);
         setToast({ open: true, message: 'Usuario actualizado exitosamente', severity: 'success' });
       } else {
-        // Create Mode
         await axios.post('/api/users/', payload);
         setToast({ open: true, message: 'Usuario creado exitosamente', severity: 'success' });
       }
       
       handleClose();
-      fetchUsers(); // Refresh grid reactively
+      fetchUsers();
     } catch (error: any) {
       console.error("Error saving user:", error);
       const errorMsg = error.response?.data?.detail || 'Error al guardar usuario. Verifica los datos.';
@@ -124,6 +134,7 @@ export default function UsuariosPage() {
   };
 
   const handleToggleStatusClick = (user: any) => {
+    handleMenuClose(user.id);
     setSelectedUserForStatus(user);
     setConfirmOpen(true);
   };
@@ -142,76 +153,107 @@ export default function UsuariosPage() {
     }
   };
 
-  const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'cedula', headerName: 'Cédula', width: 130 },
-    { field: 'nombres', headerName: 'Nombres', flex: 1, minWidth: 150 },
-    { field: 'apellidos', headerName: 'Apellidos', flex: 1, minWidth: 150 },
-    { field: 'correo', headerName: 'Correo', flex: 1, minWidth: 200 },
-    { 
-      field: 'is_active', 
-      headerName: 'Estado', 
-      width: 130,
-      renderCell: (params) => {
-        return params.value ? (
-          <Chip label="Activo" color="success" size="small" />
-        ) : (
-          <Chip label="Inactivo" color="error" size="small" />
-        );
-      }
-    },
-    {
-      field: 'acciones',
-      headerName: 'Acciones',
-      width: 150,
-      sortable: false,
-      renderCell: (params) => {
-        const isActive = params.row.is_active;
-        return (
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title="Editar">
-              <IconButton color="primary" onClick={() => handleOpenEdit(params.row)}>
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={isActive ? "Desactivar" : "Activar"}>
-              <IconButton 
-                color={isActive ? "error" : "success"} 
-                onClick={() => handleToggleStatusClick(params.row)}
-              >
-                {isActive ? <BlockIcon /> : <CheckCircleOutlineIcon />}
-              </IconButton>
-            </Tooltip>
-          </Box>
-        );
-      }
-    }
-  ];
+  const handleMenuClick = (event: MouseEvent<HTMLElement>, userId: number) => {
+    setAnchorEl({ ...anchorEl, [userId]: event.currentTarget });
+  };
+
+  const handleMenuClose = (userId: number) => {
+    setAnchorEl({ ...anchorEl, [userId]: null });
+  };
 
   return (
     <MainCard 
       title="Gestión de Personal"
       secondary={
-        <Button variant="contained" color="secondary" onClick={handleOpenNew}>
-          + Nuevo Usuario
+        <Button variant="contained" color="secondary" startIcon={<AddIcon />} onClick={handleOpenNew}>
+          Nuevo Usuario
         </Button>
       }
     >
-      <Box sx={{ height: 400, width: '100%', mt: 2 }}>
-        <DataGrid
-          rows={users}
-          columns={columns}
-          loading={loading}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
-            },
-          }}
-          pageSizeOptions={[5, 10, 25]}
-          checkboxSelection
-          disableRowSelectionOnClick
-        />
-      </Box>
+      <Grid container spacing={3} sx={{ mt: 1 }}>
+        {users.map((user: any) => {
+          const isActive = user.is_active;
+          const roleName = roles.find((r: any) => r.id === user.role_id)?.nombre_rol || 'Sin Rol';
+
+          return (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={user.id}>
+              <Card sx={{ 
+                bgcolor: theme.palette.mode === 'dark' ? 'dark.main' : 'background.paper', 
+                border: '1px solid', 
+                borderColor: 'divider',
+                textAlign: 'center',
+                pt: 3,
+                pb: 2,
+                position: 'relative'
+              }}>
+                <IconButton
+                  size="small"
+                  sx={{ position: 'absolute', right: 8, top: 8 }}
+                  onClick={(e) => handleMenuClick(e, user.id)}
+                >
+                  <MoreVertTwoToneIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl[user.id]}
+                  keepMounted
+                  open={Boolean(anchorEl[user.id])}
+                  onClose={() => handleMenuClose(user.id)}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                  <MenuItem onClick={() => handleOpenEdit(user)}>
+                    <EditIcon sx={{ mr: 1.5, fontSize: '1.25rem' }} /> Editar
+                  </MenuItem>
+                  <MenuItem onClick={() => handleToggleStatusClick(user)} sx={{ color: isActive ? 'error.main' : 'success.main' }}>
+                    {isActive ? <BlockIcon sx={{ mr: 1.5, fontSize: '1.25rem' }} /> : <CheckCircleOutlineIcon sx={{ mr: 1.5, fontSize: '1.25rem' }} />}
+                    {isActive ? 'Bloquear' : 'Activar'}
+                  </MenuItem>
+                </Menu>
+
+                <CardContent sx={{ p: 0, pb: '0 !important' }}>
+                  <Avatar
+                    sx={{
+                      width: 72,
+                      height: 72,
+                      m: '0 auto',
+                      bgcolor: isActive ? theme.palette.secondary.light : theme.palette.grey[300],
+                      color: isActive ? theme.palette.secondary.dark : theme.palette.grey[600]
+                    }}
+                  >
+                    {user.nombres.charAt(0)}{user.apellidos.charAt(0)}
+                  </Avatar>
+                  <Typography variant="h4" sx={{ mt: 2 }}>{user.nombres} {user.apellidos}</Typography>
+                  <Typography variant="caption" color="textSecondary" sx={{ mb: 1, display: 'block' }}>{user.cedula}</Typography>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, my: 1.5 }}>
+                    <Chip label={roleName} size="small" variant="outlined" color="primary" />
+                    <Chip label={isActive ? 'Activo' : 'Inactivo'} size="small" color={isActive ? 'success' : 'error'} />
+                  </Box>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 2, px: 2 }}>
+                    <EmailTwoToneIcon color="secondary" fontSize="small" />
+                    <Typography variant="body2" noWrap>{user.correo}</Typography>
+                  </Box>
+
+                  {/* Future Omnichannel Integration */}
+                  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                    <Tooltip title="Mensaje Interno (Próximamente)">
+                      <IconButton color="secondary" size="small">
+                        <ChatBubbleTwoToneIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Llamada (Próximamente)">
+                      <IconButton color="secondary" size="small">
+                        <PhoneTwoToneIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
+      </Grid>
 
       {/* Modal de Creación / Edición */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
@@ -285,12 +327,7 @@ export default function UsuariosPage() {
         onClose={() => setToast({ ...toast, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert 
-          onClose={() => setToast({ ...toast, open: false })} 
-          severity={toast.severity as any} 
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={() => setToast({ ...toast, open: false })} severity={toast.severity as any} variant="filled" sx={{ width: '100%' }}>
           {toast.message}
         </Alert>
       </Snackbar>
