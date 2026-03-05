@@ -25,3 +25,6 @@ docker-compose.override.yml
 .idea/
 .vscode/
 *.swp
+
+# Backups permitidos
+!db_backups/sge_replica_inicial.sql
