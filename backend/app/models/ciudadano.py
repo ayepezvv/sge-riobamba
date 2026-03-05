@@ -6,6 +6,7 @@ from app.models.mixins import AuditMixin
 
 class Ciudadano(AuditMixin, Base):
     __tablename__ = "ciudadanos"
+    __table_args__ = {"schema": "catastro"}
 
     id = Column(Integer, primary_key=True, index=True)
     tipo_persona = Column(String(20), nullable=False) # 'Natural', 'Juridica'
@@ -45,9 +46,10 @@ class Ciudadano(AuditMixin, Base):
 
 class ReferenciaCiudadano(AuditMixin, Base):
     __tablename__ = "referencias_ciudadanos"
+    __table_args__ = {"schema": "catastro"}
 
     id = Column(Integer, primary_key=True, index=True)
-    ciudadano_id = Column(Integer, ForeignKey("ciudadanos.id", ondelete="CASCADE"), nullable=False)
+    ciudadano_id = Column(Integer, ForeignKey("catastro.ciudadanos.id", ondelete="CASCADE"), nullable=False)
     tipo_referencia = Column(String(50), nullable=False) # Conyuge, Representante Legal, Referencia Familiar, Referencia Personal
     nombres = Column(String(100), nullable=False)
     apellidos = Column(String(100), nullable=False)

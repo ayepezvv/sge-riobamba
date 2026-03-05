@@ -9,12 +9,13 @@ from app.models.mixins import AuditMixin
 # =====================================================================
 class Predio(AuditMixin, Base):
     __tablename__ = "predios"
+    __table_args__ = {"schema": "comercial"}
 
     id = Column(Integer, primary_key=True, index=True)
     clave_catastral = Column(String(50), unique=True, index=True, nullable=False)
-    barrio_id = Column(Integer, ForeignKey("barrios.id", ondelete="SET NULL"), nullable=True)
-    calle_principal_id = Column(Integer, ForeignKey("calles.id", ondelete="SET NULL"), nullable=True)
-    calle_secundaria_id = Column(Integer, ForeignKey("calles.id", ondelete="SET NULL"), nullable=True)
+    barrio_id = Column(Integer, ForeignKey("catastro.barrios.id", ondelete="SET NULL"), nullable=True)
+    calle_principal_id = Column(Integer, ForeignKey("catastro.calles.id", ondelete="SET NULL"), nullable=True)
+    calle_secundaria_id = Column(Integer, ForeignKey("catastro.calles.id", ondelete="SET NULL"), nullable=True)
     numero_casa = Column(String(50), nullable=True)
     foto_fachada = Column(String(255), nullable=True)
     croquis = Column(String(255), nullable=True)
@@ -28,10 +29,11 @@ class Predio(AuditMixin, Base):
 
 class Acometida(AuditMixin, Base):
     __tablename__ = "acometidas"
+    __table_args__ = {"schema": "comercial"}
 
     id = Column(Integer, primary_key=True, index=True)
-    predio_id = Column(Integer, ForeignKey("predios.id", ondelete="CASCADE"), nullable=False)
-    ruta_id = Column(Integer, ForeignKey("rutas.id", ondelete="RESTRICT"), nullable=True)
+    predio_id = Column(Integer, ForeignKey("comercial.predios.id", ondelete="CASCADE"), nullable=False)
+    ruta_id = Column(Integer, ForeignKey("catastro.rutas.id", ondelete="RESTRICT"), nullable=True)
     diametro = Column(Float, nullable=True) # Ej: 0.5, 0.75 pulgadas
     material = Column(String(50), nullable=True) # Ej: PVC, Cobre
     
@@ -48,13 +50,14 @@ class Acometida(AuditMixin, Base):
 # =====================================================================
 class Cuenta(AuditMixin, Base):
     __tablename__ = "cuentas"
+    __table_args__ = {"schema": "comercial"}
 
     id = Column(Integer, primary_key=True, index=True)
-    acometida_id = Column(Integer, ForeignKey("acometidas.id", ondelete="RESTRICT"), nullable=False)
+    acometida_id = Column(Integer, ForeignKey("comercial.acometidas.id", ondelete="RESTRICT"), nullable=False)
     
     # Separacion de roles (Dualidad Ciudadano)
-    propietario_id = Column(Integer, ForeignKey("ciudadanos.id", ondelete="RESTRICT"), nullable=False)
-    responsable_pago_id = Column(Integer, ForeignKey("ciudadanos.id", ondelete="RESTRICT"), nullable=False)
+    propietario_id = Column(Integer, ForeignKey("catastro.ciudadanos.id", ondelete="RESTRICT"), nullable=False)
+    responsable_pago_id = Column(Integer, ForeignKey("catastro.ciudadanos.id", ondelete="RESTRICT"), nullable=False)
 
     # Logistica
     secuencial_lectura = Column(Integer, nullable=True) # Vital para el orden de la ruta mensual
@@ -77,6 +80,7 @@ class Cuenta(AuditMixin, Base):
 # =====================================================================
 class Medidor(AuditMixin, Base):
     __tablename__ = "medidores"
+    __table_args__ = {"schema": "comercial"}
 
     id = Column(Integer, primary_key=True, index=True)
     marca = Column(String(50), nullable=True)
@@ -89,10 +93,11 @@ class Medidor(AuditMixin, Base):
 
 class HistorialMedidorCuenta(AuditMixin, Base):
     __tablename__ = "historial_medidor_cuenta"
+    __table_args__ = {"schema": "comercial"}
 
     id = Column(Integer, primary_key=True, index=True)
-    cuenta_id = Column(Integer, ForeignKey("cuentas.id", ondelete="CASCADE"), nullable=False)
-    medidor_id = Column(Integer, ForeignKey("medidores.id", ondelete="RESTRICT"), nullable=False)
+    cuenta_id = Column(Integer, ForeignKey("comercial.cuentas.id", ondelete="CASCADE"), nullable=False)
+    medidor_id = Column(Integer, ForeignKey("comercial.medidores.id", ondelete="RESTRICT"), nullable=False)
     
     fecha_instalacion = Column(Date, nullable=False)
     fecha_retiro = Column(Date, nullable=True)
@@ -107,9 +112,10 @@ class HistorialMedidorCuenta(AuditMixin, Base):
 
 class HistorialTarifaCuenta(AuditMixin, Base):
     __tablename__ = "historial_tarifa_cuenta"
+    __table_args__ = {"schema": "comercial"}
 
     id = Column(Integer, primary_key=True, index=True)
-    cuenta_id = Column(Integer, ForeignKey("cuentas.id", ondelete="CASCADE"), nullable=False)
+    cuenta_id = Column(Integer, ForeignKey("comercial.cuentas.id", ondelete="CASCADE"), nullable=False)
     
     tipo_tarifa = Column(String(50), nullable=False) # Residencial, Comercial, Industrial, etc.
     

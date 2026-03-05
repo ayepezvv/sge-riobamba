@@ -1,8 +1,8 @@
-"""Add foto_fachada a Predio
+"""Initial Navicat Schemas V3
 
-Revision ID: 8a8394d0a2f8
-Revises: aa1f73fc182c
-Create Date: 2026-03-03 04:05:56.318053
+Revision ID: 0c98f2cd13eb
+Revises: 
+Create Date: 2026-03-05 17:21:11.063388
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '8a8394d0a2f8'
-down_revision: Union[str, Sequence[str], None] = 'aa1f73fc182c'
+revision: str = '0c98f2cd13eb'
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

@@ -6,6 +6,7 @@ from app.models.mixins import AuditMixin
 
 class Red(AuditMixin, Base):
     __tablename__ = "redes"
+    __table_args__ = {"schema": "catastro"}
 
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), unique=True, nullable=False)
@@ -16,9 +17,10 @@ class Red(AuditMixin, Base):
 
 class Sector(AuditMixin, Base):
     __tablename__ = "sectores"
+    __table_args__ = {"schema": "catastro"}
 
     id = Column(Integer, primary_key=True, index=True)
-    red_id = Column(Integer, ForeignKey("redes.id", ondelete="CASCADE"), nullable=False)
+    red_id = Column(Integer, ForeignKey("catastro.redes.id", ondelete="CASCADE"), nullable=False)
     nombre = Column(String(100), nullable=False)
     codigo_sector = Column(String(50), unique=True, index=True, nullable=False)
 
@@ -28,9 +30,10 @@ class Sector(AuditMixin, Base):
 
 class Ruta(AuditMixin, Base):
     __tablename__ = "rutas"
+    __table_args__ = {"schema": "catastro"}
 
     id = Column(Integer, primary_key=True, index=True)
-    sector_id = Column(Integer, ForeignKey("sectores.id", ondelete="CASCADE"), nullable=False)
+    sector_id = Column(Integer, ForeignKey("catastro.sectores.id", ondelete="CASCADE"), nullable=False)
     nombre = Column(String(100), nullable=False)
     codigo_ruta = Column(String(50), unique=True, index=True, nullable=False)
 
@@ -39,6 +42,7 @@ class Ruta(AuditMixin, Base):
 
 class Barrio(AuditMixin, Base):
     __tablename__ = "barrios"
+    __table_args__ = {"schema": "catastro"}
 
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(150), nullable=False, index=True)
@@ -47,6 +51,7 @@ class Barrio(AuditMixin, Base):
 
 class Calle(AuditMixin, Base):
     __tablename__ = "calles"
+    __table_args__ = {"schema": "catastro"}
 
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(200), nullable=False, index=True)

@@ -1,8 +1,53 @@
-INFO:     Started server process [568776]
+INFO:     Started server process [917998]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     192.168.1.18:64877 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:64877 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:64880 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:64880 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:62420 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
+/home/ayepez/.openclaw/workspace/sge/backend/venv/lib/python3.12/site-packages/jwt/api_jwt.py:371: InsecureKeyLengthWarning: The HMAC key is 25 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+  decoded = self.decode_complete(
+INFO:     192.168.1.18:62420 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62420 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62420 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62420 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62420 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:62420 - "OPTIONS /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62420 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62420 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:62420 - "OPTIONS /api/users/ HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62421 - "OPTIONS /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62420 - "GET /api/users/ HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62421 - "GET /api/roles/ HTTP/1.1" 200 OK
+INFO:     192.168.1.18:50761 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:50761 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:50761 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:50761 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:50765 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:50765 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:50771 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:50771 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:58664 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:58664 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:62504 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62504 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:53469 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:53469 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:60444 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:60444 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+/home/ayepez/.openclaw/workspace/sge/backend/venv/lib/python3.12/site-packages/jwt/api_jwt.py:153: InsecureKeyLengthWarning: The HMAC key is 25 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+  return self._jws.encode(
+INFO:     192.168.1.18:62948 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62948 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62948 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62948 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:62948 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:64871 - "OPTIONS /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.18:64871 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.18:64871 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:50360 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:57694 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:57696 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:57696 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:53895 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:64965 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.18:64965 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.18:62485 - "GET /api/menu/widget HTTP/1.1" 404 Not Found

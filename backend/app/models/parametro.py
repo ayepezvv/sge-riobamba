@@ -4,6 +4,7 @@ from app.models.mixins import AuditMixin
 
 class ParametroSistema(AuditMixin, Base):
     __tablename__ = "parametros_sistema"
+    __table_args__ = {"schema": "core"}
 
     id = Column(Integer, primary_key=True, index=True)
     clave = Column(String(100), unique=True, index=True, nullable=False)

@@ -4,6 +4,7 @@ from app.db.base_class import Base
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = {"schema": "administracion"}
 
     id = Column(Integer, primary_key=True, index=True)
     cedula = Column(String(20), unique=True, index=True, nullable=False)
@@ -14,5 +15,5 @@ class User(Base):
     is_active = Column(Boolean, default=True)
 
     # Relación M:1 con Roles
-    role_id = Column(Integer, ForeignKey("roles.id", ondelete="SET NULL"), nullable=True)
+    role_id = Column(Integer, ForeignKey("administracion.roles.id", ondelete="SET NULL"), nullable=True)
     role = relationship("Role", back_populates="users")

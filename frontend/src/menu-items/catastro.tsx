@@ -1,11 +1,12 @@
 // assets
-import { IconAddressBook } from '@tabler/icons-react';
+import { IconAddressBook, IconMapPin } from '@tabler/icons-react';
 
 // types
 import { NavItemType } from 'types';
 
 const icons = {
-  IconAddressBook: IconAddressBook
+  IconAddressBook: IconAddressBook,
+  IconMapPin: IconMapPin
 };
 
 const catastro: NavItemType = {

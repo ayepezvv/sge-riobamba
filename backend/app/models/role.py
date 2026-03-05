@@ -6,12 +6,14 @@ from app.db.base_class import Base
 role_permission = Table(
     "role_permission",
     Base.metadata,
-    Column("role_id", Integer, ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
-    Column("permission_id", Integer, ForeignKey("permissions.id", ondelete="CASCADE"), primary_key=True)
+    Column("role_id", Integer, ForeignKey("administracion.roles.id", ondelete="CASCADE"), primary_key=True),
+    Column("permission_id", Integer, ForeignKey("administracion.permissions.id", ondelete="CASCADE"), primary_key=True),
+    schema="administracion"
 )
 
 class Role(Base):
     __tablename__ = "roles"
+    __table_args__ = {"schema": "administracion"}
 
     id = Column(Integer, primary_key=True, index=True)
     nombre_rol = Column(String(50), unique=True, index=True, nullable=False)
