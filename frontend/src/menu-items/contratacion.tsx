@@ -1,11 +1,11 @@
 // assets
-import { IconBriefcase, IconFileAnalytics } from '@tabler/icons-react';
+import { IconBriefcase, IconFileAnalytics, IconSettings } from '@tabler/icons-react';
 
 // types
 import { NavItemType } from 'types';
 
 const icons = {
-  IconBriefcase, IconFileAnalytics
+  IconBriefcase, IconFileAnalytics, IconSettings
 };
 
 const contratacion: NavItemType = {
@@ -20,6 +20,14 @@ const contratacion: NavItemType = {
       type: 'item',
       url: '/contratacion/procesos',
       icon: icons.IconFileAnalytics,
+      breadcrumbs: false
+    },
+    {
+      id: 'admin-plantillas',
+      title: 'admin-plantillas',
+      type: 'item',
+      url: '/contratacion/administracion',
+      icon: icons.IconSettings,
       breadcrumbs: false
     }
   ]

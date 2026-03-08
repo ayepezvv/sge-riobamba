@@ -9,21 +9,14 @@
    - Environments: .env.local, .env
 
  ✓ Starting...
- ✓ Ready in 2.2s
+ ✓ Ready in 2.1s
  ⚠ Cross origin request detected from 192.168.1.15 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
 Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
- ○ Compiling /catastro/ciudadanos ...
-redux-persist failed to create sync storage. falling back to noop storage.
- GET /catastro/ciudadanos 200 in 19.3s (compile: 18.0s, render: 1250ms)
- GET /catastro/ciudadanos 200 in 19.3s (compile: 18.2s, render: 1092ms)
- GET /catastro/ciudadanos 200 in 77ms (compile: 9ms, render: 68ms)
- GET /catastro/ciudadanos 200 in 148ms (compile: 8ms, render: 141ms)
  ○ Compiling / ...
- GET / 200 in 7.9s (compile: 7.6s, render: 281ms)
- GET /login 200 in 2.6s (compile: 2.3s, render: 263ms)
- GET /dashboard/default 200 in 2.6s (compile: 2.5s, render: 67ms)
- GET /widget/statistics 200 in 2.5s (compile: 2.2s, render: 333ms)
- ○ Compiling /contratacion/procesos ...
- GET /contratacion/procesos 200 in 7.2s (compile: 7.2s, render: 54ms)
- ○ Compiling /contratacion/procesos/[id] ...
- GET /contratacion/procesos/1 200 in 4.1s (compile: 4.1s, render: 74ms)
+redux-persist failed to create sync storage. falling back to noop storage.
+ GET / 200 in 25.0s (compile: 23.3s, render: 1702ms)
+ GET / 200 in 4.8s (compile: 4.3s, render: 479ms)
+ GET / 200 in 4.9s (compile: 4.4s, render: 431ms)
+ GET / 200 in 4.9s (compile: 4.5s, render: 375ms)
+ GET / 200 in 5.0s (compile: 4.7s, render: 336ms)
+ GET /contratacion/administracion 200 in 25.0s (compile: 23.0s, render: 1949ms)
