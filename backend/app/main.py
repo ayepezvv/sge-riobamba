@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import auth, users, roles, permissions, parametros, territorio, ciudadanos, comercial
+from app.api.routes import auth, users, roles, permissions, parametros, territorio, ciudadanos, comercial, contratacion
 
 app = FastAPI(
     title="SGE API",
@@ -29,4 +29,5 @@ app.include_router(parametros.router, prefix="/api/parametros", tags=["parametro
 app.include_router(territorio.router, prefix="/api/territorio", tags=["territorio"])
 app.include_router(ciudadanos.router, prefix="/api/ciudadanos", tags=["ciudadanos"])
 app.include_router(comercial.router, prefix="/api/comercial", tags=["comercial"])
+app.include_router(contratacion.router, prefix="/api/contratacion", tags=["contratacion"])
 

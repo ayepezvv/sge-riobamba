@@ -21,7 +21,7 @@ def include_object(object, name, type_, reflected, compare_to):
             "users", "roles", "permissions", "role_permission", "audit_logs", 
             "redes", "sectores", "rutas", "barrios", "calles", "parametros_sistema", 
             "ciudadanos", "referencias_ciudadanos",
-            "predios", "acometidas", "cuentas", "medidores", "historial_medidor_cuenta", "historial_tarifa_cuenta"
+            "predios", "acometidas", "cuentas", "medidores", "historial_medidor_cuenta", "historial_tarifa_cuenta", "tipo_proceso", "plantilla_documento", "proceso_contratacion", "documento_generado"
         ]:
             return True
         return False
@@ -29,7 +29,7 @@ def include_object(object, name, type_, reflected, compare_to):
 
 def include_name(name, type_, parent_names):
     if type_ == "schema":
-        return name in [None, "public", "administracion", "catastro", "comercial", "core"]
+        return name in [None, "public", "administracion", "catastro", "comercial", "core", "contratacion"]
     return True
 
 def run_migrations_offline() -> None:

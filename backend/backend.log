@@ -1,53 +1,46 @@
-INFO:     Started server process [917998]
+INFO:     Started server process [1377331]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     192.168.1.18:62420 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.8:64106 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
 /home/ayepez/.openclaw/workspace/sge/backend/venv/lib/python3.12/site-packages/jwt/api_jwt.py:371: InsecureKeyLengthWarning: The HMAC key is 25 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
   decoded = self.decode_complete(
-INFO:     192.168.1.18:62420 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62420 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62420 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62420 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62420 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:62420 - "OPTIONS /api/ciudadanos/ HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62420 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62420 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:62420 - "OPTIONS /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62421 - "OPTIONS /api/roles/ HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62420 - "GET /api/users/ HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62421 - "GET /api/roles/ HTTP/1.1" 200 OK
-INFO:     192.168.1.18:50761 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:50761 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:50761 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:50761 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:50765 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:50765 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:50771 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:50771 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:58664 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:58664 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:62504 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62504 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:53469 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:53469 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:60444 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:60444 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-/home/ayepez/.openclaw/workspace/sge/backend/venv/lib/python3.12/site-packages/jwt/api_jwt.py:153: InsecureKeyLengthWarning: The HMAC key is 25 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
-  return self._jws.encode(
-INFO:     192.168.1.18:62948 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62948 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62948 - "GET /api/users/me HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62948 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:62948 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:64871 - "OPTIONS /api/ciudadanos/ HTTP/1.1" 200 OK
-INFO:     192.168.1.18:64871 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
-INFO:     192.168.1.18:64871 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:50360 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:57694 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:57696 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:57696 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:53895 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:64965 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
-INFO:     192.168.1.18:64965 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
-INFO:     192.168.1.18:62485 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:64106 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.8:64106 - "OPTIONS /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.8:53646 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:64106 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.8:59639 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:54043 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:58350 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:53690 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.8:53690 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:60870 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.8:54877 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:49667 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:64872 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:63643 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:54281 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.8:54281 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:60187 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.8:60187 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:61506 - "GET /api/ciudadanos/ HTTP/1.1" 200 OK
+INFO:     192.168.1.8:49925 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:57150 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.8:56265 - "GET /api/users/me HTTP/1.1" 200 OK
+INFO:     192.168.1.8:56265 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:52502 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:51867 - "OPTIONS /api/contratacion/procesos HTTP/1.1" 200 OK
+INFO:     192.168.1.8:51867 - "GET /api/contratacion/procesos HTTP/1.1" 200 OK
+INFO:     192.168.1.8:51867 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:58945 - "OPTIONS /api/contratacion/procesos HTTP/1.1" 200 OK
+INFO:     192.168.1.8:58945 - "POST /api/contratacion/procesos HTTP/1.1" 200 OK
+INFO:     192.168.1.8:58945 - "GET /api/contratacion/procesos HTTP/1.1" 200 OK
+INFO:     192.168.1.8:60768 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:60768 - "OPTIONS /api/contratacion/procesos/1 HTTP/1.1" 200 OK
+INFO:     192.168.1.8:50967 - "OPTIONS /api/contratacion/plantillas HTTP/1.1" 200 OK
+INFO:     192.168.1.8:60768 - "GET /api/contratacion/procesos/1 HTTP/1.1" 200 OK
+INFO:     192.168.1.8:50967 - "GET /api/contratacion/plantillas HTTP/1.1" 200 OK
+INFO:     192.168.1.8:50504 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:53814 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
+INFO:     192.168.1.8:52257 - "OPTIONS /api/menu/widget HTTP/1.1" 200 OK
+INFO:     192.168.1.8:52257 - "GET /api/menu/widget HTTP/1.1" 404 Not Found
