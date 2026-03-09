@@ -5,6 +5,7 @@ import os
 import time
 import shutil
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi.responses import FileResponse
 from docxtpl import DocxTemplate
 
 from app.api import deps
@@ -20,21 +21,41 @@ from app.schemas.contratacion import (
 router = APIRouter()
 
 def get_render_data(doc, req_datos):
-    datos_para_render = req_datos.copy()
     from docxtpl import InlineImage
     from docx.shared import Mm
     import base64
     import io
-    for key, val in req_datos.items():
+
+    def procesar_valor(val):
+        # Si es un string base64 de imagen
         if isinstance(val, str) and val.startswith("data:image"):
             try:
                 header, encoded = val.split(",", 1)
                 image_data = base64.b64decode(encoded)
                 image_stream = io.BytesIO(image_data)
-                datos_para_render[key] = InlineImage(doc, image_stream, width=Mm(60))
-            except Exception as e:
-                pass
-    return datos_para_render
+                return InlineImage(doc, image_stream, width=Mm(50))
+            except Exception:
+                return val
+        # Si es una lista (para tablas dinamicas), aplicar recursividad
+        elif isinstance(val, list):
+            nueva_lista = []
+            for item in val:
+                if isinstance(item, dict):
+                    nueva_lista.append(procesar_valor(item))
+                else:
+                    nueva_lista.append(item)
+            return nueva_lista
+        # Si es un diccionario
+        elif isinstance(val, dict):
+            nuevo_dict = {}
+            for k, v in val.items():
+                nuevo_dict[k] = procesar_valor(v)
+            return nuevo_dict
+        
+        # Cualquier otra cosa se queda igual
+        return val
+
+    return procesar_valor(req_datos)
 
 
 # ----- PROCESOS DE CONTRATACIÓN -----
@@ -151,52 +172,108 @@ def get_plantilla_esquema(id: int, db: Session = Depends(deps.get_db), current_u
     plantilla = db.query(PlantillaDocumento).filter(PlantillaDocumento.id == id).first()
     if not plantilla:
         raise HTTPException(404, "Plantilla no encontrada")
+        
     if not os.path.exists(plantilla.ruta_archivo_docx):
         raise HTTPException(400, "El archivo fisico no existe")
+        
     import docx
     import re
     try:
         doc_docx = docx.Document(plantilla.ruta_archivo_docx)
         texto_completo = ""
+        
         for p in doc_docx.paragraphs:
             texto_completo += p.text + "\n"
         for table in doc_docx.tables:
             for row in table.rows:
                 for cell in row.cells:
                     texto_completo += cell.text + "\n"
-                    
-        # Extraer variables y bucles manteniendo el orden
-        pattern = r'({{\s*(\w+)\s*}}|{%\s*(?:tr\s+|p\s+)?for\s+\w+\s+in\s+(\w+)\s*%})'
-        matches = list(re.finditer(pattern, texto_completo))
+        # Extraer texto de encabezados y pies de pagina en todas sus variantes
+        for section in doc_docx.sections:
+            elementos_hf = [
+                section.header, section.first_page_header, section.even_page_header,
+                section.footer, section.first_page_footer, section.even_page_footer
+            ]
+            for hf in elementos_hf:
+                if hf:
+                    for p in hf.paragraphs:
+                        texto_completo += p.text + "\n"
+                    for table in hf.tables:
+                        for row in table.rows:
+                            for cell in row.cells:
+                                texto_completo += cell.text + "\n"
+
         
-        seen = set()
-        esquema = []
+        # 1. Buscar todos los bucles y sus iteradores
+        patron_bucle = r'{%\s*(?:tr\s+|p\s+)?for\s+(\w+)\s+in\s+(\w+)\s*%}'
+        bucles_encontrados = re.findall(patron_bucle, texto_completo)
+        mapa_iteradores = {iterador: nombre_lista for iterador, nombre_lista in bucles_encontrados}
+        
+        # 2. Buscar todas las variables con finditer para preservar el orden y sacar contexto
+        patron_vars = r'\{\{\s*([\w.]+)\s*\}\}'
+        matches = list(re.finditer(patron_vars, texto_completo))
+        
+        esquema_dict = {} # Preserva orden de insercion en Python 3.7+
+        tablas_dict = {} # Preserva sub_atributos ordenados
+        
         for match in matches:
-            full_match = match.group(1)
-            var_name = match.group(2) or match.group(3)
+            var_raw = match.group(1)
             
-            if not var_name or var_name in seen:
+            # Omitir variables internas de jinja2 (ej: loop.index)
+            if 'loop' in var_raw.lower():
                 continue
-            seen.add(var_name)
-            
+                
+            # Extraer contexto (40 chars)
             start_pos = max(0, match.start() - 40)
             end_pos = min(len(texto_completo), match.end() + 40)
-            contexto = "..." + texto_completo[start_pos:match.start()].replace('\n', ' ').strip() + f" [ {var_name} ] " + texto_completo[match.end():end_pos].replace('\n', ' ').strip() + "..."
+            contexto = "..." + texto_completo[start_pos:match.start()].replace('\n', ' ').strip() + f" [ {var_raw} ] " + texto_completo[match.end():end_pos].replace('\n', ' ').strip() + "..."
             
-            if var_name.startswith("img_"):
-                tipo = "imagen"
-            elif full_match.startswith("{%") or var_name.startswith("tbl_") or var_name.startswith("lista_"):
-                tipo = "tabla_dinamica"
+            # Si tiene punto, pertenece a un iterador de tabla
+            if '.' in var_raw:
+                partes = var_raw.split('.', 1)
+                iterador = partes[0]
+                atributo = partes[1]
+                
+                if iterador in mapa_iteradores:
+                    nombre_lista = mapa_iteradores[iterador]
+                    if nombre_lista not in tablas_dict:
+                        tablas_dict[nombre_lista] = {}
+                    if atributo not in tablas_dict[nombre_lista]:
+                        tablas_dict[nombre_lista][atributo] = contexto
+                else:
+                    if var_raw not in esquema_dict:
+                        esquema_dict[var_raw] = {"tipo": "texto", "contexto": contexto}
             else:
-                tipo = "texto"
+                if var_raw not in esquema_dict:
+                    if var_raw.startswith("img_"):
+                        esquema_dict[var_raw] = {"tipo": "imagen", "contexto": contexto}
+                    else:
+                        esquema_dict[var_raw] = {"tipo": "texto", "contexto": contexto}
                 
-            esquema.append({"nombre": var_name, "tipo": tipo, "contexto": contexto})
+        # 4. Construir esquema JSON final
+        esquema_final = []
+        for nombre_var, datos in esquema_dict.items():
+            esquema_final.append({
+                "nombre": nombre_var,
+                "tipo": datos["tipo"],
+                "contexto": datos["contexto"]
+            })
                 
-        return {"variables": esquema}
+        for nombre_lista, atributos_dict in tablas_dict.items():
+            # El frontend frontend usaba sub_atributos, pero lo unificaremos como columnas
+            esquema_final.append({
+                "nombre": nombre_lista,
+                "tipo": "tabla_dinamica",
+                "columnas": list(atributos_dict.keys()),
+                "contexto": f"Matriz dinamica ({len(atributos_dict)} columnas)"
+            })
+            
+        return {"variables": esquema_final}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error analizando documento: {str(e)}")
 
 # ----- DOCUMENTOS GENERADOS -----
+@router.post("/documento")
 def generar_documento(req: GenerarDocumentoRequest, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
     # 1. Obtener plantilla
     plantilla = db.query(PlantillaDocumento).filter(PlantillaDocumento.id == req.plantilla_id).first()
@@ -206,9 +283,15 @@ def generar_documento(req: GenerarDocumentoRequest, db: Session = Depends(deps.g
     if not os.path.exists(plantilla.ruta_archivo_docx):
         raise HTTPException(400, "Archivo físico de plantilla no existe")
 
-    # 2. Generar DOCX
+        # 2. Generar DOCX
+    from docxtpl import DocxTemplate
     doc = DocxTemplate(plantilla.ruta_archivo_docx)
-    doc.render(get_render_data(doc, req.datos))
+    
+    # Process base64
+    datos_limpios = get_render_data(doc, req.datos)
+    
+    # Render explicitly without any env argument
+    doc.render(datos_limpios)
     
     os.makedirs("generated", exist_ok=True)
     out_path = f"generated/doc_proc_{req.proceso_contratacion_id}_tpl_{req.plantilla_id}_v1_{int(time.time())}.docx"
@@ -225,7 +308,14 @@ def generar_documento(req: GenerarDocumentoRequest, db: Session = Depends(deps.g
     db.add(doc_gen)
     db.commit()
     db.refresh(doc_gen)
-    return doc_gen
+    # 4. Devolver el archivo fisico descargable
+    from fastapi.responses import FileResponse
+    return FileResponse(
+        path=out_path,
+        filename=f"Proceso_Generado_v1.docx",
+        media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        headers={"Content-Disposition": f"attachment; filename=Proceso_Generado_v1.docx"}
+    )
 
 @router.get("/documento/{id}/datos")
 def get_datos_documento(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
@@ -234,7 +324,21 @@ def get_datos_documento(id: int, db: Session = Depends(deps.get_db), current_use
         raise HTTPException(404, "Documento no encontrado")
     return doc.datos_json
 
-@router.put("/documento/{id}/regenerar", response_model=DocumentoGeneradoResponse)
+
+@router.get("/documento/{id}/descargar")
+def descargar_documento(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    doc = db.query(DocumentoGenerado).filter(DocumentoGenerado.id == id).first()
+    if not doc or not os.path.exists(doc.ruta_archivo_generado):
+        raise HTTPException(404, "Documento fisico no encontrado")
+        
+    from fastapi.responses import FileResponse
+    return FileResponse(
+        path=doc.ruta_archivo_generado,
+        filename=f"Documento_v{doc.version}.docx",
+        media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+
+@router.put("/documento/{id}/regenerar")
 def regenerar_documento(id: int, req: RegenerarDocumentoRequest, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
     doc = db.query(DocumentoGenerado).filter(DocumentoGenerado.id == id).first()
     if not doc:
@@ -242,9 +346,12 @@ def regenerar_documento(id: int, req: RegenerarDocumentoRequest, db: Session = D
         
     plantilla = db.query(PlantillaDocumento).filter(PlantillaDocumento.id == doc.plantilla_id).first()
     
-    # Render new docx
+        # Render new docx
+    from docxtpl import DocxTemplate
     docx_tpl = DocxTemplate(plantilla.ruta_archivo_docx)
-    docx_tpl.render(get_render_data(docx_tpl, req.datos))
+    datos_limpios = get_render_data(docx_tpl, req.datos)
+    
+    docx_tpl.render(datos_limpios)
     
     new_version = doc.version + 1
     out_path = f"generated/doc_proc_{doc.proceso_contratacion_id}_tpl_{doc.plantilla_id}_v{new_version}_{int(time.time())}.docx"

@@ -35,6 +35,7 @@ class ProcesoContratacion(AuditMixin, Base):
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     usuario_id = Column(Integer, ForeignKey("administracion.users.id", ondelete="RESTRICT"))
     tipo_proceso_id = Column(Integer, ForeignKey("contratacion.tipo_proceso.id", ondelete="RESTRICT"), nullable=True)
+    datos_formulario = Column(JSONB, nullable=True)
     
     documentos = relationship("DocumentoGenerado", back_populates="proceso", cascade="all, delete-orphan")
 

@@ -40,6 +40,7 @@ class ProcesoContratacionBase(BaseModel):
     nombre_proyecto: str
     descripcion: Optional[str] = None
     tipo_proceso_id: Optional[int] = None
+    datos_formulario: Optional[Dict[str, Any]] = None
 
 class ProcesoContratacionCreate(ProcesoContratacionBase):
     pass

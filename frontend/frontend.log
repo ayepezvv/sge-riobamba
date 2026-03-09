@@ -7,16 +7,14 @@
    - Local:         http://localhost:3000
    - Network:       http://0.0.0.0:3000
    - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · serverActions
 
  ✓ Starting...
- ✓ Ready in 2.1s
+ ✓ Ready in 2.3s
  ⚠ Cross origin request detected from 192.168.1.15 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
 Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
- ○ Compiling / ...
+ ○ Compiling /login ...
 redux-persist failed to create sync storage. falling back to noop storage.
- GET / 200 in 25.0s (compile: 23.3s, render: 1702ms)
- GET / 200 in 4.8s (compile: 4.3s, render: 479ms)
- GET / 200 in 4.9s (compile: 4.4s, render: 431ms)
- GET / 200 in 4.9s (compile: 4.5s, render: 375ms)
- GET / 200 in 5.0s (compile: 4.7s, render: 336ms)
- GET /contratacion/administracion 200 in 25.0s (compile: 23.0s, render: 1949ms)
+ GET / 200 in 22.2s (compile: 21.9s, render: 290ms)
+ GET /login 200 in 22.3s (compile: 20.9s, render: 1389ms)

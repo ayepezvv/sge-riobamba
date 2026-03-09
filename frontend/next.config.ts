@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
         pathname: '/assets/**'
       }
     ]
+  },
+  experimental: {
+    // Next.js 14 server actions allowed origins
+    serverActions: {
+        allowedOrigins: ['192.168.1.15', 'localhost', '192.168.1.15:3000']
+    }
   }
 };
 

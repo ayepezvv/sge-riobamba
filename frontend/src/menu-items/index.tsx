@@ -2,10 +2,11 @@ import admin from './admin';
 import catastro from './catastro';
 import contratacion from './contratacion';
 import gis from './gis';
+import administrativo from './administrativo';
 import { NavItemType } from 'types';
 
 const menuItems: { items: NavItemType[] } = {
-  items: [admin, contratacion, catastro, gis]
+  items: [admin, administrativo, contratacion, catastro, gis]
 };
 
 export default menuItems;

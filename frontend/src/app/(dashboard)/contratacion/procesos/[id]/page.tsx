@@ -29,6 +29,7 @@ export default function ProcesoDetailPage() {
   const [esquemaVariables, setEsquemaVariables] = useState<any[]>([]);
   const [loadingEsquema, setLoadingEsquema] = useState(false);
   const [dinamicData, setDinamicData] = useState<any>({});
+  const [miPerfil, setMiPerfil] = useState<any>(null);
 
   const renderContexto = (contextoStr: string, variableNombre: string) => {
     if (!contextoStr) return null;
@@ -79,20 +80,33 @@ export default function ProcesoDetailPage() {
           const res = await axios.get(`/api/contratacion/plantillas/${selectedPlantillaId}/esquema`);
           setEsquemaVariables(res.data.variables || []);
           
-          // Pre-poblar el formulario con datos del proceso si los nombres coinciden
-          const initialData: any = {};
-          res.data.variables.forEach((v: any) => {
-            if (v.nombre === 'nombre_proyecto' || v.nombre === 'objeto_contratacion') {
-              initialData[v.nombre] = proceso?.nombre_proyecto || '';
-            } else if (v.nombre === 'codigo_proceso') {
-              initialData[v.nombre] = proceso?.codigo_proceso || '';
-            } else if (v.nombre.toLowerCase().includes('fecha')) {
-              initialData[v.nombre] = new Date().toLocaleDateString('es-EC');
-            } else {
-              initialData[v.nombre] = '';
-            }
-          });
-          setDinamicData(initialData);
+          // Persistencia de memoria: Si el expediente ya tiene datos guardados, usarlos. Si no, pre-poblar.
+          if (proceso?.datos_formulario && Object.keys(proceso.datos_formulario).length > 0) {
+            setDinamicData(proceso.datos_formulario);
+          } else {
+            const initialData: any = {};
+            res.data.variables.forEach((v: any) => {
+              const k = v.nombre.toLowerCase();
+              if (v.nombre === 'nombre_proyecto' || v.nombre === 'objeto_contratacion') {
+                initialData[v.nombre] = proceso?.nombre_proyecto || '';
+              } else if (v.nombre === 'codigo_proceso') {
+                initialData[v.nombre] = proceso?.codigo_proceso || '';
+              } else if (k.includes('fecha')) {
+                initialData[v.nombre] = new Date().toLocaleDateString('es-EC');
+              } else if (miPerfil) {
+                // Diccionario de Mapeo Inteligente (Autocompletado)
+                if (k.includes('persona_elabora')) initialData[v.nombre] = `${miPerfil.nombres} ${miPerfil.apellidos}`;
+                else if (k.includes('cargo_elabora')) initialData[v.nombre] = miPerfil.cargo || '';
+                else if (k.includes('unidad_requirente')) initialData[v.nombre] = miPerfil.unidad?.nombre || '';
+                else if (k.includes('cedula_elabora')) initialData[v.nombre] = miPerfil.cedula || '';
+                else if (k.includes('certificacion_elabora') || k.includes('codigo_sercop')) initialData[v.nombre] = miPerfil.codigo_certificacion_sercop || '';
+                else initialData[v.nombre] = '';
+              } else {
+                initialData[v.nombre] = '';
+              }
+            });
+            setDinamicData(initialData);
+          }
 
         } catch (e) {
           setToast({ open: true, message: 'Error extrayendo variables del .docx', severity: 'error' });
@@ -103,7 +117,7 @@ export default function ProcesoDetailPage() {
       };
       fetchEsquema();
     }
-  }, [selectedPlantillaId, editingDocId, proceso]);
+  }, [selectedPlantillaId, editingDocId, proceso, miPerfil]);
 
   const handleOpenNewDoc = () => {
     setEditingDocId(null);
@@ -150,18 +164,28 @@ export default function ProcesoDetailPage() {
   const handleOpenRowModal = (varName: string) => {
     setActiveTableVar(varName);
     
-    // Attempt to load schema from backend sub_atributos or inherit from existing row
     const tableSchema = esquemaVariables.find((e: any) => e.nombre === varName);
     const currentList = Array.isArray(dinamicData[varName]) ? dinamicData[varName] : [];
     
     let template: any = {};
-    if (tableSchema && tableSchema.sub_atributos && tableSchema.sub_atributos.length > 0) {
-      tableSchema.sub_atributos.forEach((attr: string) => { template[attr] = ''; });
+    const cols = tableSchema?.columnas || tableSchema?.sub_atributos;
+    if (cols && cols.length > 0) {
+      cols.forEach((attr: string) => { 
+        const lower = attr.toLowerCase();
+        if (lower.includes('disponibilidad') || lower.includes('aplica') || lower.includes('estado')) {
+            template[attr] = 'SÍ'; // Default state to prevent nulls
+        } else {
+            template[attr] = ''; 
+        }
+      });
     } else if (currentList.length > 0) {
       template = { ...currentList[0] };
-      for (let k in template) template[k] = '';
+      for (let k in template) {
+        const lower = k.toLowerCase();
+        template[k] = (lower.includes('disponibilidad') || lower.includes('aplica') || lower.includes('estado')) ? 'SÍ' : '';
+      }
     } else {
-      template = { nombre_atributo: "" }; // Fallback
+      template = { nombre_atributo: "" };
     }
     
     setTempRowItem(template);
@@ -214,25 +238,93 @@ export default function ProcesoDetailPage() {
   const handleDocSubmit = async () => {
     try {
       if (editingDocId) {
-        await axios.put(`/api/contratacion/documento/${editingDocId}/regenerar`, { datos: dinamicData });
-        setToast({ open: true, message: 'Documento regenerado exitosamente', severity: 'success' });
+        const response = await axios.put(`/api/contratacion/documento/${editingDocId}/regenerar`, { datos: dinamicData }, {
+            responseType: 'blob'
+        });
+        
+        if (response.data instanceof Blob || response.headers['content-type']?.includes('wordprocessingml') || response.headers['content-type']?.includes('octet-stream')) {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          // El backend envia el filename en Content-Disposition si esta disponible
+                    let fileName = `Proceso_${procesoId}_Generado.docx`;
+          const disposition = response.headers['content-disposition'];
+          if (disposition && disposition.includes('filename=')) {
+              fileName = disposition.split('filename=')[1].replace(/['"]/g, '').split(';')[0];
+          }
+          link.setAttribute('download', fileName);
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode?.removeChild(link);
+          window.URL.revokeObjectURL(url);
+          setToast({ open: true, message: 'Documento procesado exitosamente', severity: 'success' });
+        } else {
+          setToast({ open: true, message: 'El servidor no devolvió un archivo válido.', severity: 'error' });
+        }
       } else {
-        await axios.post('/api/contratacion/documento', {
+        const response = await axios.post('/api/contratacion/documento', {
           proceso_contratacion_id: parseInt(procesoId as string),
           plantilla_id: parseInt(selectedPlantillaId),
           datos: dinamicData
+        }, {
+            responseType: 'blob'
         });
-        setToast({ open: true, message: 'Documento generado exitosamente', severity: 'success' });
+        
+        if (response.data instanceof Blob || response.headers['content-type']?.includes('wordprocessingml') || response.headers['content-type']?.includes('octet-stream')) {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          // El backend envia el filename en Content-Disposition si esta disponible
+                    let fileName = `Proceso_${procesoId}_Generado.docx`;
+          const disposition = response.headers['content-disposition'];
+          if (disposition && disposition.includes('filename=')) {
+              fileName = disposition.split('filename=')[1].replace(/['"]/g, '').split(';')[0];
+          }
+          link.setAttribute('download', fileName);
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode?.removeChild(link);
+          window.URL.revokeObjectURL(url);
+          setToast({ open: true, message: 'Documento procesado exitosamente', severity: 'success' });
+        } else {
+          setToast({ open: true, message: 'El servidor no devolvió un archivo válido.', severity: 'error' });
+        }
       }
       setOpenDoc(false);
       fetchData(); // Refresh list
     } catch (error: any) {
-      setToast({ open: true, message: error.response?.data?.detail || 'Error al generar', severity: 'error' });
+      // Axios con blob devuelve el error como FileReader
+      if (error.response && error.response.data instanceof Blob) {
+          const reader = new FileReader();
+          reader.onload = () => {
+              try {
+                  const errorData = JSON.parse(reader.result as string);
+                  setToast({ open: true, message: errorData.detail || 'Error al generar', severity: 'error' });
+              } catch (e) {
+                  setToast({ open: true, message: 'Error de validación en la generación', severity: 'error' });
+              }
+          };
+          reader.readAsText(error.response.data);
+      } else {
+          setToast({ open: true, message: error.response?.data?.detail || 'Error al generar', severity: 'error' });
+      }
     }
   };
 
-  const handleDownload = (path: string) => {
-    setToast({ open: true, message: `El archivo físico está en el backend en: ${path}`, severity: 'info' });
+  const handleDownload = async (docId: number, version: number) => {
+    try {
+      const response = await axios.get(`/api/contratacion/documento/${docId}/descargar`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Documento_v${version}.docx`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      setToast({ open: true, message: 'Error al descargar el archivo', severity: 'error' });
+    }
   };
 
   const columns: GridColDef[] = [
@@ -264,7 +356,7 @@ export default function ProcesoDetailPage() {
             </IconButton>
           </Tooltip>
           <Tooltip title="Descargar Final">
-            <IconButton color="success" onClick={() => handleDownload(params.row.ruta_archivo_generado)}>
+            <IconButton color="success" onClick={() => handleDownload(params.row.id, params.row.version)}>
               <DownloadIcon />
             </IconButton>
           </Tooltip>
@@ -395,54 +487,64 @@ export default function ProcesoDetailPage() {
         <DialogTitle>Añadir Registro a {activeTableVar}</DialogTitle>
         <DialogContent dividers>
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
-             {Object.keys(tempRowItem).map((colKey) => {
-                // REGLA A: Selector SÍ/NO
-                if (colKey.toLowerCase().includes('disponibilidad') || colKey.toLowerCase().includes('aplica') || colKey.toLowerCase().includes('estado')) {
+                          {(() => {
+                const tableSchema = esquemaVariables.find((e: any) => e.nombre === activeTableVar);
+                const columnsToRender = (tableSchema && (tableSchema.columnas || tableSchema.sub_atributos)) 
+                  ? (tableSchema.columnas || tableSchema.sub_atributos)
+                  : Object.keys(tempRowItem);
+
+                return columnsToRender.map((colKey: string) => {
+                  const lowerKey = colKey.toLowerCase();
+                  
+                  // REGLA A: Selectores Booleanos
+                  if (lowerKey.includes('disponibilidad') || lowerKey.includes('aplica') || lowerKey.includes('estado')) {
+                    return (
+                      <FormControl fullWidth key={colKey} size="small" sx={{ mb: 2 }}>
+                        <InputLabel>{colKey.replace(/_/g, ' ').toUpperCase()}</InputLabel>
+                        <Select
+                          value={tempRowItem[colKey] || 'SÍ'}
+                          label={colKey.replace(/_/g, ' ').toUpperCase()}
+                          onChange={(e) => handleTempRowPropChange(colKey, e.target.value)}
+                        >
+                          <MenuItem value="SÍ">SÍ</MenuItem>
+                          <MenuItem value="NO">NO</MenuItem>
+                        </Select>
+                      </FormControl>
+                    );
+                  }
+                  
+                  // REGLA B: Imágenes Base64
+                  if (lowerKey.includes('img_')) {
+                    return (
+                      <Box key={colKey} sx={{ mb: 2 }}>
+                        <Button variant={tempRowItem[colKey] ? "contained" : "outlined"} color={tempRowItem[colKey] ? "success" : "primary"} component="label" fullWidth size="small">
+                          {tempRowItem[colKey] ? `✅ Imagen Cargada (${colKey})` : `📸 Subir Imagen (${colKey})`}
+                          <input 
+                            type="file" 
+                            hidden 
+                            accept="image/*" 
+                            onChange={(e) => handleTempRowImageUpload(colKey, e)} 
+                          />
+                        </Button>
+                        {tempRowItem[colKey] && <img src={tempRowItem[colKey]} alt="preview" style={{maxHeight: 60, marginTop: 4, display: 'block', margin: '4px auto'}} />}
+                      </Box>
+                    );
+                  }
+                  
+                  // REGLA C: Campos de texto normales
                   return (
-                    <FormControl fullWidth key={colKey} size="small">
-                      <InputLabel>{colKey.replace(/_/g, ' ').toUpperCase()}</InputLabel>
-                      <Select
-                        value={tempRowItem[colKey] || 'NO'}
-                        label={colKey.replace(/_/g, ' ').toUpperCase()}
-                        onChange={(e) => handleTempRowPropChange(colKey, e.target.value)}
-                      >
-                        <MenuItem value="SÍ">SÍ</MenuItem>
-                        <MenuItem value="NO">NO</MenuItem>
-                      </Select>
-                    </FormControl>
+                    <TextField 
+                      key={colKey} 
+                      label={colKey.replace(/_/g, ' ').toUpperCase()} 
+                      fullWidth 
+                      sx={{ mb: 2 }}
+                      size="small"
+                      value={tempRowItem[colKey] || ''} 
+                      onChange={(e) => handleTempRowPropChange(colKey, e.target.value)} 
+                    />
                   );
-                }
-                
-                // REGLA B: Subida de Imagen
-                if (colKey.toLowerCase().includes('img_')) {
-                  return (
-                    <Box key={colKey}>
-                      <Button variant={tempRowItem[colKey] ? "contained" : "outlined"} color={tempRowItem[colKey] ? "success" : "primary"} component="label" fullWidth size="small">
-                        {tempRowItem[colKey] ? `✅ Imagen Cargada (${colKey})` : `📸 Subir Imagen (${colKey})`}
-                        <input 
-                          type="file" 
-                          hidden 
-                          accept="image/*" 
-                          onChange={(e) => handleTempRowImageUpload(colKey, e)} 
-                        />
-                      </Button>
-                      {tempRowItem[colKey] && <img src={tempRowItem[colKey]} alt="preview" style={{maxHeight: 60, marginTop: 4, display: 'block', margin: '4px auto'}} />}
-                    </Box>
-                  );
-                }
-                
-                // REGLA C: Texto por defecto
-                return (
-                  <TextField 
-                    key={colKey} 
-                    label={colKey.replace(/_/g, ' ').toUpperCase()} 
-                    fullWidth 
-                    size="small"
-                    value={tempRowItem[colKey] || ''} 
-                    onChange={(e) => handleTempRowPropChange(colKey, e.target.value)} 
-                  />
-                );
-             })}
+                });
+             })()}
              <Button size="small" variant="text" onClick={handleAddPropToTempRow}>+ Añadir Nueva Columna/Atributo</Button>
           </Box>
         </DialogContent>
