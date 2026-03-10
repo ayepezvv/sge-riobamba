@@ -5,6 +5,8 @@ import gis from './gis';
 import administrativo from './administrativo';
 import { NavItemType } from 'types';
 
+// ==============================|| MENU ITEMS ||============================== //
+
 const menuItems: { items: NavItemType[] } = {
   items: [admin, administrativo, contratacion, catastro, gis]
 };

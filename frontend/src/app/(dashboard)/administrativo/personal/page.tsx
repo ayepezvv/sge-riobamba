@@ -30,6 +30,8 @@ export default function PersonalPage() {
   const [data, setData] = useState([]);
   const [unidades, setUnidades] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
+  const [puestos, setPuestos] = useState([]);
+  const [selectedPuesto, setSelectedPuesto] = useState<any>(null);
   const [open, setOpen] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
@@ -37,7 +39,7 @@ export default function PersonalPage() {
   const [formData, setFormData] = useState<any>({
     cedula: '', nombres: '', apellidos: '', cargo: '', 
     regimen_legal: '', tipo_contrato: '', codigo_certificacion_sercop: '', 
-    unidad_id: '', usuario_id: '', foto_perfil: '',
+    unidad_id: '', usuario_id: '', puesto_id: '', foto_perfil: '',
     direccion_domicilio: '', telefono_celular: '', correo_personal: '', archivo_firma_electronica: '',
     es_activo: true, titulos: []
   });
@@ -47,34 +49,48 @@ export default function PersonalPage() {
 
   const fetchPersonal = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/administrativo/personal');
+      const res = await fetch('http://192.168.1.15:8000/api/administrativo/personal', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) setData(await res.json());
     } catch (e) { console.error(e); }
   };
 
   const fetchUnidades = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/administrativo/unidades');
+      const res = await fetch('http://192.168.1.15:8000/api/administrativo/unidades', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) setUnidades(await res.json());
+    } catch (e) { console.error(e); }
+  };
+
+  const fetchPuestos = async () => {
+    try {
+      const res = await fetch('http://192.168.1.15:8000/api/administrativo/puestos', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
+      if (res.ok) setPuestos(await res.json());
     } catch (e) { console.error(e); }
   };
 
   const fetchUsuarios = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/users');
+      const res = await fetch('http://192.168.1.15:8000/api/users', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) setUsuarios(await res.json());
     } catch (e) { console.error(e); }
   };
 
-  useEffect(() => { fetchPersonal(); fetchUnidades(); fetchUsuarios(); }, []);
+  useEffect(() => { fetchPersonal(); fetchUnidades(); fetchUsuarios(); fetchPuestos(); }, []);
 
   const handleOpen = (item = null) => {
+    if (item && item.puesto_id) {
+      const found = puestos.find((p: any) => p.id === item.puesto_id);
+      setSelectedPuesto(found || null);
+    } else {
+      setSelectedPuesto(null);
+    }
     setTabIndex(0);
     if (item) {
       setEditingId(item.id);
       setFormData({
         ...item,
         usuario_id: item.usuario_id || '',
+        puesto_id: item.puesto_id || '',
         direccion_domicilio: item.direccion_domicilio || '',
         telefono_celular: item.telefono_celular || '',
         correo_personal: item.correo_personal || '',
@@ -86,7 +102,7 @@ export default function PersonalPage() {
       setFormData({
         cedula: '', nombres: '', apellidos: '', cargo: '', 
         regimen_legal: '', tipo_contrato: '', codigo_certificacion_sercop: '', 
-        unidad_id: '', usuario_id: '', foto_perfil: '',
+        unidad_id: '', usuario_id: '', puesto_id: '', foto_perfil: '',
         direccion_domicilio: '', telefono_celular: '', correo_personal: '', archivo_firma_electronica: '',
         es_activo: true, titulos: []
       });
@@ -116,18 +132,31 @@ export default function PersonalPage() {
     }
   };
 
+  
+  const handlePuestoChange = (e: any) => {
+    const val = e.target.value;
+    setFormData({ ...formData, puesto_id: val });
+    if (val) {
+      const found = puestos.find((p: any) => p.id === val);
+      setSelectedPuesto(found || null);
+    } else {
+      setSelectedPuesto(null);
+    }
+  };
+
   const handleSave = async () => {
     const url = editingId ? `http://192.168.1.15:8000/api/administrativo/personal/${editingId}` : 'http://192.168.1.15:8000/api/administrativo/personal';
     const method = editingId ? 'PUT' : 'POST';
     
     const payload = { ...formData };
     if (payload.usuario_id === '') payload.usuario_id = null;
+    if (payload.puesto_id === '') payload.puesto_id = null;
     delete payload.titulos; // Titulos are handled separately
     
     try {
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` },
         body: JSON.stringify(payload)
       });
       if (res.ok) {
@@ -147,7 +176,7 @@ export default function PersonalPage() {
     try {
       const res = await fetch(`http://192.168.1.15:8000/api/administrativo/personal/${editingId}/titulos`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` },
         body: JSON.stringify({ ...tituloForm, personal_id: editingId })
       });
       if (res.ok) {
@@ -163,7 +192,7 @@ export default function PersonalPage() {
 
   const handleDeleteTitulo = async (id: number) => {
     try {
-      const res = await fetch(`http://192.168.1.15:8000/api/administrativo/personal/titulos/${id}`, { method: 'DELETE' });
+      const res = await fetch(`http://192.168.1.15:8000/api/administrativo/personal/titulos/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) {
         setToast({ open: true, message: 'Título eliminado', severity: 'success' });
         fetchPersonal();
@@ -210,6 +239,7 @@ export default function PersonalPage() {
             <Tab label="Datos Personales" />
             <Tab label="Firma Electrónica" />
             {editingId && <Tab label="Formación Académica" />}
+            <Tab label="Datos Remunerativos" />
           </Tabs>
         </Box>
         <DialogContent dividers sx={{ p: 0 }}>
@@ -338,7 +368,41 @@ export default function PersonalPage() {
             </CustomTabPanel>
           )}
 
-        </DialogContent>
+        
+          {/* TAB 5: DATOS REMUNERATIVOS */}
+          <CustomTabPanel value={tabIndex} index={editingId ? 4 : 3}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Typography variant="h6" gutterBottom>Asignación Presupuestaria del Puesto</Typography>
+                <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                  Alerta: Los cargos ahora se controlan estrictamente a través del Catálogo de Puestos Institucionales.
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={12}>
+                <FormControl fullWidth>
+                  <InputLabel>Puesto / Partida</InputLabel>
+                  <Select value={formData.puesto_id} label="Puesto / Partida" onChange={handlePuestoChange}>
+                    <MenuItem value=""><em>Ninguno</em></MenuItem>
+                    {puestos.map((p: any) => <MenuItem key={p.id} value={p.id}>{p.denominacion} (Partida: {p.partida_presupuestaria})</MenuItem>)}
+                  </Select>
+                </FormControl>
+              </Grid>
+              {selectedPuesto && (
+                <>
+                  <Grid item xs={12} sm={4}>
+                    <TextField fullWidth disabled label="Escala Ocupacional" value={selectedPuesto.escala_ocupacional || 'N/A'} />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField fullWidth disabled label="Remuneración Mensual" value={`$${selectedPuesto.remuneracion_mensual.toFixed(2)}`} />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <TextField fullWidth disabled label="Partida Presupuestaria" value={selectedPuesto.partida_presupuestaria} />
+                  </Grid>
+                </>
+              )}
+            </Grid>
+          </CustomTabPanel>
+</DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpen(false)}>Cerrar</Button>
           <Button variant="contained" onClick={handleSave}>Guardar Perfil</Button>

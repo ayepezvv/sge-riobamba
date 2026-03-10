@@ -10,8 +10,8 @@ class AuditMixin:
     actualizado_en = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     
     # Usaremos ondelete="SET NULL" para no perder la trazabilidad si el usuario es eliminado
-    creado_por_id = Column(Integer, ForeignKey("administracion.users.id", ondelete="SET NULL"), nullable=True)
-    actualizado_por_id = Column(Integer, ForeignKey("administracion.users.id", ondelete="SET NULL"), nullable=True)
+    creado_por_id = Column(Integer, ForeignKey("configuracion.usuarios.id", ondelete="SET NULL"), nullable=True)
+    actualizado_por_id = Column(Integer, ForeignKey("configuracion.usuarios.id", ondelete="SET NULL"), nullable=True)
 
 class AuditLog(Base):
     """
@@ -29,4 +29,4 @@ class AuditLog(Base):
     
     # Metadatos del evento
     fecha_evento = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    usuario_id = Column(Integer, ForeignKey("administracion.users.id", ondelete="SET NULL"), nullable=True)
+    usuario_id = Column(Integer, ForeignKey("configuracion.usuarios.id", ondelete="SET NULL"), nullable=True)

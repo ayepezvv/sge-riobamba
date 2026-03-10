@@ -163,7 +163,7 @@ export default function NavItem({ item, level, isParents = false, setSelectedID 
           </ButtonBase>
 
           {(drawerOpen || (!drawerOpen && level !== 1)) && (
-            <Tooltip title={<FormattedMessage id={item.title} />} disableHoverListener={!hoverStatus}>
+            <Tooltip title={item.title} disableHoverListener={!hoverStatus}>
               <ListItemText
                 primary={
                   <Typography
@@ -178,7 +178,7 @@ export default function NavItem({ item, level, isParents = false, setSelectedID 
                       ...(themeDirection === ThemeDirection.RTL && { textAlign: 'end', direction: 'rtl' })
                     }}
                   >
-                    <FormattedMessage id={item.title} />
+                    {item.title}
                   </Typography>
                 }
                 secondary={
@@ -195,7 +195,7 @@ export default function NavItem({ item, level, isParents = false, setSelectedID 
                         lineHeight: 1.66
                       }}
                     >
-                      <FormattedMessage id={item.caption} />
+                      {item.caption}
                     </Typography>
                   )
                 }
@@ -248,7 +248,7 @@ export default function NavItem({ item, level, isParents = false, setSelectedID 
             sx={{ mb: 0.25 }}
             primary={
               <Typography variant={isSelected ? 'h5' : 'body1'} sx={{ color: 'inherit' }}>
-                <FormattedMessage id={item.title} />
+                {item.title}
               </Typography>
             }
             secondary={

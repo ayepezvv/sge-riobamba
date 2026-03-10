@@ -30,7 +30,7 @@ export default function DireccionesPage() {
 
   const fetchDirecciones = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/administrativo/direcciones');
+      const res = await fetch('http://192.168.1.15:8000/api/administrativo/direcciones', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) setData(await res.json());
     } catch (e) { console.error(e); }
   };
@@ -54,7 +54,7 @@ export default function DireccionesPage() {
     try {
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` },
         body: JSON.stringify(formData)
       });
       if (res.ok) {

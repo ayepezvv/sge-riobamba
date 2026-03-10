@@ -15,6 +15,8 @@ export default function ProcesosPage() {
   const [tiposProceso, setTiposProceso] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [pacItems, setPacItems] = useState([]);
+  const [selectedPacItems, setSelectedPacItems] = useState<number[]>([]);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
   
   // Wizard State
@@ -31,6 +33,22 @@ export default function ProcesosPage() {
   
   const [tipoRecomendado, setTipoRecomendado] = useState<any>(null);
 
+    const fetchPacItems = async () => {
+    try {
+      const res = await fetch('http://192.168.1.15:8000/api/contratacion/pac', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
+      if (res.ok) {
+        const pacs = await res.json();
+        // Extract active pac items
+        let items: any[] = [];
+        pacs.forEach((p: any) => {
+            if (p.es_activo && p.items) {
+                items = [...items, ...p.items];
+            }
+        });
+        setPacItems(items as any);
+      }
+    } catch (e) { console.error(e); }
+  };
   const fetchProcesos = async () => {
     setLoading(true);
     try {

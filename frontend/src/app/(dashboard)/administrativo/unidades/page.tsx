@@ -31,14 +31,14 @@ export default function UnidadesPage() {
 
   const fetchUnidades = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/administrativo/unidades');
+      const res = await fetch('http://192.168.1.15:8000/api/administrativo/unidades', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) setData(await res.json());
     } catch (e) { console.error(e); }
   };
 
   const fetchDirecciones = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/administrativo/direcciones');
+      const res = await fetch('http://192.168.1.15:8000/api/administrativo/direcciones', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) setDirecciones(await res.json());
     } catch (e) { console.error(e); }
   };
@@ -62,7 +62,7 @@ export default function UnidadesPage() {
     try {
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` },
         body: JSON.stringify(formData)
       });
       if (res.ok) {

@@ -3,15 +3,50 @@ from sqlalchemy.orm import Session, joinedload
 from typing import List
 from app.api import deps
 from app.models.user import User
-from app.models.administrativo import Direccion, Unidad, Personal, TituloProfesional
+from app.models.administrativo import Direccion, Unidad, Personal, TituloProfesional, Puesto
 from app.schemas.administrativo import (
     DireccionCreate, DireccionUpdate, DireccionResponse,
     UnidadCreate, UnidadUpdate, UnidadResponse,
     PersonalCreate, PersonalUpdate, PersonalResponse,
-    TituloProfesionalCreate, TituloProfesionalResponse
+    TituloProfesionalCreate, TituloProfesionalResponse,
+    PuestoCreate, PuestoUpdate, PuestoResponse
 )
 
-router = APIRouter(prefix="/administrativo", tags=["Administrativo"])
+router = APIRouter(tags=["Administrativo"])
+
+
+# --- Puestos ---
+@router.post("/puestos", response_model=PuestoResponse, status_code=status.HTTP_201_CREATED)
+def crear_puesto(req: PuestoCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    db_obj = Puesto(**req.dict())
+    db.add(db_obj)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+@router.get("/puestos", response_model=List[PuestoResponse])
+def listar_puestos(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    return db.query(Puesto).all()
+
+@router.put("/puestos/{id}", response_model=PuestoResponse)
+def actualizar_puesto(id: int, req: PuestoUpdate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    db_obj = db.query(Puesto).filter(Puesto.id == id).first()
+    if not db_obj:
+        raise HTTPException(status_code=404, detail="Puesto no encontrado")
+    for field, value in req.dict(exclude_unset=True).items():
+        setattr(db_obj, field, value)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+@router.delete("/puestos/{id}")
+def eliminar_puesto(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    db_obj = db.query(Puesto).filter(Puesto.id == id).first()
+    if not db_obj:
+        raise HTTPException(status_code=404, detail="Puesto no encontrado")
+    db.delete(db_obj)
+    db.commit()
+    return {"ok": True}
 
 # --- Direcciones ---
 @router.post("/direcciones", response_model=DireccionResponse, status_code=status.HTTP_201_CREATED)
@@ -92,7 +127,7 @@ def crear_personal(req: PersonalCreate, db: Session = Depends(deps.get_db), curr
 @router.get("/personal/me", response_model=PersonalResponse)
 def obtener_mi_perfil(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
     db_obj = db.query(Personal).options(
-        joinedload(Personal.unidad).joinedload(Unidad.direccion),
+        joinedload(Personal.unidad).joinedload(Unidad.direccion), joinedload(Personal.puesto),
         joinedload(Personal.titulos)
     ).filter(Personal.usuario_id == current_user.id).first()
     
@@ -103,7 +138,7 @@ def obtener_mi_perfil(db: Session = Depends(deps.get_db), current_user: User = D
 @router.get("/personal", response_model=List[PersonalResponse])
 
 def listar_personal(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
-    return db.query(Personal).options(joinedload(Personal.unidad).joinedload(Unidad.direccion), joinedload(Personal.titulos)).all()
+    return db.query(Personal).options(joinedload(Personal.unidad).joinedload(Unidad.direccion), joinedload(Personal.puesto), joinedload(Personal.titulos)).all()
 
 @router.put("/personal/{id}", response_model=PersonalResponse)
 def actualizar_personal(id: int, req: PersonalUpdate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):

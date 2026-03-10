@@ -1,21 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+import pandas as pd
+import numpy as np
+import io
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 import os
 import time
 import shutil
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.responses import FileResponse
 from docxtpl import DocxTemplate
 
 from app.api import deps
 from app.models.user import User
-from app.models.contratacion import TipoProceso, PlantillaDocumento, ProcesoContratacion, DocumentoGenerado
+from app.models.contratacion import TipoProceso, PlantillaDocumento, ProcesoContratacion, DocumentoGenerado, PacAnual, ItemPac, ProcesoItemPacLink, HistoricoReformaPac, GenealogiaMontoPac, StatusItemPac
 from app.schemas.contratacion import (
     TipoProcesoCreate, TipoProcesoUpdate,
     TipoProcesoResponse, PlantillaDocumentoResponse, 
     ProcesoContratacionCreate, ProcesoContratacionResponse,
-    GenerarDocumentoRequest, RegenerarDocumentoRequest, DocumentoGeneradoResponse
+    GenerarDocumentoRequest, RegenerarDocumentoRequest, PacAnualCreate, PacAnualResponse, ItemPacCreate, ItemPacResponse, ProcesoItemPacLinkCreate, ReformaPacCreate, MovimientoReformaCreate, DocumentoGeneradoResponse
 )
 
 router = APIRouter()
@@ -339,7 +342,7 @@ def descargar_documento(id: int, db: Session = Depends(deps.get_db), current_use
     )
 
 @router.put("/documento/{id}/regenerar")
-def regenerar_documento(id: int, req: RegenerarDocumentoRequest, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def regenerar_documento(id: int, req: RegenerarDocumentoRequest, PacAnualCreate, PacAnualResponse, ItemPacCreate, ItemPacResponse, ProcesoItemPacLinkCreate, ReformaPacCreate, MovimientoReformaCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
     doc = db.query(DocumentoGenerado).filter(DocumentoGenerado.id == id).first()
     if not doc:
         raise HTTPException(404, "Documento no encontrado")
@@ -365,3 +368,240 @@ def regenerar_documento(id: int, req: RegenerarDocumentoRequest, db: Session = D
     db.commit()
     db.refresh(doc)
     return doc
+
+# --- PAC Endpoints ---
+@router.post("/pac", response_model=PacAnualResponse, status_code=status.HTTP_201_CREATED)
+def crear_pac(req: PacAnualCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    db_obj = PacAnual(**req.dict())
+    db.add(db_obj)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+@router.get("/pac", response_model=List[PacAnualResponse])
+def listar_pac(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    return db.query(PacAnual).options(joinedload(PacAnual.items)).all()
+
+
+@router.get("/pac/{id}/items", response_model=List[ItemPacResponse])
+def listar_items_pac(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    items = db.query(ItemPac).filter(ItemPac.pac_anual_id == id).all()
+    return items
+
+
+@router.get("/pac/items/all", response_model=List[ItemPacResponse])
+def explorar_todos_items(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    # Trae todos los items sin importar a que PAC pertenecen, usando join para traer data del padre
+    return db.query(ItemPac).options(joinedload(ItemPac.pac)).all()
+
+@router.post("/pac/{id}/items", response_model=ItemPacResponse, status_code=status.HTTP_201_CREATED)
+def agregar_item_pac(id: int, req: ItemPacCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    db_obj = ItemPac(**req.dict(), pac_anual_id=id)
+    db.add(db_obj)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+
+
+# --- PAC Carga Masiva ---
+@router.post("/pac/{id}/importar")
+async def importar_pac(id: int, file: UploadFile = File(...), db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    pac = db.query(PacAnual).filter(PacAnual.id == id).first()
+    if not pac:
+        raise HTTPException(status_code=404, detail="PAC no encontrado")
+        
+    ext = file.filename.split(".")[-1].lower()
+    if ext not in ["csv", "xls", "xlsx"]:
+        raise HTTPException(status_code=400, detail="Formato no soportado. Usa CSV o Excel.")
+        
+    contents = await file.read()
+    
+    try:
+        if ext == "csv":
+            try:
+                df = pd.read_csv(io.BytesIO(contents), encoding='utf-8')
+            except UnicodeDecodeError:
+                # Failsafe para archivos generados por Excel/Windows antiguos
+                df = pd.read_csv(io.BytesIO(contents), encoding='latin1')
+        else:
+            df = pd.read_excel(io.BytesIO(contents))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"No se pudo leer el archivo: {str(e)}")
+
+    # 1. Limpiar los nombres de columnas originales del archivo (quitar espacios sobrantes)
+    df.columns = df.columns.str.strip()
+    
+    # 2. Mapeo Inteligente (Diccionario Traductor)
+    mapeo_columnas = {
+        'Partida Pres.': 'partida_presupuestaria',
+        'CPC': 'cpc',
+        'Tipo de Compra': 'tipo_compra',
+        'Procedimiento': 'procedimiento',
+        'Descripción': 'descripcion',
+        'Cant.': 'cantidad',
+        'Costo U.': 'costo_unitario',
+        'V. Total': 'valor_total'
+    }
+    
+    # Aplicar traduccion
+    df = df.rename(columns=mapeo_columnas)
+    
+    # 3. Verificacion de Columnas Obligatorias
+    columnas_requeridas = ['partida_presupuestaria', 'descripcion']
+    columnas_faltantes = [col for col in columnas_requeridas if col not in df.columns]
+    
+    if columnas_faltantes:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"El archivo no tiene el formato correcto del SERCOP. Faltan las columnas mapeadas: {', '.join(columnas_faltantes)}"
+        )
+
+    # 4. Prevenir que SQLAlchemy explote por los NaNs nativos de Pandas
+    df = df.replace({np.nan: None})
+
+    def clean_money(val):
+        if val is None: return 0.0
+        if isinstance(val, (int, float)): return float(val)
+        val_str = str(val).replace('$', '').replace(',', '').strip()
+        try: return float(val_str)
+        except: return 0.0
+
+
+    # Lógica Anti-Duplicados
+    items_existentes = db.query(ItemPac).filter(ItemPac.pac_anual_id == id).all()
+    set_existentes = set()
+    for ie in items_existentes:
+        key = (str(ie.partida_presupuestaria).strip(), str(ie.cpc).strip(), str(ie.descripcion).strip()[:100])
+        set_existentes.add(key)
+
+    items_to_insert = []
+    ignorados = 0
+
+    
+    for index, row in df.iterrows():
+        try:
+            partida = str(row['partida_presupuestaria']) if row['partida_presupuestaria'] else "N/A"
+            if partida == "N/A" or partida.strip() == "" or partida == "None": continue # Skip empty lines
+            
+            cpc_val = str(row['cpc']) if 'cpc' in df.columns and row['cpc'] else ""
+            desc_val = str(row['descripcion']) if row['descripcion'] else "Sin descripcion"
+            
+            # Verificación en Set
+            row_key = (partida.strip(), cpc_val.strip(), desc_val.strip()[:100])
+            if row_key in set_existentes:
+                ignorados += 1
+                continue
+                
+            item = ItemPac(
+                pac_anual_id=id,
+                partida_presupuestaria=partida,
+                cpc=cpc_val if cpc_val else None,
+                tipo_compra=str(row['tipo_compra']) if 'tipo_compra' in df.columns and row['tipo_compra'] else "Bien/Servicio",
+                procedimiento=str(row['procedimiento']) if 'procedimiento' in df.columns and row['procedimiento'] else None,
+                descripcion=desc_val,
+                cantidad=clean_money(row['cantidad']) if 'cantidad' in df.columns else 1.0,
+                costo_unitario=clean_money(row['costo_unitario']) if 'costo_unitario' in df.columns else 0.0,
+                valor_total=clean_money(row['valor_total']) if 'valor_total' in df.columns else 0.0,
+                status=StatusItemPac.ACTIVO
+            )
+            items_to_insert.append(item)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=400, detail=f"Error en la fila Excel {index + 2}: {str(e)}")
+            
+    try:
+        db.add_all(items_to_insert)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Error transaccional al guardar en la base de datos.")
+        
+    return {"ok": True, "filas_procesadas": len(items_to_insert), "ignoradas_por_duplicado": ignorados}
+
+@router.post("/pac/{id}/reforma")
+
+def reformar_pac(id: int, req: ReformaPacCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    pac = db.query(PacAnual).filter(PacAnual.id == id).first()
+    if not pac:
+        raise HTTPException(status_code=404, detail="PAC no encontrado")
+        
+    # 1. Validar montos de movimientos
+    suma_origen = sum([m.monto_transferido for m in req.movimientos])
+    suma_destino = sum([i.valor_total for i in req.nuevos_items])
+    
+    # Tolerancia de decimales (centavos)
+    if abs(suma_origen - suma_destino) > 0.01:
+        raise HTTPException(status_code=400, detail=f"Desbalance financiero. El origen cede ${suma_origen} pero el destino requiere ${suma_destino}.")
+
+    # 2. Actualizar versión del PAC
+    pac.version_reforma = req.numero_reforma
+    
+    # 3. Crear Histórico
+    reforma = HistoricoReformaPac(
+        pac_anual_id=id,
+        numero_reforma=req.numero_reforma,
+        resolucion_administrativa=req.resolucion_administrativa,
+        descripcion_justificacion=req.descripcion_justificacion
+    )
+    db.add(reforma)
+    db.flush() # Para obtener reforma.id
+    
+    # 4. Reducir/Eliminar items origen
+    for mov in req.movimientos:
+        item_orig = db.query(ItemPac).filter(ItemPac.id == mov.item_origen_id).first()
+        if not item_orig: continue
+        
+        # Reducir saldo
+        item_orig.valor_total -= mov.monto_transferido
+        item_orig.cantidad = 1 # simplificado para la reforma
+        item_orig.costo_unitario = item_orig.valor_total
+        
+        if item_orig.valor_total <= 0.01:
+            item_orig.status = StatusItemPac.ELIMINADO_POR_REFORMA
+            item_orig.valor_total = 0
+        else:
+            item_orig.status = StatusItemPac.MODIFICADO_POR_REFORMA
+
+    # 5. Crear items destino e inyectar genealogía
+    for nuevo_item_req in req.nuevos_items:
+        nuevo_item = ItemPac(**nuevo_item_req.dict(), pac_anual_id=id, status=StatusItemPac.ACTIVO)
+        db.add(nuevo_item)
+        db.flush() # Obtener nuevo_item.id
+        
+        # Enlazar genealogía (simplificado: asigna proporcionalmente)
+        # En un sistema real se mapea 1 a 1 en el payload, pero asumimos que el array movimientos 
+        # dicta de dónde sale la plata para toda la bolsa de nuevos items.
+        for mov in req.movimientos:
+            if mov.monto_transferido > 0:
+                # Registramos el nexo
+                gen = GenealogiaMontoPac(
+                    historico_reforma_id=reforma.id,
+                    item_origen_id=mov.item_origen_id,
+                    item_destino_id=nuevo_item.id,
+                    monto_transferido=mov.monto_transferido # Idealmente prorrateado
+                )
+                db.add(gen)
+                
+    db.commit()
+    return {"ok": True, "reforma_id": reforma.id, "mensaje": "Reforma financiera ejecutada con cuadre exacto."}
+
+@router.post("/procesos/{id}/vincular_pac")
+def vincular_pac_proceso(id: int, req_links: List[ProcesoItemPacLinkCreate], db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    proceso = db.query(ProcesoContratacion).filter(ProcesoContratacion.id == id).first()
+    if not proceso:
+        raise HTTPException(status_code=404, detail="Proceso no encontrado")
+    
+    # Clean existing links
+    db.query(ProcesoItemPacLink).filter(ProcesoItemPacLink.proceso_id == id).delete()
+    
+    for link in req_links:
+        db_link = ProcesoItemPacLink(
+            proceso_id=id,
+            item_pac_id=link.item_pac_id,
+            monto_comprometido=link.monto_comprometido
+        )
+        db.add(db_link)
+    db.commit()
+    return {"ok": True}
+

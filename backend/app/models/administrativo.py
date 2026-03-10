@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum, UniqueConstraint, Float
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 import enum
@@ -21,6 +21,19 @@ class TipoContrato(enum.Enum):
     CONTRATADO_LOEP = "CONTRATADO_LOEP"
     CONTRATADO_CT = "CONTRATADO_CT"
     REQUERIDO_PROYECTO = "REQUERIDO_PROYECTO"
+
+class Puesto(Base):
+    __tablename__ = "puestos"
+    __table_args__ = {"schema": "administracion"}
+
+    id = Column(Integer, primary_key=True, index=True)
+    denominacion = Column(String(150), nullable=False)
+    escala_ocupacional = Column(String(100), nullable=True)
+    remuneracion_mensual = Column(Float, nullable=False)
+    partida_presupuestaria = Column(String(100), nullable=False)
+    es_activo = Column(Boolean, default=True)
+
+    personal = relationship("Personal", back_populates="puesto")
 
 class Direccion(Base):
     __tablename__ = "direcciones"
@@ -52,7 +65,8 @@ class Personal(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     unidad_id = Column(Integer, ForeignKey("administracion.unidades.id", ondelete="RESTRICT"), nullable=False)
-    usuario_id = Column(Integer, ForeignKey("administracion.users.id", ondelete="SET NULL"), nullable=True, unique=True)
+    usuario_id = Column(Integer, ForeignKey("configuracion.usuarios.id", ondelete="SET NULL"), nullable=True, unique=True)
+    puesto_id = Column(Integer, ForeignKey("administracion.puestos.id", ondelete="RESTRICT"), nullable=True)
     
     cedula = Column(String(20), unique=True, nullable=False, index=True)
     nombres = Column(String(100), nullable=False)
@@ -73,6 +87,7 @@ class Personal(Base):
     unidad = relationship("Unidad", back_populates="personal")
     usuario = relationship("User", backref="personal_link")
     titulos = relationship("TituloProfesional", back_populates="personal", cascade="all, delete-orphan")
+    puesto = relationship("Puesto", back_populates="personal")
 
 class TituloProfesional(Base):
     __tablename__ = "titulos_profesionales"

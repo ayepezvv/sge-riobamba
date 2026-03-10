@@ -2,6 +2,31 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from app.models.administrativo import TipoRegimenLegal, TipoContrato, NivelEducacion
 
+
+# --- Puesto ---
+class PuestoBase(BaseModel):
+    denominacion: str = Field(..., max_length=150)
+    escala_ocupacional: Optional[str] = Field(None, max_length=100)
+    remuneracion_mensual: float
+    partida_presupuestaria: str = Field(..., max_length=100)
+    es_activo: bool = True
+
+class PuestoCreate(PuestoBase):
+    pass
+
+class PuestoUpdate(BaseModel):
+    denominacion: Optional[str] = Field(None, max_length=150)
+    escala_ocupacional: Optional[str] = Field(None, max_length=100)
+    remuneracion_mensual: Optional[float] = None
+    partida_presupuestaria: Optional[str] = Field(None, max_length=100)
+    es_activo: Optional[bool] = None
+
+class PuestoResponse(PuestoBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
 # --- Direccion ---
 class DireccionBase(BaseModel):
     nombre: str = Field(..., max_length=150)
@@ -67,6 +92,7 @@ class TituloProfesionalResponse(TituloProfesionalBase):
 class PersonalBase(BaseModel):
     unidad_id: int
     usuario_id: Optional[int] = None
+    puesto_id: Optional[int] = None
     cedula: str = Field(..., max_length=20)
     nombres: str = Field(..., max_length=100)
     apellidos: str = Field(..., max_length=100)
@@ -87,6 +113,7 @@ class PersonalCreate(PersonalBase):
 class PersonalUpdate(BaseModel):
     unidad_id: Optional[int] = None
     usuario_id: Optional[int] = None
+    puesto_id: Optional[int] = None
     cedula: Optional[str] = Field(None, max_length=20)
     nombres: Optional[str] = Field(None, max_length=100)
     apellidos: Optional[str] = Field(None, max_length=100)
@@ -104,6 +131,7 @@ class PersonalUpdate(BaseModel):
 class PersonalResponse(PersonalBase):
     id: int
     unidad: Optional[UnidadResponse] = None
+    puesto: Optional[PuestoResponse] = None
     titulos: List[TituloProfesionalResponse] = []
 
     class Config:

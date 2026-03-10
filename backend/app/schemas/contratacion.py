@@ -1,3 +1,4 @@
+from app.models.contratacion import StatusItemPac
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 from datetime import datetime
@@ -71,3 +72,70 @@ class GenerarDocumentoRequest(BaseModel):
 
 class RegenerarDocumentoRequest(BaseModel):
     datos: Dict[str, Any]
+
+class ItemPacBase(BaseModel):
+    partida_presupuestaria: str
+    cpc: Optional[str] = None
+    tipo_compra: Optional[str] = None
+    procedimiento: Optional[str] = None
+    descripcion: str
+    cantidad: float
+    costo_unitario: float
+    valor_total: float
+    status: Optional[StatusItemPac] = StatusItemPac.ACTIVO
+
+class ItemPacCreate(ItemPacBase):
+    pass
+
+
+class PacAnualSimpleResponse(BaseModel):
+    id: int
+    anio: int
+    version_reforma: int
+    
+    class Config:
+        from_attributes = True
+
+class ItemPacResponse(ItemPacBase):
+    id: int
+    pac_anual_id: int
+    status: Optional[StatusItemPac] = StatusItemPac.ACTIVO
+    pac: Optional[PacAnualSimpleResponse] = None
+
+    class Config:
+        from_attributes = True
+
+
+class PacAnualBase(BaseModel):
+    anio: int
+    version_reforma: int
+    descripcion: Optional[str] = None
+    es_activo: bool = True
+
+class PacAnualCreate(PacAnualBase):
+    pass
+
+class PacAnualResponse(PacAnualBase):
+    id: int
+    items: List[ItemPacResponse] = []
+
+    class Config:
+        from_attributes = True
+
+class ProcesoItemPacLinkCreate(BaseModel):
+    item_pac_id: int
+    monto_comprometido: float
+
+# --- Reforma PAC ---
+class MovimientoReformaCreate(BaseModel):
+    item_origen_id: int
+    item_destino_id: int
+    monto_transferido: float
+
+class ReformaPacCreate(BaseModel):
+    numero_reforma: int
+    resolucion_administrativa: Optional[str] = None
+    descripcion_justificacion: str
+    movimientos: List[MovimientoReformaCreate]
+    nuevos_items: List[ItemPacCreate]
+

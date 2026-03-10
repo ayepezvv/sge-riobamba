@@ -50,7 +50,7 @@ const config: ConfigStates = {
   borderRadius: 8,
   outlinedFilled: true,
   presetColor: 'default',
-  i18n: 'en',
+  i18n: 'es',
   themeDirection: ThemeDirection.LTR,
   container: true
 };

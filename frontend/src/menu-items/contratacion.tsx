@@ -1,34 +1,28 @@
-// assets
-import { IconBriefcase, IconFileAnalytics, IconSettings } from '@tabler/icons-react';
+import { IconFileInvoice, IconReportMoney, IconSearch } from '@tabler/icons-react';
 
-// types
-import { NavItemType } from 'types';
-
-const icons = {
-  IconBriefcase, IconFileAnalytics, IconSettings
-};
-
-const contratacion: NavItemType = {
+const contratacion = {
   id: 'contratacion',
-  title: 'contratacion',
-  icon: icons.IconBriefcase,
+  title: 'Compras Públicas',
   type: 'group',
   children: [
     {
-      id: 'mis-procesos',
-      title: 'mis-procesos',
-      type: 'item',
-      url: '/contratacion/procesos',
-      icon: icons.IconFileAnalytics,
-      breadcrumbs: false
+      id: 'planificacion',
+      title: 'Planificación',
+      type: 'collapse',
+      icon: IconReportMoney,
+      children: [
+                { id: 'pac', title: 'Plan Anual (PAC)', type: 'item', url: '/contratacion/pac' },
+        { id: 'pac_explorador', title: 'Explorador de Ítems', type: 'item', url: '/contratacion/pac/explorador', icon: IconSearch }
+      ]
     },
     {
-      id: 'admin-plantillas',
-      title: 'admin-plantillas',
-      type: 'item',
-      url: '/contratacion/administracion',
-      icon: icons.IconSettings,
-      breadcrumbs: false
+      id: 'ejecucion',
+      title: 'Ejecución',
+      type: 'collapse',
+      icon: IconFileInvoice,
+      children: [
+        { id: 'procesos', title: 'Mis Procesos', type: 'item', url: '/contratacion/procesos' }
+      ]
     }
   ]
 };
