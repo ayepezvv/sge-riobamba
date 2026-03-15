@@ -68,8 +68,21 @@ def get_procesos(db: Session = Depends(deps.get_db), current_user: User = Depend
 
 @router.post("/procesos", response_model=ProcesoContratacionResponse)
 def create_proceso(item_in: ProcesoContratacionCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
-    db_item = ProcesoContratacion(**item_in.model_dump(), usuario_id=current_user.id)
+    data = item_in.model_dump()
+    items_pac = data.pop("items_pac", [])
+    
+    db_item = ProcesoContratacion(**data, usuario_id=current_user.id)
     db.add(db_item)
+    db.flush() # get id
+    
+    for link in items_pac:
+        db_link = ProcesoItemPacLink(
+            proceso_id=db_item.id,
+            item_pac_id=link['item_pac_id'],
+            monto_comprometido=link['monto_comprometido']
+        )
+        db.add(db_link)
+        
     db.commit()
     db.refresh(db_item)
     return db_item

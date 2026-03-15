@@ -17,6 +17,14 @@ export default function ProcesosPage() {
   const [open, setOpen] = useState(false);
   const [pacItems, setPacItems] = useState([]);
   const [selectedPacItems, setSelectedPacItems] = useState<number[]>([]);
+  const [pacMontos, setPacMontos] = useState<Record<number, number>>({});
+
+  const presupuestoReferencial = selectedPacItems.reduce((acc, id) => {
+    const item = pacItems.find((i: any) => i.id === id) as any;
+    const monto = pacMontos[id] ?? (item ? item.valor_total : 0);
+    return acc + monto;
+  }, 0);
+
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
   
   // Wizard State
@@ -118,7 +126,7 @@ export default function ProcesosPage() {
     }
   ];
 
-  const steps = ['Naturaleza', 'Catálogo', 'Monto', 'Expediente'];
+  const steps = ['Afectación PAC', 'Naturaleza', 'Catálogo', 'Monto', 'Expediente'];
 
   return (
     <MainCard 
@@ -140,7 +148,64 @@ export default function ProcesosPage() {
           </Stepper>
 
           <Box sx={{ minHeight: 150 }}>
-            {activeStep === 0 && (
+            
+          {activeStep === 0 && (
+            <Grid container spacing={3}>
+                <Grid item xs={12}>
+                    <Typography variant="h6" color="primary" gutterBottom>1. Afectación Presupuestaria (PAC)</Typography>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>Selecciona las líneas del Plan Anual de Contratación de las que nace este requerimiento.</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <InputLabel>Seleccionar Líneas del PAC Activo</InputLabel>
+                    <Select
+                      multiple
+                      value={selectedPacItems}
+                      onChange={handlePacChange}
+                      label="Seleccionar Líneas del PAC Activo"
+                      renderValue={(selected) => selected.map(id => {
+                        const item: any = pacItems.find((i: any) => i.id === id);
+                        return item ? `${item.cpc} - ${item.descripcion.substring(0, 30)}...` : id;
+                      }).join(', ')}
+                    >
+                      {pacItems.map((item: any) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.cpc} | {item.descripcion} (Disp: ${item.valor_total})
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                {selectedPacItems.length > 0 && (
+                  <Grid item xs={12}>
+                    <Card variant="outlined" sx={{ bgcolor: 'background.default', p: 2 }}>
+                        <Typography variant="subtitle2" gutterBottom>Montos a Comprometer</Typography>
+                        {selectedPacItems.map(id => {
+                            const item: any = pacItems.find((i: any) => i.id === id);
+                            if (!item) return null;
+                            return (
+                                <Box key={id} display="flex" justifyContent="space-between" alignItems="center" mb={1} gap={2}>
+                                    <Typography variant="body2" sx={{ flex: 1 }}>{item.cpc} - {item.descripcion}</Typography>
+                                    <TextField 
+                                        size="small" 
+                                        type="number" 
+                                        label="Monto a comprometer ($)" 
+                                        value={pacMontos[id] ?? item.valor_total}
+                                        onChange={(e) => handleMontoChange(id, e.target.value)}
+                                        sx={{ width: 200 }} 
+                                        error={(pacMontos[id] ?? item.valor_total) > item.valor_total}
+                                        helperText={(pacMontos[id] ?? item.valor_total) > item.valor_total ? 'Excede saldo' : ''}
+                                    />
+                                </Box>
+                            )
+                        })}
+                    </Card>
+                  </Grid>
+                )}
+            </Grid>
+          )}
+
+          {activeStep === 4 && (
               <FormControl fullWidth>
                 <InputLabel>¿Qué tipo de compra realizará?</InputLabel>
                 <Select value={wizardData.categoria} label="¿Qué tipo de compra realizará?" onChange={(e) => setWizardData({...wizardData, categoria: e.target.value})}>

@@ -1,41 +1,21 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum, UniqueConstraint, Float
+"""
+Módulo: administracion
+Scope: Estructura organizacional base (Direcciones, Unidades, Puestos).
+NOTA: Empleado, EscalaSalarial y EmpleadoCargaFamiliar fueron migrados
+      al esquema 'rrhh' (app/models/rrhh.py) en la Fase V3.
+      NO duplicar esas clases aquí.
+"""
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
-import enum
+from app.models.mixins import AuditMixin
 
 
-class NivelEducacion(enum.Enum):
-    TECNICO = "TECNICO"
-    TECNOLOGICO = "TECNOLOGICO"
-    TERCER_NIVEL = "TERCER_NIVEL"
-    CUARTO_NIVEL = "CUARTO_NIVEL"
-    PHD = "PHD"
-
-class TipoRegimenLegal(enum.Enum):
-    LOEP = "LOEP"
-    CODIGO_TRABAJO = "CODIGO_TRABAJO"
-
-class TipoContrato(enum.Enum):
-    NOMBRAMIENTO = "NOMBRAMIENTO"
-    INDEFINIDO = "INDEFINIDO"
-    CONTRATADO_LOEP = "CONTRATADO_LOEP"
-    CONTRATADO_CT = "CONTRATADO_CT"
-    REQUERIDO_PROYECTO = "REQUERIDO_PROYECTO"
-
-class Puesto(Base):
-    __tablename__ = "puestos"
-    __table_args__ = {"schema": "administracion"}
-
-    id = Column(Integer, primary_key=True, index=True)
-    denominacion = Column(String(150), nullable=False)
-    escala_ocupacional = Column(String(100), nullable=True)
-    remuneracion_mensual = Column(Float, nullable=False)
-    partida_presupuestaria = Column(String(100), nullable=False)
-    es_activo = Column(Boolean, default=True)
-
-    personal = relationship("Personal", back_populates="puesto")
-
-class Direccion(Base):
+# ---------------------------------------------------------------------------
+# ESTRUCTURA ORGANIZACIONAL
+# ---------------------------------------------------------------------------
+class Direccion(Base, AuditMixin):
+    """Unidades de primer nivel: Dirección de RRHH, Dirección TI, etc."""
     __tablename__ = "direcciones"
     __table_args__ = {"schema": "administracion"}
 
@@ -46,7 +26,9 @@ class Direccion(Base):
 
     unidades = relationship("Unidad", back_populates="direccion", cascade="all, delete-orphan")
 
-class Unidad(Base):
+
+class Unidad(Base, AuditMixin):
+    """Sub-unidades dentro de una Dirección."""
     __tablename__ = "unidades"
     __table_args__ = {"schema": "administracion"}
 
@@ -57,48 +39,36 @@ class Unidad(Base):
     es_activo = Column(Boolean, default=True)
 
     direccion = relationship("Direccion", back_populates="unidades")
-    personal = relationship("Personal", back_populates="unidad")
+    # NOTA: Empleado migrado a rrhh.py — relación desvinculada del esquema administracion
 
-class Personal(Base):
-    __tablename__ = "personal"
+
+class Puesto(Base, AuditMixin):
+    """Catálogo de puestos institucionales con partida presupuestaria."""
+    __tablename__ = "puestos"
     __table_args__ = {"schema": "administracion"}
 
     id = Column(Integer, primary_key=True, index=True)
-    unidad_id = Column(Integer, ForeignKey("administracion.unidades.id", ondelete="RESTRICT"), nullable=False)
-    usuario_id = Column(Integer, ForeignKey("configuracion.usuarios.id", ondelete="SET NULL"), nullable=True, unique=True)
-    puesto_id = Column(Integer, ForeignKey("administracion.puestos.id", ondelete="RESTRICT"), nullable=True)
-    
-    cedula = Column(String(20), unique=True, nullable=False, index=True)
-    nombres = Column(String(100), nullable=False)
-    apellidos = Column(String(100), nullable=False)
-    cargo = Column(String(150), nullable=False)
-    
-    regimen_legal = Column(Enum(TipoRegimenLegal, name="tipo_regimen_legal"), nullable=False)
-    tipo_contrato = Column(Enum(TipoContrato, name="tipo_contrato"), nullable=False)
-    codigo_certificacion_sercop = Column(String(100), nullable=True)
-    foto_perfil = Column(String, nullable=True)
-    direccion_domicilio = Column(String(255), nullable=True)
-    telefono_celular = Column(String(20), nullable=True)
-    correo_personal = Column(String(100), nullable=True)
-    archivo_firma_electronica = Column(String, nullable=True)
-    
+    denominacion = Column(String(150), nullable=False)
+    partida_presupuestaria = Column(String(100), nullable=False)
     es_activo = Column(Boolean, default=True)
 
-    unidad = relationship("Unidad", back_populates="personal")
-    usuario = relationship("User", backref="personal_link")
-    titulos = relationship("TituloProfesional", back_populates="personal", cascade="all, delete-orphan")
-    puesto = relationship("Puesto", back_populates="personal")
+    # NOTA: Empleado migrado a rrhh.py — relación inversa desvinculada del esquema administracion
 
-class TituloProfesional(Base):
+
+# ---------------------------------------------------------------------------
+# TABLAS SATÉLITE LEGACY (se mantienen para compatibilidad de FK históricas)
+# ---------------------------------------------------------------------------
+# NOTA: TituloProfesional ya no tiene relación hacia 'Empleado' de administracion
+# porque esa clase fue eliminada. Si la tabla física sigue existiendo en la BD,
+# las FKs físicas apuntan a administracion.empleados. Esta clase se conserva
+# solo como reflejo ORM de esa tabla física legacy.
+class TituloProfesional(Base, AuditMixin):
+    """Títulos académicos registrados en SENESCYT (tabla legacy)."""
     __tablename__ = "titulos_profesionales"
     __table_args__ = {"schema": "administracion"}
 
     id = Column(Integer, primary_key=True, index=True)
-    personal_id = Column(Integer, ForeignKey("administracion.personal.id", ondelete="CASCADE"), nullable=False)
-    nivel = Column(Enum(NivelEducacion, name="nivel_educacion"), nullable=False)
+    empleado_id = Column(Integer, nullable=False)  # FK física a administracion.empleados (legacy)
     nombre_titulo = Column(String(200), nullable=False)
     institucion = Column(String(200), nullable=False)
     registro_senescyt = Column(String(100), nullable=True)
-
-    personal = relationship("Personal", back_populates="titulos")
-

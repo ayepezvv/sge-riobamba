@@ -2,7 +2,7 @@ import ipaddress
 import uuid
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 
 from app.api.deps import get_db
@@ -29,6 +29,13 @@ def get_segmento(id: str, db: Session = Depends(get_db)):
 
 @router.post("/segmentos", response_model=SegmentoRedSchema)
 def create_segmento(req: SegmentoRedCreate, db: Session = Depends(get_db)):
+    from sqlalchemy import text
+    try:
+        db.execute(text("CREATE SCHEMA IF NOT EXISTS informatica;"))
+        db.commit()
+    except Exception:
+        db.rollback()
+        
     # Validate uniqueness of name or CIDR if needed, here we just insert
     db_obj = SegmentoRed(
         id=req.id or str(uuid.uuid4()),
@@ -73,10 +80,17 @@ def delete_segmento(id: str, db: Session = Depends(get_db)):
 
 @router.get("/segmentos/{segmento_id}/ips", response_model=List[DireccionIpSchema])
 def get_ips_by_segmento(segmento_id: str, db: Session = Depends(get_db)):
-    return db.query(DireccionIpAsignada).filter(DireccionIpAsignada.segmento_id == segmento_id).all()
+    return db.query(DireccionIpAsignada).options(joinedload(DireccionIpAsignada.personal), joinedload(DireccionIpAsignada.activo)).filter(DireccionIpAsignada.segmento_id == segmento_id).all()
 
 @router.post("/ips", response_model=DireccionIpSchema)
 def create_ip(req: DireccionIpAsignadaCreate, db: Session = Depends(get_db)):
+    from sqlalchemy import text
+    try:
+        db.execute(text("CREATE SCHEMA IF NOT EXISTS informatica;"))
+        db.commit()
+    except Exception:
+        db.rollback()
+
     segmento = db.query(SegmentoRed).filter(SegmentoRed.id == req.segmento_id).first()
     if not segmento:
         raise HTTPException(status_code=404, detail="Segmento de red no encontrado")
@@ -101,6 +115,8 @@ def create_ip(req: DireccionIpAsignadaCreate, db: Session = Depends(get_db)):
         nombre_equipo=req.nombre_equipo,
         dominio=req.dominio,
         ubicacion_geografica=req.ubicacion_geografica,
+        personal_id=req.personal_id,
+        activo_id=req.activo_id,
         is_active=req.is_active
     )
     db.add(db_obj)

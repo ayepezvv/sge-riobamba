@@ -34,7 +34,7 @@ def include_object(object, name, type_, reflected, compare_to):
 
 def include_name(name, type_, parent_names):
     if type_ == "schema":
-        return name in [None, "public", "administracion", "catastro", "comercial", "core", "contratacion", "configuracion", "informatica"]
+        return name in [None, "public", "administracion", "catastro", "comercial", "core", "contratacion", "configuracion", "informatica", "bodega"]
     return True
 
 

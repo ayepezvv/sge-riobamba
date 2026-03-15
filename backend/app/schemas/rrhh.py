@@ -1,0 +1,179 @@
+"""
+Schemas Pydantic — Módulo RRHH V3 (Súper Modelo)
+Esquema: rrhh
+"""
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+from typing import Optional, List
+from datetime import date, datetime
+from decimal import Decimal
+
+
+# ---------------------------------------------------------------------------
+# ÁREA ORGANIZACIONAL
+# ---------------------------------------------------------------------------
+class AreaOrganizacionalBase(BaseModel):
+    id_area_padre: Optional[int] = None
+    tipo_area: str = Field(..., max_length=50)
+    nombre: str = Field(..., max_length=150)
+    estado: str = "ACTIVO"
+
+class AreaOrganizacionalCreate(AreaOrganizacionalBase):
+    pass
+
+class AreaOrganizacionalUpdate(BaseModel):
+    id_area_padre: Optional[int] = None
+    tipo_area: Optional[str] = None
+    nombre: Optional[str] = None
+    estado: Optional[str] = None
+
+class AreaOrganizacionalResponse(AreaOrganizacionalBase):
+    id_area: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ---------------------------------------------------------------------------
+# ESCALA SALARIAL
+# ---------------------------------------------------------------------------
+class EscalaSalarialBase(BaseModel):
+    grado: str = Field(..., max_length=20)
+    salario_base: Decimal = Field(..., gt=0)
+    regimen_laboral: str = Field(..., max_length=50)
+
+class EscalaSalarialCreate(EscalaSalarialBase):
+    pass
+
+class EscalaSalarialResponse(EscalaSalarialBase):
+    id_escala: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ---------------------------------------------------------------------------
+# CARGO
+# ---------------------------------------------------------------------------
+class CargoBase(BaseModel):
+    nombre_cargo: str = Field(..., max_length=150)
+    id_escala_salarial: Optional[int] = None
+    partida_presupuestaria: Optional[str] = Field(None, max_length=100)
+    estado: str = "ACTIVO"
+
+class CargoCreate(CargoBase):
+    pass
+
+class CargoUpdate(BaseModel):
+    nombre_cargo: Optional[str] = None
+    id_escala_salarial: Optional[int] = None
+    partida_presupuestaria: Optional[str] = None
+    estado: Optional[str] = None
+
+class CargoResponse(CargoBase):
+    id_cargo: int
+    escala: Optional[EscalaSalarialResponse] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ---------------------------------------------------------------------------
+# HISTORIAL LABORAL
+# ---------------------------------------------------------------------------
+class HistorialLaboralBase(BaseModel):
+    id_area: int
+    id_cargo: int
+    tipo_contrato: str = Field(..., max_length=50)
+    fecha_inicio: date
+    fecha_fin: Optional[date] = None
+    salario_acordado: Decimal = Field(..., gt=0)
+
+class HistorialLaboralCreate(HistorialLaboralBase):
+    id_empleado: int
+
+class HistorialLaboralResponse(HistorialLaboralBase):
+    id_historial: int
+    id_empleado: int
+    area: Optional[AreaOrganizacionalResponse] = None
+    cargo: Optional[CargoResponse] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ---------------------------------------------------------------------------
+# CARGA FAMILIAR
+# ---------------------------------------------------------------------------
+class CargaFamiliarBase(BaseModel):
+    identificacion: Optional[str] = Field(None, max_length=20)
+    nombres_completos: str = Field(..., max_length=200)
+    parentesco: str = Field(..., max_length=50)
+    fecha_nacimiento: date
+    aplica_deduccion_ir: bool = True
+    estado: str = "ACTIVO"
+
+class CargaFamiliarCreate(CargaFamiliarBase):
+    id_empleado: int
+
+class CargaFamiliarResponse(CargaFamiliarBase):
+    id_carga: int
+    id_empleado: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ---------------------------------------------------------------------------
+# EMPLEADO — Súper Modelo V3
+# ---------------------------------------------------------------------------
+class EmpleadoBase(BaseModel):
+    # Identificación
+    tipo_identificacion: str = "CEDULA"
+    identificacion: str = Field(..., max_length=20)
+    # Datos personales
+    nombres: str = Field(..., max_length=100)
+    apellidos: str = Field(..., max_length=100)
+    fecha_nacimiento: date
+    genero: Optional[str] = Field(None, max_length=20)       # MASCULINO, FEMENINO, OTRO
+    # Previsional V3
+    porcentaje_discapacidad: Decimal = Decimal("0.00")
+    aplica_iess: bool = True
+    acumula_fondos_reserva: bool = True
+    acumula_decimos: bool = False
+    # Campos enriquecidos
+    regimen_legal: Optional[str] = Field(None, max_length=50)             # LOEP, CODIGO_TRABAJO
+    tipo_contrato_actual: Optional[str] = Field(None, max_length=50)      # NOMBRAMIENTO, ...
+    codigo_sercop: Optional[str] = Field(None, max_length=100)
+    archivo_firma_electronica: Optional[str] = None
+    # Contacto
+    telefono_celular: Optional[str] = Field(None, max_length=20)
+    correo_personal: Optional[str] = Field(None, max_length=100)
+    direccion_domicilio: Optional[str] = Field(None, max_length=255)
+    foto_perfil: Optional[str] = None
+    # Vinculación sistema
+    usuario_id: Optional[int] = None
+    # Estado
+    estado_empleado: str = "ACTIVO"
+
+class EmpleadoCreate(EmpleadoBase):
+    pass
+
+class EmpleadoUpdate(BaseModel):
+    tipo_identificacion: Optional[str] = None
+    identificacion: Optional[str] = None
+    nombres: Optional[str] = None
+    apellidos: Optional[str] = None
+    fecha_nacimiento: Optional[date] = None
+    genero: Optional[str] = None
+    porcentaje_discapacidad: Optional[Decimal] = None
+    aplica_iess: Optional[bool] = None
+    acumula_fondos_reserva: Optional[bool] = None
+    acumula_decimos: Optional[bool] = None
+    regimen_legal: Optional[str] = None
+    tipo_contrato_actual: Optional[str] = None
+    codigo_sercop: Optional[str] = None
+    archivo_firma_electronica: Optional[str] = None
+    telefono_celular: Optional[str] = None
+    correo_personal: Optional[str] = None
+    direccion_domicilio: Optional[str] = None
+    foto_perfil: Optional[str] = None
+    usuario_id: Optional[int] = None
+    estado_empleado: Optional[str] = None
+
+class EmpleadoResponse(EmpleadoBase):
+    id_empleado: int
+    creado_en: Optional[datetime] = None
+    actualizado_en: Optional[datetime] = None
+    cargas: List[CargaFamiliarResponse] = []
+    historial: List[HistorialLaboralResponse] = []
+    model_config = ConfigDict(from_attributes=True)

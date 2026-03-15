@@ -1,416 +1,277 @@
 'use client';
-import { useEffect, useState } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle,
-  Grid, TextField, MenuItem, Select, FormControl, InputLabel, Snackbar, Alert, Avatar, IconButton, Badge,
-  Tabs, Tab, Typography, List, ListItem, ListItemText, ListItemAvatar, ListItemSecondaryAction, Divider
+    Grid, Button, Dialog, DialogTitle, DialogContent, DialogActions,
+    TextField, MenuItem, Chip, Box, Typography, Alert, CircularProgress,
+    FormControl, InputLabel, Select, Autocomplete
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { IconUpload, IconSchool, IconTrash } from '@tabler/icons-react';
+import { DataGrid, GridColDef, GridToolbar, GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
+import { IconUserPlus, IconEye, IconUserX } from '@tabler/icons-react';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div role="tabpanel" hidden={value !== index} {...other}>
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
-    </div>
-  );
+// project imports
+import MainCard from 'ui-component/cards/MainCard';
+import axios from 'utils/axios';
+
+// ──────────────────────────────────────────────────────────────────────────────
+// TIPOS
+// ──────────────────────────────────────────────────────────────────────────────
+interface Unidad { id: number; nombre: string; nombre_dir?: string; }
+interface Puesto { id: number; denominacion: string; }
+interface Empleado {
+    id: number; cedula: string; nombres: string; apellidos: string;
+    estado_empleado: string; unidad: Unidad | null; puesto: Puesto | null;
+    telefono_celular?: string; correo_personal?: string; regimen_legal?: string;
 }
 
-export default function PersonalPage() {
-  const [data, setData] = useState([]);
-  const [unidades, setUnidades] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
-  const [puestos, setPuestos] = useState([]);
-  const [selectedPuesto, setSelectedPuesto] = useState<any>(null);
-  const [open, setOpen] = useState(false);
-  const [tabIndex, setTabIndex] = useState(0);
-  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
-  
-  const [formData, setFormData] = useState<any>({
-    cedula: '', nombres: '', apellidos: '', cargo: '', 
-    regimen_legal: '', tipo_contrato: '', codigo_certificacion_sercop: '', 
-    unidad_id: '', usuario_id: '', puesto_id: '', foto_perfil: '',
-    direccion_domicilio: '', telefono_celular: '', correo_personal: '', archivo_firma_electronica: '',
-    es_activo: true, titulos: []
-  });
-  
-  const [tituloForm, setTituloForm] = useState({ nivel: '', nombre_titulo: '', institucion: '', registro_senescyt: '' });
-  const [editingId, setEditingId] = useState<number | null>(null);
+const ESTADO_COLOR: Record<string, 'success' | 'warning' | 'error' | 'default'> = {
+    ACTIVO: 'success', VACACIONES: 'warning', PERMISO: 'warning', DESVINCULADO: 'error'
+};
 
-  const fetchPersonal = async () => {
-    try {
-      const res = await fetch('http://192.168.1.15:8000/api/administrativo/personal', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
-      if (res.ok) setData(await res.json());
-    } catch (e) { console.error(e); }
-  };
+const REGIMEN_OPCIONES = ['LOEP', 'CODIGO_TRABAJO'];
+const CONTRATO_OPCIONES = ['NOMBRAMIENTO', 'INDEFINIDO', 'CONTRATADO_LOEP', 'CONTRATADO_CT', 'REQUERIDO_PROYECTO'];
+const GENERO_OPCIONES = ['MASCULINO', 'FEMENINO', 'OTRO'];
 
-  const fetchUnidades = async () => {
-    try {
-      const res = await fetch('http://192.168.1.15:8000/api/administrativo/unidades', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
-      if (res.ok) setUnidades(await res.json());
-    } catch (e) { console.error(e); }
-  };
-
-  const fetchPuestos = async () => {
-    try {
-      const res = await fetch('http://192.168.1.15:8000/api/administrativo/puestos', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
-      if (res.ok) setPuestos(await res.json());
-    } catch (e) { console.error(e); }
-  };
-
-  const fetchUsuarios = async () => {
-    try {
-      const res = await fetch('http://192.168.1.15:8000/api/users', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
-      if (res.ok) setUsuarios(await res.json());
-    } catch (e) { console.error(e); }
-  };
-
-  useEffect(() => { fetchPersonal(); fetchUnidades(); fetchUsuarios(); fetchPuestos(); }, []);
-
-  const handleOpen = (item = null) => {
-    if (item && item.puesto_id) {
-      const found = puestos.find((p: any) => p.id === item.puesto_id);
-      setSelectedPuesto(found || null);
-    } else {
-      setSelectedPuesto(null);
-    }
-    setTabIndex(0);
-    if (item) {
-      setEditingId(item.id);
-      setFormData({
-        ...item,
-        usuario_id: item.usuario_id || '',
-        puesto_id: item.puesto_id || '',
-        direccion_domicilio: item.direccion_domicilio || '',
-        telefono_celular: item.telefono_celular || '',
-        correo_personal: item.correo_personal || '',
-        archivo_firma_electronica: item.archivo_firma_electronica || '',
-        titulos: item.titulos || []
-      });
-    } else {
-      setEditingId(null);
-      setFormData({
-        cedula: '', nombres: '', apellidos: '', cargo: '', 
-        regimen_legal: '', tipo_contrato: '', codigo_certificacion_sercop: '', 
-        unidad_id: '', usuario_id: '', puesto_id: '', foto_perfil: '',
-        direccion_domicilio: '', telefono_celular: '', correo_personal: '', archivo_firma_electronica: '',
-        es_activo: true, titulos: []
-      });
-    }
-    setOpen(true);
-  };
-
-  const handlePhotoUpload = (e: any) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, foto_perfil: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSignatureUpload = (e: any) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, archivo_firma_electronica: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  
-  const handlePuestoChange = (e: any) => {
-    const val = e.target.value;
-    setFormData({ ...formData, puesto_id: val });
-    if (val) {
-      const found = puestos.find((p: any) => p.id === val);
-      setSelectedPuesto(found || null);
-    } else {
-      setSelectedPuesto(null);
-    }
-  };
-
-  const handleSave = async () => {
-    const url = editingId ? `http://192.168.1.15:8000/api/administrativo/personal/${editingId}` : 'http://192.168.1.15:8000/api/administrativo/personal';
-    const method = editingId ? 'PUT' : 'POST';
-    
-    const payload = { ...formData };
-    if (payload.usuario_id === '') payload.usuario_id = null;
-    if (payload.puesto_id === '') payload.puesto_id = null;
-    delete payload.titulos; // Titulos are handled separately
-    
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        setToast({ open: true, message: 'Registro guardado exitosamente', severity: 'success' });
-        setOpen(false);
-        fetchPersonal();
-      } else {
-        setToast({ open: true, message: 'Error al guardar', severity: 'error' });
-      }
-    } catch (e) {
-      setToast({ open: true, message: 'Error de red', severity: 'error' });
-    }
-  };
-
-  const handleAddTitulo = async () => {
-    if (!editingId) return;
-    try {
-      const res = await fetch(`http://192.168.1.15:8000/api/administrativo/personal/${editingId}/titulos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` },
-        body: JSON.stringify({ ...tituloForm, personal_id: editingId })
-      });
-      if (res.ok) {
-        setToast({ open: true, message: 'Título agregado', severity: 'success' });
-        setTituloForm({ nivel: '', nombre_titulo: '', institucion: '', registro_senescyt: '' });
-        fetchPersonal();
-        // Update local state to reflect UI instantly
-        const newTitulo = await res.json();
-        setFormData({ ...formData, titulos: [...formData.titulos, newTitulo] });
-      }
-    } catch (e) { console.error(e); }
-  };
-
-  const handleDeleteTitulo = async (id: number) => {
-    try {
-      const res = await fetch(`http://192.168.1.15:8000/api/administrativo/personal/titulos/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
-      if (res.ok) {
-        setToast({ open: true, message: 'Título eliminado', severity: 'success' });
-        fetchPersonal();
-        setFormData({ ...formData, titulos: formData.titulos.filter((t: any) => t.id !== id) });
-      }
-    } catch (e) { console.error(e); }
-  };
-
-  const stringAvatar = (name: string) => {
-    if (!name) return { children: '?' };
-    const parts = name.split(' ');
-    if (parts.length > 1) return { children: `${parts[0][0]}${parts[1][0]}`.toUpperCase() };
-    return { children: name[0].toUpperCase() };
-  };
-
-  const columns: GridColDef[] = [
-    { field: 'foto_perfil', headerName: 'Avatar', width: 70, renderCell: (p) => (
-        <Avatar src={p.value} sx={{ width: 32, height: 32, bgcolor: 'primary.main' }} {...(!p.value ? stringAvatar(`${p.row.nombres} ${p.row.apellidos}`) : {})} />
-    )},
+// ──────────────────────────────────────────────────────────────────────────────
+// COLUMNAS DEL DATAGRID
+// ──────────────────────────────────────────────────────────────────────────────
+const buildColumns = (onVer: (id: number) => void, onDesvincular: (id: number) => void): GridColDef[] => [
     { field: 'cedula', headerName: 'Cédula', width: 120 },
-    { field: 'nombres', headerName: 'Nombres', flex: 1, renderCell: (p) => `${p.row.nombres} ${p.row.apellidos}` },
-    { field: 'cargo', headerName: 'Cargo', flex: 1 },
-    { field: 'unidad', headerName: 'Unidad', flex: 1, renderCell: (p) => p.value?.nombre || 'N/A' },
-    { field: 'regimen_legal', headerName: 'Régimen', width: 130 },
-    { field: 'acciones', headerName: 'Acciones', width: 120, renderCell: (params) => (
-        <Button size="small" variant="contained" onClick={() => handleOpen(params.row)}>Editar</Button>
-    )}
-  ];
+    { field: 'apellidos', headerName: 'Apellidos', width: 180, flex: 1 },
+    { field: 'nombres', headerName: 'Nombres', width: 160, flex: 1 },
+    {
+        field: 'unidad_nombre', headerName: 'Unidad / Dirección', width: 220,
+        valueGetter: (params: any) => params.row.unidad?.nombre ?? '—',
+    },
+    {
+        field: 'puesto_nombre', headerName: 'Puesto', width: 200,
+        valueGetter: (params: any) => params.row.puesto?.denominacion ?? '—',
+    },
+    {
+        field: 'estado_empleado', headerName: 'Estado', width: 130,
+        renderCell: (params) => (
+            <Chip
+                label={params.value}
+                color={ESTADO_COLOR[params.value] ?? 'default'}
+                size="small"
+                variant="outlined"
+            />
+        ),
+    },
+    {
+        field: 'acciones', type: 'actions', headerName: '', width: 80,
+        getActions: (params: GridRowParams) => [
+            <GridActionsCellItem icon={<IconEye size={18} />} label="Ver perfil" onClick={() => onVer(params.row.id)} />,
+            <GridActionsCellItem icon={<IconUserX size={18} />} label="Desvincular" onClick={() => onDesvincular(params.row.id)} showInMenu />,
+        ],
+    },
+];
 
-  return (
-    <Box>
-      <Card>
-        <CardHeader title="Directorio de Personal" action={<Button variant="contained" onClick={() => handleOpen()}>+ Nuevo</Button>} />
-        <CardContent>
-          <DataGrid rows={data} columns={columns} autoHeight />
-        </CardContent>
-      </Card>
+// ──────────────────────────────────────────────────────────────────────────────
+// FORMULARIO NUEVO EMPLEADO
+// ──────────────────────────────────────────────────────────────────────────────
+const FORM_DEFAULT = {
+    cedula: '', nombres: '', apellidos: '', fecha_nacimiento: '',
+    genero: '', regimen_legal: '', tipo_contrato_actual: '',
+    telefono_celular: '', correo_personal: '', unidad_id: '', puesto_id: '',
+};
 
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth scroll="paper">
-        <DialogTitle>{editingId ? 'Editar' : 'Nuevo'} Personal</DialogTitle>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={tabIndex} onChange={(e, val) => setTabIndex(val)} variant="scrollable" scrollButtons="auto">
-            <Tab label="Datos Institucionales" />
-            <Tab label="Datos Personales" />
-            <Tab label="Firma Electrónica" />
-            {editingId && <Tab label="Formación Académica" />}
-            <Tab label="Datos Remunerativos" />
-          </Tabs>
-        </Box>
-        <DialogContent dividers sx={{ p: 0 }}>
-          
-          {/* TAB 1: DATOS INSTITUCIONALES */}
-          <CustomTabPanel value={tabIndex} index={0}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} display="flex" justifyContent="center">
-                <Badge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                  badgeContent={
-                    <IconButton color="primary" component="label" sx={{ bgcolor: 'background.paper', boxShadow: 1 }}>
-                      <input hidden accept="image/*" type="file" onChange={handlePhotoUpload} />
-                      <IconUpload size={20} />
-                    </IconButton>
-                  }
+// ──────────────────────────────────────────────────────────────────────────────
+// COMPONENTE PRINCIPAL
+// ──────────────────────────────────────────────────────────────────────────────
+const DirectorioPersonalPage = () => {
+    const [empleados, setEmpleados] = useState<Empleado[]>([]);
+    const [unidades, setUnidades] = useState<Unidad[]>([]);
+    const [puestos, setPuestos] = useState<Puesto[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Modal Nuevo Empleado
+    const [openModal, setOpenModal] = useState(false);
+    const [form, setForm] = useState(FORM_DEFAULT);
+    const [savingForm, setSavingForm] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
+
+    // ── Fetch datos ──
+    const cargarDatos = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const [resEmp, resUnid, resPuest] = await Promise.all([
+                axios.get('/administrativo/empleados'),
+                axios.get('/administrativo/unidades'),
+                axios.get('/administrativo/puestos'),
+            ]);
+            setEmpleados(resEmp.data);
+            setUnidades(resUnid.data);
+            setPuestos(resPuest.data);
+        } catch (err: any) {
+            setError(err.response?.data?.detail || 'Error al cargar datos del servidor');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => { cargarDatos(); }, [cargarDatos]);
+
+    // ── Acciones ──
+    const handleVer = (id: number) => {
+        // En Fase 2 se abrirá el perfil completo del empleado
+        console.info('Ver empleado ID:', id);
+    };
+
+    const handleDesvincular = async (id: number) => {
+        if (!confirm('¿Confirma la desvinculación de este empleado? La acción es reversible desde administración.')) return;
+        try {
+            await axios.delete(`/administrativo/empleados/${id}`);
+            await cargarDatos();
+        } catch (err: any) {
+            alert(err.response?.data?.detail || 'Error al desvincular empleado');
+        }
+    };
+
+    const handleGuardar = async () => {
+        if (!form.cedula || !form.nombres || !form.apellidos || !form.fecha_nacimiento || !form.unidad_id) {
+            setFormError('Los campos Cédula, Nombres, Apellidos, Fecha de Nacimiento y Unidad son obligatorios.');
+            return;
+        }
+        setSavingForm(true);
+        setFormError(null);
+        try {
+            await axios.post('/administrativo/empleados', {
+                ...form,
+                unidad_id: Number(form.unidad_id),
+                puesto_id: form.puesto_id ? Number(form.puesto_id) : null,
+                porcentaje_discapacidad: 0,
+                genero: form.genero || null,
+                regimen_legal: form.regimen_legal || null,
+                tipo_contrato_actual: form.tipo_contrato_actual || null,
+            });
+            setOpenModal(false);
+            setForm(FORM_DEFAULT);
+            await cargarDatos();
+        } catch (err: any) {
+            setFormError(err.response?.data?.detail || 'Error al registrar empleado');
+        } finally {
+            setSavingForm(false);
+        }
+    };
+
+    const columns = buildColumns(handleVer, handleDesvincular);
+
+    return (
+        <MainCard
+            title="Directorio de Personal"
+            secondary={
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<IconUserPlus size={18} />}
+                    onClick={() => setOpenModal(true)}
                 >
-                  <Avatar src={formData.foto_perfil} sx={{ width: 100, height: 100, fontSize: 36, bgcolor: 'primary.main' }}
-                    {...(!formData.foto_perfil ? stringAvatar(`${formData.nombres || 'U'} ${formData.apellidos || ''}`) : {})}
-                  />
-                </Badge>
-              </Grid>
-
-              <Grid item xs={12} sm={6}><TextField fullWidth label="Cédula" value={formData.cedula} onChange={(e) => setFormData({ ...formData, cedula: e.target.value })} /></Grid>
-              <Grid item xs={12} sm={6}><TextField fullWidth label="Cargo" value={formData.cargo} onChange={(e) => setFormData({ ...formData, cargo: e.target.value })} /></Grid>
-              <Grid item xs={12} sm={6}><TextField fullWidth label="Nombres" value={formData.nombres} onChange={(e) => setFormData({ ...formData, nombres: e.target.value })} /></Grid>
-              <Grid item xs={12} sm={6}><TextField fullWidth label="Apellidos" value={formData.apellidos} onChange={(e) => setFormData({ ...formData, apellidos: e.target.value })} /></Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth><InputLabel>Unidad</InputLabel>
-                  <Select value={formData.unidad_id} label="Unidad" onChange={(e) => setFormData({ ...formData, unidad_id: e.target.value })}>
-                    {unidades.map((u: any) => <MenuItem key={u.id} value={u.id}>{u.nombre} ({u.direccion?.nombre})</MenuItem>)}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth><InputLabel>Vincular Usuario</InputLabel>
-                  <Select value={formData.usuario_id} label="Vincular Usuario" onChange={(e) => setFormData({ ...formData, usuario_id: e.target.value })}>
-                    <MenuItem value=""><em>Ninguno</em></MenuItem>
-                    {usuarios.map((u: any) => <MenuItem key={u.id} value={u.id}>{u.nombres} {u.apellidos} ({u.cedula})</MenuItem>)}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth><InputLabel>Régimen Legal</InputLabel>
-                  <Select value={formData.regimen_legal} label="Régimen Legal" onChange={(e) => setFormData({ ...formData, regimen_legal: e.target.value })}>
-                    <MenuItem value="LOEP">LOEP</MenuItem><MenuItem value="CODIGO_TRABAJO">Código de Trabajo</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth><InputLabel>Tipo de Contrato</InputLabel>
-                  <Select value={formData.tipo_contrato} label="Tipo de Contrato" onChange={(e) => setFormData({ ...formData, tipo_contrato: e.target.value })}>
-                    <MenuItem value="NOMBRAMIENTO">Nombramiento</MenuItem><MenuItem value="INDEFINIDO">Indefinido</MenuItem>
-                    <MenuItem value="CONTRATADO_LOEP">Contratado LOEP</MenuItem><MenuItem value="CONTRATADO_CT">Contratado CT</MenuItem>
-                    <MenuItem value="REQUERIDO_PROYECTO">Requerido Proyecto</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} sm={6}><TextField fullWidth label="Código SERCOP (Opcional)" value={formData.codigo_certificacion_sercop} onChange={(e) => setFormData({ ...formData, codigo_certificacion_sercop: e.target.value })} /></Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth><InputLabel>Estado</InputLabel>
-                  <Select value={formData.es_activo} label="Estado" onChange={(e) => setFormData({ ...formData, es_activo: e.target.value })}>
-                    <MenuItem value={true}>Activo</MenuItem><MenuItem value={false}>Inactivo</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </CustomTabPanel>
-
-          {/* TAB 2: DATOS PERSONALES */}
-          <CustomTabPanel value={tabIndex} index={1}>
-            <Grid container spacing={3}>
-              <Grid item xs={12}><TextField fullWidth label="Dirección de Domicilio" value={formData.direccion_domicilio} onChange={(e) => setFormData({ ...formData, direccion_domicilio: e.target.value })} /></Grid>
-              <Grid item xs={12} sm={6}><TextField fullWidth label="Teléfono Celular" value={formData.telefono_celular} onChange={(e) => setFormData({ ...formData, telefono_celular: e.target.value })} /></Grid>
-              <Grid item xs={12} sm={6}><TextField fullWidth label="Correo Personal" type="email" value={formData.correo_personal} onChange={(e) => setFormData({ ...formData, correo_personal: e.target.value })} /></Grid>
-            </Grid>
-          </CustomTabPanel>
-
-          {/* TAB 3: FIRMA ELECTRONICA */}
-          <CustomTabPanel value={tabIndex} index={2}>
-            <Grid container spacing={3} alignItems="center" justifyContent="center">
-              <Grid item xs={12} textAlign="center">
-                <Typography variant="h6" gutterBottom>Certificado de Firma Electrónica (.p12 / .pfx)</Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>Sube el archivo de firma para su uso automático en los flujos del sistema.</Typography>
-                <Button variant={formData.archivo_firma_electronica ? "contained" : "outlined"} color={formData.archivo_firma_electronica ? "success" : "primary"} component="label" startIcon={<IconUpload />}>
-                  {formData.archivo_firma_electronica ? 'Archivo Cargado (Cambiar)' : 'Subir Archivo de Firma'}
-                  <input hidden type="file" accept=".p12,.pfx" onChange={handleSignatureUpload} />
+                    Nuevo Empleado
                 </Button>
-                {formData.archivo_firma_electronica && <Typography variant="caption" display="block" sx={{ mt: 1, color: 'success.main' }}>✓ Firma guardada en bóveda segura.</Typography>}
-              </Grid>
-            </Grid>
-          </CustomTabPanel>
+            }
+        >
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-          {/* TAB 4: FORMACION ACADEMICA */}
-          {editingId && (
-            <CustomTabPanel value={tabIndex} index={3}>
-              <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={12} sm={4}>
-                  <FormControl fullWidth size="small"><InputLabel>Nivel</InputLabel>
-                    <Select value={tituloForm.nivel} label="Nivel" onChange={(e) => setTituloForm({ ...tituloForm, nivel: e.target.value })}>
-                      <MenuItem value="TECNICO">Técnico</MenuItem><MenuItem value="TECNOLOGICO">Tecnológico</MenuItem>
-                      <MenuItem value="TERCER_NIVEL">Tercer Nivel</MenuItem><MenuItem value="CUARTO_NIVEL">Cuarto Nivel</MenuItem><MenuItem value="PHD">PhD</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={8}><TextField fullWidth size="small" label="Nombre del Título" value={tituloForm.nombre_titulo} onChange={(e) => setTituloForm({ ...tituloForm, nombre_titulo: e.target.value })} /></Grid>
-                <Grid item xs={12} sm={6}><TextField fullWidth size="small" label="Institución" value={tituloForm.institucion} onChange={(e) => setTituloForm({ ...tituloForm, institucion: e.target.value })} /></Grid>
-                <Grid item xs={12} sm={4}><TextField fullWidth size="small" label="Registro SENESCYT" value={tituloForm.registro_senescyt} onChange={(e) => setTituloForm({ ...tituloForm, registro_senescyt: e.target.value })} /></Grid>
-                <Grid item xs={12} sm={2}><Button fullWidth variant="contained" onClick={handleAddTitulo} sx={{ height: '100%' }}>Agregar</Button></Grid>
-              </Grid>
-              <Divider />
-              <List sx={{ mt: 2 }}>
-                {formData.titulos.length === 0 && <Typography variant="body2" color="textSecondary" textAlign="center">No hay títulos registrados.</Typography>}
-                {formData.titulos.map((t: any) => (
-                  <ListItem key={t.id} sx={{ bgcolor: 'background.default', mb: 1, borderRadius: 1 }}>
-                    <ListItemAvatar><Avatar><IconSchool /></Avatar></ListItemAvatar>
-                    <ListItemText primary={t.nombre_titulo} secondary={`${t.institucion} | Nivel: ${t.nivel.replace('_', ' ')} | SENESCYT: ${t.registro_senescyt || 'N/A'}`} />
-                    <ListItemSecondaryAction><IconButton edge="end" color="error" onClick={() => handleDeleteTitulo(t.id)}><IconTrash size={20}/></IconButton></ListItemSecondaryAction>
-                  </ListItem>
-                ))}
-              </List>
-            </CustomTabPanel>
-          )}
+            <Box sx={{ height: 600, width: '100%' }}>
+                <DataGrid
+                    rows={empleados}
+                    columns={columns}
+                    loading={loading}
+                    pageSizeOptions={[10, 25, 50]}
+                    slots={{ toolbar: GridToolbar }}
+                    slotProps={{ toolbar: { showQuickFilter: true } }}
+                    initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                    disableRowSelectionOnClick
+                    sx={{
+                        border: 'none',
+                        '& .MuiDataGrid-columnHeaders': { backgroundColor: '#f8fafc', fontWeight: 700 },
+                        '& .MuiDataGrid-row:hover': { backgroundColor: '#f0f4ff' },
+                    }}
+                />
+            </Box>
 
-        
-          {/* TAB 5: DATOS REMUNERATIVOS */}
-          <CustomTabPanel value={tabIndex} index={editingId ? 4 : 3}>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom>Asignación Presupuestaria del Puesto</Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                  Alerta: Los cargos ahora se controlan estrictamente a través del Catálogo de Puestos Institucionales.
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Puesto / Partida</InputLabel>
-                  <Select value={formData.puesto_id} label="Puesto / Partida" onChange={handlePuestoChange}>
-                    <MenuItem value=""><em>Ninguno</em></MenuItem>
-                    {puestos.map((p: any) => <MenuItem key={p.id} value={p.id}>{p.denominacion} (Partida: {p.partida_presupuestaria})</MenuItem>)}
-                  </Select>
-                </FormControl>
-              </Grid>
-              {selectedPuesto && (
-                <>
-                  <Grid item xs={12} sm={4}>
-                    <TextField fullWidth disabled label="Escala Ocupacional" value={selectedPuesto.escala_ocupacional || 'N/A'} />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <TextField fullWidth disabled label="Remuneración Mensual" value={`$${selectedPuesto.remuneracion_mensual.toFixed(2)}`} />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <TextField fullWidth disabled label="Partida Presupuestaria" value={selectedPuesto.partida_presupuestaria} />
-                  </Grid>
-                </>
-              )}
-            </Grid>
-          </CustomTabPanel>
-</DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpen(false)}>Cerrar</Button>
-          <Button variant="contained" onClick={handleSave}>Guardar Perfil</Button>
-        </DialogActions>
-      </Dialog>
-      <Snackbar open={toast.open} autoHideDuration={4000} onClose={() => setToast({...toast, open: false})}>
-        <Alert severity={toast.severity as any}>{toast.message}</Alert>
-      </Snackbar>
-    </Box>
-  );
-}
+            {/* ── Modal: Nuevo Empleado ── */}
+            <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth>
+                <DialogTitle>Registrar Nuevo Empleado</DialogTitle>
+                <DialogContent dividers>
+                    {formError && <Alert severity="error" sx={{ mb: 2 }}>{formError}</Alert>}
+                    <Grid container spacing={2} sx={{ pt: 1 }}>
+                        <Grid item xs={12} md={4}>
+                            <TextField label="Cédula *" fullWidth value={form.cedula}
+                                onChange={e => setForm({ ...form, cedula: e.target.value })} />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField label="Nombres *" fullWidth value={form.nombres}
+                                onChange={e => setForm({ ...form, nombres: e.target.value })} />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField label="Apellidos *" fullWidth value={form.apellidos}
+                                onChange={e => setForm({ ...form, apellidos: e.target.value })} />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField label="Fecha de Nacimiento *" type="date" fullWidth
+                                InputLabelProps={{ shrink: true }} value={form.fecha_nacimiento}
+                                onChange={e => setForm({ ...form, fecha_nacimiento: e.target.value })} />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField select label="Género" fullWidth value={form.genero}
+                                onChange={e => setForm({ ...form, genero: e.target.value })}>
+                                <MenuItem value="">Sin especificar</MenuItem>
+                                {GENERO_OPCIONES.map(g => <MenuItem key={g} value={g}>{g}</MenuItem>)}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <TextField select label="Unidad *" fullWidth value={form.unidad_id}
+                                onChange={e => setForm({ ...form, unidad_id: e.target.value })}>
+                                {unidades.map(u => <MenuItem key={u.id} value={u.id}>{u.nombre}</MenuItem>)}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField select label="Puesto" fullWidth value={form.puesto_id}
+                                onChange={e => setForm({ ...form, puesto_id: e.target.value })}>
+                                <MenuItem value="">Ninguno</MenuItem>
+                                {puestos.map(p => <MenuItem key={p.id} value={p.id}>{p.denominacion}</MenuItem>)}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField select label="Régimen Legal" fullWidth value={form.regimen_legal}
+                                onChange={e => setForm({ ...form, regimen_legal: e.target.value })}>
+                                <MenuItem value="">Sin especificar</MenuItem>
+                                {REGIMEN_OPCIONES.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField select label="Tipo de Contrato" fullWidth value={form.tipo_contrato_actual}
+                                onChange={e => setForm({ ...form, tipo_contrato_actual: e.target.value })}>
+                                <MenuItem value="">Sin especificar</MenuItem>
+                                {CONTRATO_OPCIONES.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField label="Teléfono Celular" fullWidth value={form.telefono_celular}
+                                onChange={e => setForm({ ...form, telefono_celular: e.target.value })} />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField label="Correo Personal" fullWidth value={form.correo_personal}
+                                onChange={e => setForm({ ...form, correo_personal: e.target.value })} />
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => { setOpenModal(false); setFormError(null); }} color="inherit">
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleGuardar} variant="contained" disabled={savingForm}
+                        startIcon={savingForm ? <CircularProgress size={16} /> : undefined}>
+                        {savingForm ? 'Guardando...' : 'Registrar Empleado'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </MainCard>
+    );
+};
+
+export default DirectorioPersonalPage;

@@ -43,8 +43,23 @@ class ProcesoContratacionBase(BaseModel):
     tipo_proceso_id: Optional[int] = None
     datos_formulario: Optional[Dict[str, Any]] = None
 
-class ProcesoContratacionCreate(ProcesoContratacionBase):
+
+class ProcesoItemPacLinkBase(BaseModel):
+    item_pac_id: int
+    monto_comprometido: float
+
+class ProcesoItemPacLinkCreate(ProcesoItemPacLinkBase):
     pass
+
+class ProcesoItemPacLinkResponse(ProcesoItemPacLinkBase):
+    id: int
+    proceso_id: int
+
+    class Config:
+        from_attributes = True
+
+class ProcesoContratacionCreate(ProcesoContratacionBase):
+    items_pac: Optional[List[ProcesoItemPacLinkCreate]] = []
 
 class DocumentoGeneradoResponse(BaseModel):
     id: int
@@ -122,9 +137,6 @@ class PacAnualResponse(PacAnualBase):
     class Config:
         from_attributes = True
 
-class ProcesoItemPacLinkCreate(BaseModel):
-    item_pac_id: int
-    monto_comprometido: float
 
 # --- Reforma PAC ---
 class MovimientoReformaCreate(BaseModel):

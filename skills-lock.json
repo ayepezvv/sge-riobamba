@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "nextjs-react-typescript": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "computedHash": "eb995cc826bf48498e0e90969fc7dadfa2ec634002c26cfcfde565134cefa738"
+    },
+    "systematic-debugging": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "computedHash": "72e9ab72627e4fd8ed26a582e82309a98ecdc4f6e1c99418430ac05682c9e91d"
+    },
+    "ui-component-patterns": {
+      "source": "supercent-io/skills-template",
+      "sourceType": "github",
+      "computedHash": "6903616a42c711d7cee7ddc2a34233c8dfda67868dd47905edd3c6374fc49ba9"
+    }
+  }
+}
