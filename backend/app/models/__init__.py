@@ -13,7 +13,7 @@ from .administrativo import (
 from .rrhh import (
     AreaOrganizacional, EscalaSalarial, Cargo,
     Empleado, EmpleadoCargaFamiliar, HistorialLaboral,
-    ParametroCalculo, ImpuestoRentaEscala, RubroNomina
+    ParametroCalculo, ImpuestoRentaEscala, RubroNomina, Contrato
 )
 from .informatica import SegmentoRed, DireccionIpAsignada
 from .bodega import CategoriaBien, ActivoFijo, EstadoFisico

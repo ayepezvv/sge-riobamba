@@ -177,3 +177,50 @@ class EmpleadoResponse(EmpleadoBase):
     cargas: List[CargaFamiliarResponse] = []
     historial: List[HistorialLaboralResponse] = []
     model_config = ConfigDict(from_attributes=True)
+
+# =========================================================================
+# CONTRATOS
+# =========================================================================
+class ContratoBase(BaseModel):
+    id_empleado: int
+    id_escala_salarial: Optional[int] = None
+    id_cargo: int
+    tipo_contrato: str
+    fecha_inicio: date
+    fecha_fin: Optional[date] = None
+    sueldo_pactado: Decimal
+    estado_contrato: Optional[str] = "ACTIVO"
+    observaciones: Optional[str] = None
+
+class ContratoCreate(ContratoBase):
+    pass
+
+class ContratoUpdate(BaseModel):
+    fecha_fin: Optional[date] = None
+    estado_contrato: Optional[str] = None
+    observaciones: Optional[str] = None
+
+class ContratoResponse(ContratoBase):
+    id_contrato: int
+    empleado: Optional[EmpleadoResponse] = None
+    cargo: Optional[CargoResponse] = None
+    escala: Optional[EscalaSalarialResponse] = None
+    model_config = ConfigDict(from_attributes=True)
+
+# =========================================================================
+# PARAMETROS NOMINA
+# =========================================================================
+class ParametroCalculoBase(BaseModel):
+    anio_vigencia: int
+    codigo_parametro: str
+    descripcion: Optional[str] = None
+    valor_numerico: Optional[Decimal] = None
+    valor_texto: Optional[str] = None
+    estado: Optional[str] = "ACTIVO"
+
+class ParametroCalculoCreate(ParametroCalculoBase):
+    pass
+
+class ParametroCalculoResponse(ParametroCalculoBase):
+    id_parametro: int
+    model_config = ConfigDict(from_attributes=True)

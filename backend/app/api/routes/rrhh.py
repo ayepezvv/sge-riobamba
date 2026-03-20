@@ -11,7 +11,8 @@ from app.api import deps
 from app.models.user import User
 from app.models.rrhh import (
     AreaOrganizacional, EscalaSalarial, Cargo,
-    Empleado, EmpleadoCargaFamiliar, HistorialLaboral
+    Empleado, EmpleadoCargaFamiliar, HistorialLaboral,
+    Contrato, ParametroCalculo
 )
 from app.schemas.rrhh import (
     AreaOrganizacionalCreate, AreaOrganizacionalUpdate, AreaOrganizacionalResponse,
@@ -20,6 +21,8 @@ from app.schemas.rrhh import (
     EmpleadoCreate, EmpleadoUpdate, EmpleadoResponse,
     CargaFamiliarCreate, CargaFamiliarResponse,
     HistorialLaboralCreate, HistorialLaboralResponse,
+    ContratoCreate, ContratoUpdate, ContratoResponse,
+    ParametroCalculoCreate, ParametroCalculoResponse,
 )
 
 router = APIRouter(tags=["RRHH V3"])
@@ -68,6 +71,17 @@ def crear_escala(req: EscalaSalarialCreate, db: Session = Depends(deps.get_db),
     db.add(obj); db.commit(); db.refresh(obj)
     return obj
 
+@router.put("/escalas-salariales/{escala_id}", response_model=EscalaSalarialResponse)
+def actualizar_escala(escala_id: int, req: EscalaSalarialCreate,
+                      db: Session = Depends(deps.get_db),
+                      _: User = Depends(deps.get_current_user)):
+    obj = db.query(EscalaSalarial).filter(EscalaSalarial.id_escala == escala_id).first()
+    if not obj:
+        raise HTTPException(404, "Escala salarial no encontrada")
+    for k, v in req.model_dump().items():
+        setattr(obj, k, v)
+    db.commit(); db.refresh(obj)
+    return obj
 
 # =========================================================================
 # CARGO
@@ -233,3 +247,72 @@ def eliminar_carga(carga_id: int, db: Session = Depends(deps.get_db),
     if not obj:
         raise HTTPException(404, "Carga familiar no encontrada")
     db.delete(obj); db.commit()
+
+# =========================================================================
+# CONTRATOS
+# =========================================================================
+@router.get("/contratos", response_model=List[ContratoResponse])
+def listar_contratos(db: Session = Depends(deps.get_db),
+                     _: User = Depends(deps.get_current_user)):
+    return (db.query(Contrato)
+            .options(joinedload(Contrato.empleado),
+                     joinedload(Contrato.cargo),
+                     joinedload(Contrato.escala))
+            .order_by(Contrato.fecha_inicio.desc()).all())
+
+@router.get("/contratos/{contrato_id}", response_model=ContratoResponse)
+def detalle_contrato(contrato_id: int, db: Session = Depends(deps.get_db),
+                     _: User = Depends(deps.get_current_user)):
+    obj = db.query(Contrato).filter(Contrato.id_contrato == contrato_id).first()
+    if not obj: raise HTTPException(404, "Contrato no encontrado")
+    return obj
+
+@router.post("/contratos", response_model=ContratoResponse, status_code=201)
+def crear_contrato(req: ContratoCreate, db: Session = Depends(deps.get_db),
+                   _: User = Depends(deps.get_current_user)):
+    obj = Contrato(**req.model_dump())
+    db.add(obj); db.commit(); db.refresh(obj)
+    return obj
+
+@router.put("/contratos/{contrato_id}", response_model=ContratoResponse)
+def actualizar_contrato(contrato_id: int, req: ContratoUpdate,
+                        db: Session = Depends(deps.get_db),
+                        _: User = Depends(deps.get_current_user)):
+    obj = db.query(Contrato).filter(Contrato.id_contrato == contrato_id).first()
+    if not obj: raise HTTPException(404, "Contrato no encontrado")
+    for k, v in req.model_dump(exclude_unset=True).items():
+        setattr(obj, k, v)
+    db.commit(); db.refresh(obj)
+    return obj
+
+# =========================================================================
+# PARAMETROS DE NOMINA (ParametroCalculo)
+# =========================================================================
+@router.get("/parametros-calculo", response_model=List[ParametroCalculoResponse])
+def listar_parametros(db: Session = Depends(deps.get_db),
+                      _: User = Depends(deps.get_current_user)):
+    return db.query(ParametroCalculo).order_by(ParametroCalculo.anio_vigencia.desc(), ParametroCalculo.codigo_parametro).all()
+
+@router.post("/parametros-calculo", response_model=ParametroCalculoResponse, status_code=201)
+def crear_parametro(req: ParametroCalculoCreate, db: Session = Depends(deps.get_db),
+                    _: User = Depends(deps.get_current_user)):
+    # validar uq
+    exists = db.query(ParametroCalculo).filter(
+        ParametroCalculo.anio_vigencia == req.anio_vigencia,
+        ParametroCalculo.codigo_parametro == req.codigo_parametro
+    ).first()
+    if exists: raise HTTPException(400, "El parámetro ya existe para ese año")
+    obj = ParametroCalculo(**req.model_dump())
+    db.add(obj); db.commit(); db.refresh(obj)
+    return obj
+
+@router.put("/parametros-calculo/{param_id}", response_model=ParametroCalculoResponse)
+def actualizar_parametro(param_id: int, req: ParametroCalculoCreate,
+                         db: Session = Depends(deps.get_db),
+                         _: User = Depends(deps.get_current_user)):
+    obj = db.query(ParametroCalculo).filter(ParametroCalculo.id_parametro == param_id).first()
+    if not obj: raise HTTPException(404, "Parámetro no encontrado")
+    for k, v in req.model_dump().items():
+        setattr(obj, k, v)
+    db.commit(); db.refresh(obj)
+    return obj

@@ -177,6 +177,9 @@ class Empleado(Base):
     historial = relationship("HistorialLaboral", back_populates="empleado",
                              cascade="all, delete-orphan",
                              order_by="HistorialLaboral.fecha_inicio.desc()")
+    contratos = relationship("Contrato", back_populates="empleado",
+                             cascade="all, delete-orphan",
+                             order_by="Contrato.fecha_inicio.desc()")
 
 
 # ---------------------------------------------------------------------------
@@ -226,8 +229,32 @@ class HistorialLaboral(Base):
 
 
 # ---------------------------------------------------------------------------
-# MOTOR DE RUBROS (estructura — lógica de cálculo en Fase 2)
+# MOTOR DE RUBROS Y CONTRATOS
 # ---------------------------------------------------------------------------
+
+class Contrato(Base):
+    """
+    Registro formal del contrato del empleado.
+    Define condiciones de tiempo, cargo, escala salarial y remuneración.
+    """
+    __tablename__ = "contrato"
+    __table_args__ = {"schema": "rrhh"}
+
+    id_contrato = Column(BigInteger, primary_key=True, autoincrement=True)
+    id_empleado = Column(BigInteger, ForeignKey("rrhh.empleado.id_empleado", ondelete="CASCADE"), nullable=False)
+    id_escala_salarial = Column(BigInteger, ForeignKey("rrhh.escala_salarial.id_escala"), nullable=True)
+    id_cargo = Column(BigInteger, ForeignKey("rrhh.cargo.id_cargo"), nullable=False)
+    
+    tipo_contrato = Column(String(50), nullable=False)
+    fecha_inicio = Column(Date, nullable=False)
+    fecha_fin = Column(Date, nullable=True)
+    sueldo_pactado = Column(Numeric(10, 2), nullable=False)
+    estado_contrato = Column(String(20), default="ACTIVO")
+    observaciones = Column(Text, nullable=True)
+
+    empleado = relationship("Empleado", back_populates="contratos")
+    escala = relationship("EscalaSalarial")
+    cargo = relationship("Cargo")
 
 class RubroNomina(Base):
     """Catálogo de ingresos/descuentos con fórmulas dinámicas."""

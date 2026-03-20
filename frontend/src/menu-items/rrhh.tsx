@@ -1,4 +1,7 @@
-import { IconUsers, IconAddressBook, IconBuildingArch } from '@tabler/icons-react';
+import {
+  IconUsers, IconAddressBook, IconBuildingArch,
+  IconMoneybag, IconBriefcase, IconContract
+} from '@tabler/icons-react';
 
 const rrhh = {
   id: 'rrhh',
@@ -24,6 +27,27 @@ const rrhh = {
           type: 'item',
           url: '/rrhh/areas',
           icon: IconBuildingArch,
+        },
+        {
+          id: 'rrhh-escalas',
+          title: 'Escalas Salariales',
+          type: 'item',
+          url: '/rrhh/escalas',
+          icon: IconMoneybag,
+        },
+        {
+          id: 'rrhh-cargos',
+          title: 'Catálogo de Cargos',
+          type: 'item',
+          url: '/rrhh/cargos',
+          icon: IconBriefcase,
+        },
+        {
+          id: 'rrhh-contratos',
+          title: 'Gestión de Contratos',
+          type: 'item',
+          url: '/rrhh/contratos',
+          icon: IconContract,
         },
       ]
     }
