@@ -8,6 +8,7 @@ greenlet==3.3.2
 h11==0.16.0
 idna==3.11
 packaging==26.0
+python-dotenv==1.0.1
 psycopg2-binary==2.9.11
 pydantic==2.12.5
 pydantic_core==2.41.5

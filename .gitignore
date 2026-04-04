@@ -28,3 +28,4 @@ docker-compose.override.yml
 
 # Backups permitidos
 !db_backups/sge_replica_inicial.sql
+backend/.env

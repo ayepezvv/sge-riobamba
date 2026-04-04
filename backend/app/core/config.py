@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
 
 class Settings:
     SECRET_KEY: str = os.environ["SGE_SECRET_KEY"]  # sin default — falla si no está definida
