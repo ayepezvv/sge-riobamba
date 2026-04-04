@@ -39,3 +39,9 @@ app.include_router(bodega.router, prefix="/api/bodega", tags=["bodega"])
 
 from app.api.routes import contabilidad
 app.include_router(contabilidad.router, prefix="/api/contabilidad", tags=["Contabilidad"])
+
+from app.api.routes import tesoreria
+app.include_router(tesoreria.router, prefix="/api/tesoreria", tags=["Tesorería"])
+
+from app.api.routes import financiero
+app.include_router(financiero.router, prefix="/api/financiero", tags=["Financiero"])
