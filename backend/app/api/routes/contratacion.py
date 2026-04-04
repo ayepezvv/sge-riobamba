@@ -12,7 +12,10 @@ from fastapi.responses import FileResponse
 from docxtpl import DocxTemplate
 
 from app.api import deps
+from app.api.deps import require_role
 from app.models.user import User
+
+_require_contratacion = require_role(["SuperAdmin", "Contratacion"])
 from app.models.contratacion import TipoProceso, PlantillaDocumento, ProcesoContratacion, DocumentoGenerado, PacAnual, ItemPac, ProcesoItemPacLink, HistoricoReformaPac, GenealogiaMontoPac, StatusItemPac
 from app.schemas.contratacion import (
     TipoProcesoCreate, TipoProcesoUpdate,
@@ -63,11 +66,11 @@ def get_render_data(doc, req_datos):
 
 # ----- PROCESOS DE CONTRATACIÓN -----
 @router.get("/procesos", response_model=List[ProcesoContratacionResponse])
-def get_procesos(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def get_procesos(db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     return db.query(ProcesoContratacion).all()
 
 @router.post("/procesos", response_model=ProcesoContratacionResponse)
-def create_proceso(item_in: ProcesoContratacionCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def create_proceso(item_in: ProcesoContratacionCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     data = item_in.model_dump()
     items_pac = data.pop("items_pac", [])
     
@@ -88,7 +91,7 @@ def create_proceso(item_in: ProcesoContratacionCreate, db: Session = Depends(dep
     return db_item
 
 @router.get("/procesos/{id}", response_model=ProcesoContratacionResponse)
-def get_proceso(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def get_proceso(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     db_item = db.query(ProcesoContratacion).filter(ProcesoContratacion.id == id).first()
     if not db_item:
         raise HTTPException(404, "Proceso no encontrado")
@@ -97,11 +100,11 @@ def get_proceso(id: int, db: Session = Depends(deps.get_db), current_user: User 
 # ----- PLANTILLAS -----
 
 @router.get("/tipos", response_model=List[TipoProcesoResponse])
-def get_tipos(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def get_tipos(db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     return db.query(TipoProceso).all()
 
 @router.post("/tipos", response_model=TipoProcesoResponse)
-def create_tipo(item_in: TipoProcesoCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def create_tipo(item_in: TipoProcesoCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     db_item = TipoProceso(**item_in.model_dump(), creado_por_id=current_user.id)
     db.add(db_item)
     db.commit()
@@ -109,7 +112,7 @@ def create_tipo(item_in: TipoProcesoCreate, db: Session = Depends(deps.get_db), 
     return db_item
 
 @router.put("/tipos/{id}", response_model=TipoProcesoResponse)
-def update_tipo(id: int, item_in: TipoProcesoUpdate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def update_tipo(id: int, item_in: TipoProcesoUpdate, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     db_item = db.query(TipoProceso).filter(TipoProceso.id == id).first()
     if not db_item:
         raise HTTPException(404, "Tipo de proceso no encontrado")
@@ -131,7 +134,7 @@ def upload_plantilla(
     anio: int = Form(2026),
     file: UploadFile = File(...),
     db: Session = Depends(deps.get_db),
-    current_user: User = Depends(deps.get_current_user)
+    current_user: User = Depends(_require_contratacion)
 ):
     if not file.filename.endswith('.docx'):
         raise HTTPException(400, "El archivo debe ser .docx")
@@ -173,7 +176,7 @@ def get_plantillas(
     tipo_proceso_id: Optional[int] = Query(None),
     is_activa: Optional[bool] = Query(None),
     db: Session = Depends(deps.get_db), 
-    current_user: User = Depends(deps.get_current_user)
+    current_user: User = Depends(_require_contratacion)
 ):
     query = db.query(PlantillaDocumento)
     if tipo_proceso_id is not None:
@@ -184,7 +187,7 @@ def get_plantillas(
 
 
 @router.get("/plantillas/{id}/esquema")
-def get_plantilla_esquema(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def get_plantilla_esquema(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     plantilla = db.query(PlantillaDocumento).filter(PlantillaDocumento.id == id).first()
     if not plantilla:
         raise HTTPException(404, "Plantilla no encontrada")
@@ -290,7 +293,7 @@ def get_plantilla_esquema(id: int, db: Session = Depends(deps.get_db), current_u
 
 # ----- DOCUMENTOS GENERADOS -----
 @router.post("/documento")
-def generar_documento(req: GenerarDocumentoRequest, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def generar_documento(req: GenerarDocumentoRequest, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     # 1. Obtener plantilla
     plantilla = db.query(PlantillaDocumento).filter(PlantillaDocumento.id == req.plantilla_id).first()
     if not plantilla:
@@ -334,7 +337,7 @@ def generar_documento(req: GenerarDocumentoRequest, db: Session = Depends(deps.g
     )
 
 @router.get("/documento/{id}/datos")
-def get_datos_documento(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def get_datos_documento(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     doc = db.query(DocumentoGenerado).filter(DocumentoGenerado.id == id).first()
     if not doc:
         raise HTTPException(404, "Documento no encontrado")
@@ -342,7 +345,7 @@ def get_datos_documento(id: int, db: Session = Depends(deps.get_db), current_use
 
 
 @router.get("/documento/{id}/descargar")
-def descargar_documento(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def descargar_documento(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     doc = db.query(DocumentoGenerado).filter(DocumentoGenerado.id == id).first()
     if not doc or not os.path.exists(doc.ruta_archivo_generado):
         raise HTTPException(404, "Documento fisico no encontrado")
@@ -355,7 +358,7 @@ def descargar_documento(id: int, db: Session = Depends(deps.get_db), current_use
     )
 
 @router.put("/documento/{id}/regenerar")
-def regenerar_documento(id: int, req: RegenerarDocumentoRequest, PacAnualCreate, PacAnualResponse, ItemPacCreate, ItemPacResponse, ProcesoItemPacLinkCreate, ReformaPacCreate, MovimientoReformaCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def regenerar_documento(id: int, req: RegenerarDocumentoRequest, PacAnualCreate, PacAnualResponse, ItemPacCreate, ItemPacResponse, ProcesoItemPacLinkCreate, ReformaPacCreate, MovimientoReformaCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     doc = db.query(DocumentoGenerado).filter(DocumentoGenerado.id == id).first()
     if not doc:
         raise HTTPException(404, "Documento no encontrado")
@@ -384,7 +387,7 @@ def regenerar_documento(id: int, req: RegenerarDocumentoRequest, PacAnualCreate,
 
 # --- PAC Endpoints ---
 @router.post("/pac", response_model=PacAnualResponse, status_code=status.HTTP_201_CREATED)
-def crear_pac(req: PacAnualCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def crear_pac(req: PacAnualCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     db_obj = PacAnual(**req.dict())
     db.add(db_obj)
     db.commit()
@@ -392,23 +395,23 @@ def crear_pac(req: PacAnualCreate, db: Session = Depends(deps.get_db), current_u
     return db_obj
 
 @router.get("/pac", response_model=List[PacAnualResponse])
-def listar_pac(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def listar_pac(db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     return db.query(PacAnual).options(joinedload(PacAnual.items)).all()
 
 
 @router.get("/pac/{id}/items", response_model=List[ItemPacResponse])
-def listar_items_pac(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def listar_items_pac(id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     items = db.query(ItemPac).filter(ItemPac.pac_anual_id == id).all()
     return items
 
 
 @router.get("/pac/items/all", response_model=List[ItemPacResponse])
-def explorar_todos_items(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def explorar_todos_items(db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     # Trae todos los items sin importar a que PAC pertenecen, usando join para traer data del padre
     return db.query(ItemPac).options(joinedload(ItemPac.pac)).all()
 
 @router.post("/pac/{id}/items", response_model=ItemPacResponse, status_code=status.HTTP_201_CREATED)
-def agregar_item_pac(id: int, req: ItemPacCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def agregar_item_pac(id: int, req: ItemPacCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     db_obj = ItemPac(**req.dict(), pac_anual_id=id)
     db.add(db_obj)
     db.commit()
@@ -419,7 +422,7 @@ def agregar_item_pac(id: int, req: ItemPacCreate, db: Session = Depends(deps.get
 
 # --- PAC Carga Masiva ---
 @router.post("/pac/{id}/importar")
-async def importar_pac(id: int, file: UploadFile = File(...), db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+async def importar_pac(id: int, file: UploadFile = File(...), db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     pac = db.query(PacAnual).filter(PacAnual.id == id).first()
     if not pac:
         raise HTTPException(status_code=404, detail="PAC no encontrado")
@@ -534,7 +537,7 @@ async def importar_pac(id: int, file: UploadFile = File(...), db: Session = Depe
 
 @router.post("/pac/{id}/reforma")
 
-def reformar_pac(id: int, req: ReformaPacCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def reformar_pac(id: int, req: ReformaPacCreate, db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     pac = db.query(PacAnual).filter(PacAnual.id == id).first()
     if not pac:
         raise HTTPException(status_code=404, detail="PAC no encontrado")
@@ -582,17 +585,16 @@ def reformar_pac(id: int, req: ReformaPacCreate, db: Session = Depends(deps.get_
         db.add(nuevo_item)
         db.flush() # Obtener nuevo_item.id
         
-        # Enlazar genealogía (simplificado: asigna proporcionalmente)
-        # En un sistema real se mapea 1 a 1 en el payload, pero asumimos que el array movimientos 
-        # dicta de dónde sale la plata para toda la bolsa de nuevos items.
+        # Enlazar genealogía prorrateando el monto entre todos los nuevos items
+        n_nuevos = len(req.nuevos_items)
         for mov in req.movimientos:
             if mov.monto_transferido > 0:
-                # Registramos el nexo
+                monto_por_item = round(mov.monto_transferido / n_nuevos, 2)
                 gen = GenealogiaMontoPac(
                     historico_reforma_id=reforma.id,
                     item_origen_id=mov.item_origen_id,
                     item_destino_id=nuevo_item.id,
-                    monto_transferido=mov.monto_transferido # Idealmente prorrateado
+                    monto_transferido=monto_por_item
                 )
                 db.add(gen)
                 
@@ -600,7 +602,7 @@ def reformar_pac(id: int, req: ReformaPacCreate, db: Session = Depends(deps.get_
     return {"ok": True, "reforma_id": reforma.id, "mensaje": "Reforma financiera ejecutada con cuadre exacto."}
 
 @router.post("/procesos/{id}/vincular_pac")
-def vincular_pac_proceso(id: int, req_links: List[ProcesoItemPacLinkCreate], db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+def vincular_pac_proceso(id: int, req_links: List[ProcesoItemPacLinkCreate], db: Session = Depends(deps.get_db), current_user: User = Depends(_require_contratacion)):
     proceso = db.query(ProcesoContratacion).filter(ProcesoContratacion.id == id).first()
     if not proceso:
         raise HTTPException(status_code=404, detail="Proceso no encontrado")
