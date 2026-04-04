@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 from app.api import deps
+from app.models.user import User
 from app.models.presupuesto import (
     PartidaPresupuestaria,
     PresupuestoAnual,
@@ -61,7 +62,7 @@ def listar_partidas(
 
 
 @router.post("/partidas", response_model=PartidaPresupuestariaRespuesta, status_code=201, tags=["Presupuesto"])
-def crear_partida(req: PartidaPresupuestariaCrear, db: Session = Depends(deps.get_db)):
+def crear_partida(req: PartidaPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     if db.query(PartidaPresupuestaria).filter_by(codigo=req.codigo).first():
         raise HTTPException(status_code=400, detail=f"Partida con código {req.codigo} ya existe")
     obj = PartidaPresupuestaria(**req.model_dump())
@@ -81,7 +82,7 @@ def obtener_partida(partida_id: int, db: Session = Depends(deps.get_db)):
 
 @router.put("/partidas/{partida_id}", response_model=PartidaPresupuestariaRespuesta, tags=["Presupuesto"])
 def actualizar_partida(
-    partida_id: int, req: PartidaPresupuestariaActualizar, db: Session = Depends(deps.get_db)
+    partida_id: int, req: PartidaPresupuestariaActualizar, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)
 ):
     obj = db.query(PartidaPresupuestaria).get(partida_id)
     if not obj:
@@ -112,7 +113,7 @@ def listar_presupuestos(
 
 
 @router.post("/presupuestos", response_model=PresupuestoAnualRespuesta, status_code=201, tags=["Presupuesto"])
-def crear_presupuesto(req: PresupuestoAnualCrear, db: Session = Depends(deps.get_db)):
+def crear_presupuesto(req: PresupuestoAnualCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     existente = db.query(PresupuestoAnual).filter(
         PresupuestoAnual.anio_fiscal == req.anio_fiscal,
         PresupuestoAnual.estado == "APROBADO"
@@ -142,7 +143,7 @@ def obtener_presupuesto(presupuesto_id: int, db: Session = Depends(deps.get_db))
 
 @router.patch("/presupuestos/{presupuesto_id}", response_model=PresupuestoAnualRespuesta, tags=["Presupuesto"])
 def actualizar_presupuesto(
-    presupuesto_id: int, req: PresupuestoAnualActualizar, db: Session = Depends(deps.get_db)
+    presupuesto_id: int, req: PresupuestoAnualActualizar, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)
 ):
     obj = db.query(PresupuestoAnual).get(presupuesto_id)
     if not obj:
@@ -179,7 +180,7 @@ def listar_asignaciones(presupuesto_id: int, db: Session = Depends(deps.get_db))
     status_code=201,
     tags=["Presupuesto"],
 )
-def crear_asignacion(req: AsignacionPresupuestariaCrear, db: Session = Depends(deps.get_db)):
+def crear_asignacion(req: AsignacionPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     existente = db.query(AsignacionPresupuestaria).filter_by(
         id_presupuesto=req.id_presupuesto, id_partida=req.id_partida
     ).first()
@@ -202,7 +203,7 @@ def crear_asignacion(req: AsignacionPresupuestariaCrear, db: Session = Depends(d
     tags=["Presupuesto"],
 )
 def crear_reforma(
-    asignacion_id: int, req: ReformaPresupuestariaCrear, db: Session = Depends(deps.get_db)
+    asignacion_id: int, req: ReformaPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)
 ):
     asig = db.query(AsignacionPresupuestaria).get(asignacion_id)
     if not asig:
@@ -252,7 +253,7 @@ def listar_certificados(
 @router.post(
     "/certificados", response_model=CertificadoPresupuestariaRespuesta, status_code=201, tags=["Presupuesto"]
 )
-def crear_certificado(req: CertificadoPresupuestariaCrear, db: Session = Depends(deps.get_db)):
+def crear_certificado(req: CertificadoPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     asig = db.query(AsignacionPresupuestaria).get(req.id_asignacion)
     if not asig:
         raise HTTPException(status_code=404, detail="Asignación presupuestaria no encontrada")
@@ -294,7 +295,7 @@ def obtener_certificado(cert_id: int, db: Session = Depends(deps.get_db)):
     tags=["Presupuesto"],
 )
 def cambiar_estado_certificado(
-    cert_id: int, req: CertificadoPresupuestariaEstado, db: Session = Depends(deps.get_db)
+    cert_id: int, req: CertificadoPresupuestariaEstado, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)
 ):
     obj = db.query(CertificadoPresupuestario).get(cert_id)
     if not obj:
@@ -328,7 +329,7 @@ def listar_compromisos(
 
 
 @router.post("/compromisos", response_model=CompromisoRespuesta, status_code=201, tags=["Presupuesto"])
-def crear_compromiso(req: CompromisoCrear, db: Session = Depends(deps.get_db)):
+def crear_compromiso(req: CompromisoCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     cert = db.query(CertificadoPresupuestario).get(req.id_certificado)
     if not cert:
         raise HTTPException(status_code=404, detail="Certificado no encontrado")
@@ -362,7 +363,7 @@ def crear_compromiso(req: CompromisoCrear, db: Session = Depends(deps.get_db)):
 
 
 @router.patch("/compromisos/{comp_id}/anular", response_model=CompromisoRespuesta, tags=["Presupuesto"])
-def anular_compromiso(comp_id: int, motivo: str = Query(...), db: Session = Depends(deps.get_db)):
+def anular_compromiso(comp_id: int, motivo: str = Query(...), db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     obj = db.query(Compromiso).get(comp_id)
     if not obj:
         raise HTTPException(status_code=404, detail="Compromiso no encontrado")
@@ -398,7 +399,7 @@ def listar_devengados(
 
 
 @router.post("/devengados", response_model=DevengadoRespuesta, status_code=201, tags=["Presupuesto"])
-def crear_devengado(req: DevengadoCrear, db: Session = Depends(deps.get_db)):
+def crear_devengado(req: DevengadoCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     comp = db.query(Compromiso).get(req.id_compromiso)
     if not comp:
         raise HTTPException(status_code=404, detail="Compromiso no encontrado")
