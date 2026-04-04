@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from typing import List
-from app.api.deps import get_db
+from app.api.deps import get_db, get_current_user
 
+from app.models.user import User
 from app.models.bodega import CategoriaBien, ActivoFijo
 from app.schemas.bodega import (
     CategoriaBienCreate, CategoriaBienUpdate, CategoriaBienSchema,
@@ -23,14 +24,14 @@ def get_categorias(db: Session = Depends(get_db)):
     return db.query(CategoriaBien).all()
 
 @router.post("/categorias", response_model=CategoriaBienSchema, status_code=status.HTTP_201_CREATED)
-def create_categoria(req: CategoriaBienCreate, db: Session = Depends(get_db)):
+def create_categoria(req: CategoriaBienCreate, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     from sqlalchemy import text
     try:
         db.execute(text("CREATE SCHEMA IF NOT EXISTS bodega;"))
         db.commit()
     except Exception:
         db.rollback()
-        
+
     db_obj = CategoriaBien(**req.model_dump())
     db.add(db_obj)
     db.commit()
@@ -38,7 +39,7 @@ def create_categoria(req: CategoriaBienCreate, db: Session = Depends(get_db)):
     return db_obj
 
 @router.put("/categorias/{id}", response_model=CategoriaBienSchema)
-def update_categoria(id: int, req: CategoriaBienUpdate, db: Session = Depends(get_db)):
+def update_categoria(id: int, req: CategoriaBienUpdate, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     db_obj = db.query(CategoriaBien).filter(CategoriaBien.id == id).first()
     if not db_obj:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
@@ -49,7 +50,7 @@ def update_categoria(id: int, req: CategoriaBienUpdate, db: Session = Depends(ge
     return db_obj
 
 @router.delete("/categorias/{id}")
-def delete_categoria(id: int, db: Session = Depends(get_db)):
+def delete_categoria(id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     db_obj = db.query(CategoriaBien).filter(CategoriaBien.id == id).first()
     if not db_obj:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
@@ -63,7 +64,7 @@ def get_activos(db: Session = Depends(get_db)):
     return db.query(ActivoFijo).options(joinedload(ActivoFijo.categoria)).all()
 
 @router.post("/activos", response_model=ActivoFijoSchema, status_code=status.HTTP_201_CREATED)
-def create_activo(req: ActivoFijoCreate, db: Session = Depends(get_db)):
+def create_activo(req: ActivoFijoCreate, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     categoria = db.query(CategoriaBien).filter(CategoriaBien.id == req.categoria_id).first()
     if not categoria:
          raise HTTPException(status_code=404, detail="Categoría no encontrada")
@@ -75,11 +76,11 @@ def create_activo(req: ActivoFijoCreate, db: Session = Depends(get_db)):
     return db_obj
 
 @router.put("/activos/{id}", response_model=ActivoFijoSchema)
-def update_activo(id: int, req: ActivoFijoUpdate, db: Session = Depends(get_db)):
+def update_activo(id: int, req: ActivoFijoUpdate, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     db_obj = db.query(ActivoFijo).filter(ActivoFijo.id == id).first()
     if not db_obj:
         raise HTTPException(status_code=404, detail="Activo Fijo no encontrado")
-    
+
     if req.categoria_id:
         categoria = db.query(CategoriaBien).filter(CategoriaBien.id == req.categoria_id).first()
         if not categoria:
@@ -92,7 +93,7 @@ def update_activo(id: int, req: ActivoFijoUpdate, db: Session = Depends(get_db))
     return db_obj
 
 @router.delete("/activos/{id}")
-def delete_activo(id: int, db: Session = Depends(get_db)):
+def delete_activo(id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     db_obj = db.query(ActivoFijo).filter(ActivoFijo.id == id).first()
     if not db_obj:
         raise HTTPException(status_code=404, detail="Activo Fijo no encontrado")
