@@ -6,12 +6,13 @@ import contratacion from './contratacion';
 import gis from './gis';
 import { informatica } from './informatica';
 import bodega from './bodega';
+import contabilidad from './contabilidad';
 import { NavItemType } from 'types';
 
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems: { items: NavItemType[] } = {
-  items: [admin, administrativo, rrhh, contratacion, catastro, gis, informatica, bodega]
+  items: [admin, administrativo, rrhh, contratacion, catastro, gis, informatica, bodega, contabilidad]
 };
 
 export default menuItems;

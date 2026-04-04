@@ -12,7 +12,7 @@ import {
 } from '@mui/x-data-grid';
 import {
     IconPlus, IconRefresh, IconUser, IconBriefcase,
-    IconFileContract, IconMoneybag, IconCheck
+    IconContract, IconMoneybag, IconCheck
 } from '@tabler/icons-react';
 import MainCard from 'ui-component/cards/MainCard';
 import axios from 'utils/axios';
@@ -310,7 +310,7 @@ export default function GestionContratos() {
             <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth>
                 <DialogTitle>
                     <Stack direction="row" spacing={1} alignItems="center">
-                        <IconFileContract size={22} />
+                        <IconContract size={22} />
                         <Box>
                             <Typography variant="h5">Nuevo Contrato</Typography>
                             <Typography variant="caption" color="text.secondary">
