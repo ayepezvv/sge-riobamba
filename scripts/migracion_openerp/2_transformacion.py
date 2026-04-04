@@ -155,7 +155,7 @@ def transformar_contratos(filas: list[dict]) -> list[dict]:
             "fecha_fin": r.get("fecha_fin") or None,
             "sueldo_pactado": round(sueldo, 2),
             "estado_contrato": ESTADO_CONTRATO.get(r.get("estado_openerp", "open"), "ACTIVO"),
-            "observaciones": f"Migrado de OpenERP ID={r[id_openerp]}",
+            "observaciones": f"Migrado de OpenERP ID={r['id_openerp']}",
         })
     return resultado
 

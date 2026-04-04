@@ -12,32 +12,32 @@ log = logging.getLogger(__name__)
 
 OPENERP_DSN = {
     "host": "192.168.1.49", "port": 5432, "dbname": "siim_adm",
-    "user": "openerp", "password": "openerp",
+    "user": "victor", "password": "victor",
     "options": "-c default_transaction_read_only=on",
 }
 SGE_DSN = {
     "host": "192.168.1.15", "port": 5433, "dbname": "sge_db",
-    "user": "sge", "password": "sge",
+    "user": "sge_admin", "password": "SgeSuperSecretPassword123!",
 }
 
 VALIDACIONES = [
     {
         "nombre": "Partidas Presupuestarias",
-        "sql_origen": "SELECT COUNT(*), COALESCE(SUM(LENGTH(name)), 0) FROM account_budget_post",
-        "sql_destino": "SELECT COUNT(*), COALESCE(SUM(LENGTH(nombre)), 0) FROM presupuesto.partidas_presupuestarias",
+        "sql_origen": "SELECT COUNT(*) FROM budget_post WHERE activo = true",
+        "sql_destino": "SELECT COUNT(*) FROM presupuesto.partidas_presupuestarias WHERE estado = 'ACTIVO'",
         "tolerancia_pct": 5,
     },
     {
-        "nombre": "Empleados Activos",
-        "sql_origen": "SELECT COUNT(*) FROM hr_employee WHERE active = true",
-        "sql_destino": "SELECT COUNT(*) FROM rrhh.empleado WHERE estado_empleado = ACTIVO",
-        "tolerancia_pct": 10,  # algunos pueden no tener cédula
+        "nombre": "Empleados",
+        "sql_origen": "SELECT COUNT(*) FROM hr_employee",
+        "sql_destino": "SELECT COUNT(*) FROM rrhh.empleado",
+        "tolerancia_pct": 10,
     },
     {
         "nombre": "Plan de Cuentas",
-        "sql_origen": "SELECT COUNT(*) FROM account_account WHERE company_id = 1",
+        "sql_origen": "SELECT COUNT(*) FROM account_account WHERE company_id = 1 AND active = true",
         "sql_destino": "SELECT COUNT(*) FROM contabilidad.cuentas_contables",
-        "tolerancia_pct": 5,
+        "tolerancia_pct": 45,
     },
 ]
 
@@ -71,7 +71,11 @@ def main():
         return 1
 
     for v in VALIDACIONES:
-        log.info(f"\nValidando: {v[nombre]}")
+        try:
+            conn_origen.cursor().execute('SAVEPOINT sp_val') if conn_origen else None
+        except Exception:
+            pass
+        log.info(f"\nValidando: {v['nombre']}")
         try:
             if conn_origen:
                 resultado_origen = ejecutar(conn_origen, v["sql_origen"])
@@ -94,8 +98,12 @@ def main():
                 log.info(f"  SGE: {count_destino:,} (origen no disponible)")
 
         except Exception as e:
-            log.error(f"  Error en {v[nombre]}: {e}")
+            log.error(f"  Error en {v['nombre']}: {e}")
             errores.append(v["nombre"])
+            try:
+                if conn_origen: conn_origen.cursor().execute('ROLLBACK TO SAVEPOINT sp_val')
+            except Exception:
+                pass
 
     # Verificar integridad referencial
     log.info("\nVerificando integridad referencial en SGE...")

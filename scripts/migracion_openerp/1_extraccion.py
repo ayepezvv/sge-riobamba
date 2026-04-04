@@ -27,72 +27,75 @@ OPENERP_DSN = {
     "host": "192.168.1.49",
     "port": 5432,
     "dbname": "siim_adm",
-    "user": "openerp",
-    "password": "openerp",
+    "user": "victor",
+    "password": "victor",
     "connect_timeout": 10,
     "options": "-c default_transaction_read_only=on",  # garantía de solo lectura
 }
 OUTPUT_DIR = Path("/tmp/migracion")
 
-# Consultas de extracción OpenERP
+# Consultas de extracción OpenERP (corregidas según esquema real)
 CONSULTAS = {
     # ----------------------------------------------------------------
-    # PRESUPUESTO: Partidas presupuestarias (account.budget.post)
+    # PRESUPUESTO: Partidas presupuestarias (budget_post)
     # ----------------------------------------------------------------
     "partidas_presupuestarias": """
         SELECT
-            abp.id                          AS id_openerp,
-            abp.name                        AS nombre,
-            abp.code                        AS codigo,
-            abp.type                        AS tipo,
-            abp.active                      AS activo,
-            abp.parent_id                   AS id_padre_openerp
-        FROM account_budget_post abp
-        ORDER BY abp.code
+            bp.id                           AS id_openerp,
+            COALESCE(bp.name, '')           AS nombre,
+            COALESCE(bp.code, '')           AS codigo,
+            COALESCE(bp.tipo, 'GASTO')      AS tipo,
+            COALESCE(bp.activo, true)       AS activo,
+            bp.parent_id                    AS id_padre_openerp,
+            bp.nivel                        AS nivel
+        FROM budget_post bp
+        ORDER BY bp.code
     """,
 
     # ----------------------------------------------------------------
-    # PRESUPUESTO: Certificados presupuestarios (budget.certificate)
+    # PRESUPUESTO: Certificados presupuestarios (budget_certificate)
+    # Columnas reales: id, number, amount_certified, state, date_confirmed, notes
     # ----------------------------------------------------------------
     "certificados_presupuestarios": """
         SELECT
             bc.id                           AS id_openerp,
-            bc.name                         AS numero_certificado,
-            bc.date_from                    AS fecha_solicitud,
-            bc.date_to                      AS fecha_vencimiento,
+            COALESCE(bc.number, bc.name)    AS numero_certificado,
+            bc.create_date::date            AS fecha_solicitud,
+            bc.date_confirmed               AS fecha_confirmacion,
             bc.state                        AS estado_openerp,
-            bc.planned_amount               AS monto_certificado,
-            bc.general_budget_id            AS id_partida_openerp,
-            bc.description                  AS concepto
+            COALESCE(bc.amount_certified, 0) AS monto_certificado,
+            bc.notes                        AS concepto
         FROM budget_certificate bc
         WHERE bc.state != 'cancel'
-        ORDER BY bc.date_from, bc.id
+        ORDER BY bc.create_date, bc.id
     """,
 
     # ----------------------------------------------------------------
-    # RRHH: Empleados (hr.employee)
+    # RRHH: Empleados (hr_employee)
+    # Columnas reales: sin campo active, usa state_system
     # ----------------------------------------------------------------
     "empleados": """
         SELECT
-            he.id                           AS id_openerp,
-            he.identification_id            AS identificacion,
-            he.name                         AS nombres_completos,
-            he.birthday                     AS fecha_nacimiento,
-            he.gender                       AS genero,
-            he.active                       AS activo,
-            he.mobile_phone                 AS telefono_celular,
-            he.work_email                   AS correo_personal,
-            he.address_home_id              AS id_direccion,
-            he.contract_id                  AS id_contrato_activo,
-            he.job_id                       AS id_cargo,
-            he.department_id                AS id_area
+            he.id                               AS id_openerp,
+            COALESCE(he.name, '')               AS identificacion,
+            COALESCE(he.complete_name, he.employee_first_name, '') AS nombres_completos,
+            he.birthday                         AS fecha_nacimiento,
+            COALESCE(he.gender, '')             AS genero,
+            COALESCE(he.state_system, false)    AS estado_sistema,
+            COALESCE(he.mobile_phone, '')       AS telefono_celular,
+            COALESCE(he.work_email, '')         AS correo_trabajo,
+            COALESCE(he.email, '')              AS correo_personal,
+            he.department_id                    AS id_area,
+            COALESCE(he.employee_first_name, '')        AS primer_nombre,
+            COALESCE(he.employee_second_name, '')       AS segundo_nombre,
+            COALESCE(he.employee_first_lastname, '')    AS primer_apellido,
+            COALESCE(he.employee_second_lastname, '')   AS segundo_apellido
         FROM hr_employee he
-        WHERE he.active = true
-        ORDER BY he.identification_id
+        ORDER BY he.name
     """,
 
     # ----------------------------------------------------------------
-    # RRHH: Contratos históricos (hr.contract)
+    # RRHH: Contratos históricos (hr_contract)
     # ----------------------------------------------------------------
     "contratos": """
         SELECT
@@ -101,7 +104,7 @@ CONSULTAS = {
             hc.name                         AS nombre_contrato,
             hc.date_start                   AS fecha_inicio,
             hc.date_end                     AS fecha_fin,
-            hc.wage                         AS sueldo_pactado,
+            COALESCE(hc.wage, 0)            AS sueldo_pactado,
             hc.state                        AS estado_openerp,
             hc.type_id                      AS tipo_contrato_id
         FROM hr_contract hc
@@ -109,7 +112,8 @@ CONSULTAS = {
     """,
 
     # ----------------------------------------------------------------
-    # CONTABILIDAD: Plan de cuentas (account.account)
+    # CONTABILIDAD: Plan de cuentas (account_account)
+    # level es columna real, no función
     # ----------------------------------------------------------------
     "cuentas_contables": """
         SELECT
@@ -121,14 +125,14 @@ CONSULTAS = {
             aa.parent_id                    AS id_padre_openerp,
             aa.active                       AS activo,
             aa.reconcile                    AS permite_conciliacion,
-            level(aa.parent_left, aa.parent_right) AS nivel
+            aa.level                        AS nivel
         FROM account_account aa
         WHERE aa.company_id = 1
         ORDER BY aa.code
     """,
 
     # ----------------------------------------------------------------
-    # CONTABILIDAD: Asientos contables (account.move)
+    # CONTABILIDAD: Asientos contables (account_move + account_move_line)
     # ----------------------------------------------------------------
     "asientos_contables": """
         SELECT
@@ -154,67 +158,64 @@ CONSULTAS = {
 }
 
 
-def extraer(consulta_nombre: str, sql: str, conn) -> int:
-    """Ejecuta una consulta y guarda el resultado en CSV."""
-    output_file = OUTPUT_DIR / f"{consulta_nombre}.csv"
-    log.info(f"Extrayendo {consulta_nombre}...")
-
-    with conn.cursor() as cur:
-        cur.execute(sql)
-        columnas = [desc[0] for desc in cur.description]
-        filas = cur.fetchall()
-
-    with open(output_file, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(columnas)
-        writer.writerows(filas)
-
-    log.info(f"  → {len(filas):,} registros → {output_file}")
-    return len(filas)
-
-
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-    log.info("="*60)
-    log.info(f"EXTRACCIÓN OpenERP → {OUTPUT_DIR}")
-    log.info(f"Inicio: {datetime.now()}")
-    log.info("="*60)
+    log.info("=" * 60)
+    log.info("EXTRACCIÓN OpenERP → %s", OUTPUT_DIR)
+    log.info("Inicio: %s", datetime.now())
+    log.info("=" * 60)
 
     try:
         conn = psycopg2.connect(**OPENERP_DSN)
-        conn.set_session(readonly=True, autocommit=True)
+        conn.set_session(readonly=True)
+        log.info("Conectado a OpenERP (%s)", OPENERP_DSN["host"])
     except Exception as e:
-        log.error(f"Error conectando a OpenERP: {e}")
-        log.error("Verifique que 192.168.1.49 sea accesible y las credenciales sean correctas.")
+        log.error("Error conectando a OpenERP: %s", e)
+        log.error("Verifique que %s sea accesible y las credenciales sean correctas.", OPENERP_DSN["host"])
         return 1
 
-    totales = {}
+    resumen = {}
     errores = []
 
-    for nombre, sql in CONSULTAS.items():
+    for nombre, query in CONSULTAS.items():
+        log.info("Extrayendo %s...", nombre)
         try:
-            n = extraer(nombre, sql, conn)
-            totales[nombre] = n
+            cur = conn.cursor()
+            cur.execute('SAVEPOINT sp_extract')
+            cur.execute(query)
+            filas = cur.fetchall()
+            cols = [desc[0] for desc in cur.description]
+            archivo = OUTPUT_DIR / f"{nombre}.csv"
+            with open(archivo, "w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow(cols)
+                writer.writerows(filas)
+            resumen[nombre] = len(filas)
+            log.info("  → %s registros → %s", f"{len(filas):,}", archivo)
         except Exception as e:
-            log.error(f"  ERROR en {nombre}: {e}")
+            log.error("  ERROR en %s: %s", nombre, e)
             errores.append(nombre)
+            try:
+                conn.cursor().execute('ROLLBACK TO SAVEPOINT sp_extract')
+            except Exception:
+                pass
 
     conn.close()
 
-    log.info("\n" + "="*60)
+    log.info("")
+    log.info("=" * 60)
     log.info("RESUMEN DE EXTRACCIÓN")
-    log.info("="*60)
-    for nombre, total in totales.items():
-        log.info(f"  {nombre:<40} {total:>10,} registros")
+    log.info("=" * 60)
+    for k, v in resumen.items():
+        log.info("  %-42s %s registros", k, f"{v:,}")
 
     if errores:
-        log.warning(f"\nErrores en: {errores}")
+        log.warning("\nErrores en: %s", errores)
         return 1
 
-    log.info(f"\nExtracción completada: {datetime.now()}")
+    log.info("\nExtracción completada sin errores.")
     return 0
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())
