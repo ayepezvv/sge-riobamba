@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import API_BASE_URL from "@/config/api";
 import { useRouter } from 'next/navigation';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert, IconButton, Tooltip, Stepper, Step, StepLabel, FormControl, InputLabel, Select, MenuItem, Typography } from '@mui/material';
@@ -43,7 +44,7 @@ export default function ProcesosPage() {
 
     const fetchPacItems = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/contratacion/pac', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
+      const res = await fetch(`${API_BASE_URL}/api/contratacion/pac`, { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) {
         const pacs = await res.json();
         // Extract active pac items

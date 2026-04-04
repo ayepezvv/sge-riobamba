@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import API_BASE_URL from "@/config/api";
 import {
   Box,
   Button,
@@ -30,7 +31,7 @@ export default function DireccionesPage() {
 
   const fetchDirecciones = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/administrativo/direcciones', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
+      const res = await fetch(`${API_BASE_URL}/api/administrativo/direcciones`, { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) setData(await res.json());
     } catch (e) { console.error(e); }
   };
@@ -49,7 +50,7 @@ export default function DireccionesPage() {
   };
 
   const handleSave = async () => {
-    const url = editingId ? `http://192.168.1.15:8000/api/administrativo/direcciones/${editingId}` : 'http://192.168.1.15:8000/api/administrativo/direcciones';
+    const url = editingId ? `${API_BASE_URL}/api/administrativo/direcciones/${editingId}` : `${API_BASE_URL}/api/administrativo/direcciones`;
     const method = editingId ? 'PUT' : 'POST';
     try {
       const res = await fetch(url, {

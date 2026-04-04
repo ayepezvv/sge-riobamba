@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import API_BASE_URL from "@/config/api";
 import {
   Box,
   Button,
@@ -50,7 +51,7 @@ export default function PacPage() {
 
   const fetchPac = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/contratacion/pac', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
+      const res = await fetch(`${API_BASE_URL}/api/contratacion/pac`, { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) setData(await res.json());
     } catch (e) { console.error(e); }
   };
@@ -60,7 +61,7 @@ export default function PacPage() {
   
   const fetchPacItems = async (pacId: number) => {
     try {
-      const res = await fetch(`http://192.168.1.15:8000/api/contratacion/pac/${pacId}/items`, { 
+      const res = await fetch(`${API_BASE_URL}/api/contratacion/pac/${pacId}/items`, { 
         headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } 
       });
       if (res.ok) {
@@ -81,7 +82,7 @@ export default function PacPage() {
   };
 
   const handleSavePac = async () => {
-    const url = editingId ? `http://192.168.1.15:8000/api/contratacion/pac/${editingId}` : 'http://192.168.1.15:8000/api/contratacion/pac';
+    const url = editingId ? `${API_BASE_URL}/api/contratacion/pac/${editingId}` : `${API_BASE_URL}/api/contratacion/pac`;
     const method = editingId ? 'PUT' : 'POST';
     try {
       const res = await fetch(url, {
@@ -121,7 +122,7 @@ export default function PacPage() {
     formData.append('file', uploadFile);
 
     try {
-      const res = await fetch(`http://192.168.1.15:8000/api/contratacion/pac/${selectedPacId}/importar`, {
+      const res = await fetch(`${API_BASE_URL}/api/contratacion/pac/${selectedPacId}/importar`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` },
         body: formData
@@ -150,7 +151,7 @@ export default function PacPage() {
     // Calculate total
     const itemData = { ...itemForm, valor_total: itemForm.cantidad * itemForm.costo_unitario };
     try {
-      const res = await fetch(`http://192.168.1.15:8000/api/contratacion/pac/${selectedPacId}/items`, {
+      const res = await fetch(`${API_BASE_URL}/api/contratacion/pac/${selectedPacId}/items`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` },
         body: JSON.stringify(itemData)

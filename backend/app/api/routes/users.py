@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.api import deps
 from app.models.user import User
+from app.models.role import Role
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.core.security import get_password_hash
 
@@ -12,6 +13,13 @@ router = APIRouter()
 @router.get("/me", response_model=UserResponse)
 def read_user_me(current_user: User = Depends(deps.get_current_user)):
     return current_user
+
+@router.get("/{user_id}", response_model=UserResponse)
+def obtener_usuario_por_id(user_id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    usuario = db.query(User).filter(User.id == user_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return usuario
 
 @router.get("/", response_model=List[UserResponse])
 
@@ -58,6 +66,20 @@ def toggle_user_status(user_id: int, db: Session = Depends(deps.get_db), current
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    if user.is_active:
+        rol = db.query(Role).filter(Role.id == user.role_id).first()
+        if rol and rol.nombre_rol == "SuperAdmin":
+            admins_activos = (
+                db.query(User)
+                .join(Role, User.role_id == Role.id)
+                .filter(Role.nombre_rol == "SuperAdmin", User.is_active == True)
+                .count()
+            )
+            if admins_activos <= 1:
+                raise HTTPException(
+                    status_code=400,
+                    detail="No se puede desactivar el unico SuperAdmin activo del sistema"
+                )
     user.is_active = not user.is_active
     db.add(user)
     db.commit()

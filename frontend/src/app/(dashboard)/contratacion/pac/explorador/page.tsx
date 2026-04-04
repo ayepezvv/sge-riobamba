@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import API_BASE_URL from "@/config/api";
 import {
   Box,
   Card,
@@ -20,7 +21,7 @@ export default function ExploradorPacPage() {
 
   const fetchItems = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/contratacion/pac/items/all', {
+      const res = await fetch(`${API_BASE_URL}/api/contratacion/pac/items/all`, {
         headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` }
       });
       if (res.ok) {
