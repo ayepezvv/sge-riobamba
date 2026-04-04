@@ -16,7 +16,7 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import MapIcon from '@mui/icons-material/Map';
 
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarPredios, crearPredio } from 'api/catastro';
 
 // Dynamic imports para leaflet (evita el error 'window is not defined' en Next.js SSR)
 import LeafletCSS from './leaflet-css';
@@ -46,8 +46,8 @@ export default function PrediosPage() {
 
   const fetchPredios = async () => {
     try {
-      const response = await axios.get('/api/comercial/predios');
-      setPredios(response.data);
+      const data = await listarPredios();
+      setPredios(data);
     } catch (error) {
       console.error("Error fetching predios:", error);
     }
@@ -84,7 +84,7 @@ export default function PrediosPage() {
         };
       }
 
-      await axios.post('/api/comercial/predios', payload);
+      await crearPredio(payload);
       setToast({ open: true, message: 'Predio registrado en el mapa exitosamente', severity: 'success' });
       
       handleClose();

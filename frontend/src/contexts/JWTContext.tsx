@@ -67,7 +67,7 @@ export const JWTProvider = ({ children }: { children: ReactElement }) => {
             id: String(rawUser.id),
             name: `${rawUser.nombres} ${rawUser.apellidos}`,
             email: rawUser.correo,
-            role: 'Admin'
+            role: rawUser.role?.nombre_rol ?? 'SinRol'
           };
           dispatch({
             type: LOGIN,
@@ -110,7 +110,7 @@ export const JWTProvider = ({ children }: { children: ReactElement }) => {
       id: String(rawUser.id),
       name: `${rawUser.nombres} ${rawUser.apellidos}`,
       email: rawUser.correo,
-      role: 'Admin'
+      role: rawUser.role?.nombre_rol ?? 'SinRol'
     };
     
     dispatch({

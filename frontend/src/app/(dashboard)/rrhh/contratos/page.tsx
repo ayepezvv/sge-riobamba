@@ -15,7 +15,7 @@ import {
     IconContract, IconMoneybag, IconCheck
 } from '@tabler/icons-react';
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarContratos, crearContrato, actualizarContrato, listarEmpleados, listarCargos, listarEscalasSalariales } from 'api/rrhh';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TIPOS
@@ -100,19 +100,19 @@ export default function GestionContratos() {
     const cargarDatos = useCallback(async () => {
         setLoading(true); setError(null);
         try {
-            const [rC, rE, rCa, rEs] = await Promise.all([
-                axios.get('/api/rrhh/contratos'),
-                axios.get('/api/rrhh/empleados'),
-                axios.get('/api/rrhh/cargos'),
-                axios.get('/api/rrhh/escalas-salariales'),
+            const [rawContratos, rawEmpleados, rawCargos, rawEscalas] = await Promise.all([
+                listarContratos(),
+                listarEmpleados(),
+                listarCargos(),
+                listarEscalasSalariales(),
             ]);
 
             const toArray = (d: any) => Array.isArray(d) ? d : (d?.items ?? d?.data ?? []);
 
-            setContratos(toArray(rC.data));
-            setEmpleados(toArray(rE.data));
-            setCargos(toArray(rCa.data));
-            setEscalas(toArray(rEs.data));
+            setContratos(toArray(rawContratos));
+            setEmpleados(toArray(rawEmpleados));
+            setCargos(toArray(rawCargos));
+            setEscalas(toArray(rawEscalas));
         } catch (e: any) {
             setError(e.response?.data?.detail ?? 'Error al cargar los datos');
         } finally {
@@ -140,7 +140,7 @@ export default function GestionContratos() {
 
         setSaving(true); setFormError(null);
         try {
-            await axios.post('/api/rrhh/contratos', {
+            await crearContrato({
                 id_empleado:        Number(form.id_empleado),
                 id_cargo:           Number(form.id_cargo),
                 id_escala_salarial: form.id_escala_salarial ? Number(form.id_escala_salarial) : null,
@@ -163,7 +163,7 @@ export default function GestionContratos() {
     const handleFinalizar = async (contrato: Contrato) => {
         if (!confirm('¿Confirma que desea finalizar este contrato?')) return;
         try {
-            await axios.put(`/api/rrhh/contratos/${contrato.id_contrato}`, {
+            await actualizarContrato(contrato.id_contrato, {
                 estado_contrato: 'TERMINADO',
                 fecha_fin: new Date().toISOString().split('T')[0]
             });

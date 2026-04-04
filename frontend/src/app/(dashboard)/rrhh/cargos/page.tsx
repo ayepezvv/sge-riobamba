@@ -14,7 +14,7 @@ import {
     IconPlus, IconRefresh, IconEdit, IconBriefcase, IconToggleLeft
 } from '@tabler/icons-react';
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarCargos, crearCargo, actualizarCargo, listarEscalasSalariales } from 'api/rrhh';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TIPOS
@@ -67,22 +67,22 @@ export default function Cargos() {
     const cargar = useCallback(async () => {
         setLoading(true); setError(null);
         try {
-            const [r1, r2] = await Promise.all([
-                axios.get('/api/rrhh/cargos'),
-                axios.get('/api/rrhh/escalas-salariales'),
+            const [rawCargos, rawEscalas] = await Promise.all([
+                listarCargos(),
+                listarEscalasSalariales(),
             ]);
 
-            const rawCargos: Cargo[] = Array.isArray(r1.data) ? r1.data
-                : (r1.data?.items ?? r1.data?.data ?? []);
+            const toCargos: Cargo[] = Array.isArray(rawCargos) ? rawCargos
+                : (rawCargos?.items ?? rawCargos?.data ?? []);
             setCargos(
-                rawCargos
+                toCargos
                     .filter((c): c is Cargo => c !== null && c !== undefined)
                     .map(c => ({ ...c, id: c.id_cargo }))
             );
 
-            const rawEscalas: EscalaSalarial[] = Array.isArray(r2.data) ? r2.data
-                : (r2.data?.items ?? r2.data?.data ?? []);
-            setEscalas(rawEscalas.filter((e): e is EscalaSalarial => e !== null && e !== undefined));
+            const toEscalas: EscalaSalarial[] = Array.isArray(rawEscalas) ? rawEscalas
+                : (rawEscalas?.items ?? rawEscalas?.data ?? []);
+            setEscalas(toEscalas.filter((e): e is EscalaSalarial => e !== null && e !== undefined));
         } catch (e: any) {
             setError(e.response?.data?.detail ?? 'Error al cargar cargos');
         } finally {
@@ -128,9 +128,9 @@ export default function Cargos() {
             };
 
             if (editTarget) {
-                await axios.put(`/api/rrhh/cargos/${editTarget.id_cargo}`, payload);
+                await actualizarCargo(editTarget.id_cargo, payload);
             } else {
-                await axios.post('/api/rrhh/cargos', payload);
+                await crearCargo(payload);
             }
 
             setOpenModal(false);
@@ -146,7 +146,7 @@ export default function Cargos() {
     const handleToggleEstado = async (cargo: Cargo) => {
         const nuevoEstado = cargo.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
         try {
-            await axios.put(`/api/rrhh/cargos/${cargo.id_cargo}`, { estado: nuevoEstado });
+            await actualizarCargo(cargo.id_cargo, { estado: nuevoEstado });
             await cargar();
         } catch (e: any) {
             alert(e.response?.data?.detail ?? 'Error al cambiar estado');

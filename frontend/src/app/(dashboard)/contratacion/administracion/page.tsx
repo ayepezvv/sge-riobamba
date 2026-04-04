@@ -12,7 +12,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import BlockIcon from '@mui/icons-material/Block';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarTiposProceso, crearTipoProceso, actualizarTipoProceso, listarPlantillas, subirPlantilla } from 'api/contratacion';
 
 export default function AdminPlantillasPage() {
   const [tipos, setTipos] = useState<any[]>([]);
@@ -43,12 +43,12 @@ export default function AdminPlantillasPage() {
     const fetchData = async () => {
     setLoading(true);
     try {
-      const [resTipos, resPlan] = await Promise.all([
-        axios.get('/api/contratacion/tipos'),
-        axios.get('/api/contratacion/plantillas')
+      const [rawTipos, rawPlan] = await Promise.all([
+        listarTiposProceso(),
+        listarPlantillas()
       ]);
-      setTipos(Array.isArray(resTipos.data) ? resTipos.data : []);
-      setPlantillas(Array.isArray(resPlan.data) ? resPlan.data : []);
+      setTipos(Array.isArray(rawTipos) ? rawTipos : []);
+      setPlantillas(Array.isArray(rawPlan) ? rawPlan : []);
     } catch (error: any) {
       console.error(error);
       setToast({ open: true, message: error.message || 'Error cargando datos', severity: 'error' });
@@ -81,10 +81,10 @@ export default function AdminPlantillasPage() {
   const handleSubmitFolder = async () => {
     try {
       if (editingFolderId) {
-        await axios.put(`/api/contratacion/tipos/${editingFolderId}`, formFolder);
+        await actualizarTipoProceso(editingFolderId, formFolder);
         setToast({ open: true, message: 'Carpeta actualizada', severity: 'success' });
       } else {
-        await axios.post('/api/contratacion/tipos', formFolder);
+        await crearTipoProceso(formFolder);
         setToast({ open: true, message: 'Nueva carpeta creada', severity: 'success' });
       }
       setOpenFolder(false);
@@ -96,7 +96,7 @@ export default function AdminPlantillasPage() {
 
   const handleToggleFolderStatus = async (folder: any) => {
     try {
-      await axios.put(`/api/contratacion/tipos/${folder.id}`, { is_activo: !folder.is_activo });
+      await actualizarTipoProceso(folder.id, { is_activo: !folder.is_activo });
       setToast({ open: true, message: 'Estado de carpeta modificado', severity: 'success' });
       fetchData();
     } catch (error) {
@@ -124,9 +124,7 @@ export default function AdminPlantillasPage() {
     payload.append('file', formUpload.file);
 
     try {
-      await axios.post('/api/contratacion/plantillas/upload', payload, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      await subirPlantilla(payload);
       setToast({ open: true, message: 'Nueva versión subida exitosamente', severity: 'success' });
       setOpenUpload(false);
       setFormUpload({ nombre: '', tipo_proceso_id: '', anio: new Date().getFullYear().toString(), file: null });

@@ -19,7 +19,9 @@ import {
 } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import AnimateButton from 'ui-component/extended/AnimateButton';
-import axios from 'utils/axios';
+import { listarSegmentos, crearSegmento, listarIpsPorSegmento, crearIp, eliminarIp } from 'api/informatica';
+import { listarPersonalAdministrativo } from 'api/administrativo';
+import { listarActivos } from 'api/bodega';
 import { useSnackbar } from 'notistack';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { IconDeviceDesktop, IconServer, IconRouter, IconPlus, IconTrash, IconDeviceLaptop } from '@tabler/icons-react';
@@ -82,8 +84,8 @@ const IpamRedesPage = () => {
     // Fetch Segmentos
     const fetchSegmentos = async () => {
         try {
-            const response = await axios.get('/api/informatica/segmentos');
-            setSegmentos(response.data);
+            const data = await listarSegmentos();
+            setSegmentos(data);
         } catch (error) {
             console.error(error);
             enqueueSnackbar('Error al cargar segmentos de red', { variant: 'error' });
@@ -94,8 +96,8 @@ const IpamRedesPage = () => {
     const fetchIps = async (segmentoId: string) => {
         setIsLoading(true);
         try {
-            const response = await axios.get(`/api/informatica/segmentos/${segmentoId}/ips`);
-            setIps(response.data);
+            const data = await listarIpsPorSegmento(segmentoId);
+            setIps(data);
         } catch (error) {
             console.error(error);
             enqueueSnackbar('Error al cargar IPs asignadas', { variant: 'error' });
@@ -106,8 +108,8 @@ const IpamRedesPage = () => {
 
     const fetchPersonal = async () => {
         try {
-            const response = await axios.get('/api/administrativo/personal');
-            setPersonalList(response.data);
+            const data = await listarPersonalAdministrativo();
+            setPersonalList(data);
         } catch (error) {
             console.error('Error al cargar personal', error);
         }
@@ -115,8 +117,8 @@ const IpamRedesPage = () => {
 
     const fetchActivos = async () => {
         try {
-            const response = await axios.get('/api/bodega/activos');
-            setActivosList(response.data);
+            const data = await listarActivos();
+            setActivosList(data);
         } catch (error) {
             console.error('Error al cargar activos', error);
         }
@@ -160,7 +162,7 @@ const IpamRedesPage = () => {
         onSubmit: async (values, { resetForm }) => {
             if (!selectedSegmento) return;
             try {
-                await axios.post('/api/informatica/ips', {
+                await crearIp({
                     ...values,
                     personal_id: values.personal_id === '' ? null : values.personal_id,
                     activo_id: values.activo_id === '' ? null : values.activo_id,
@@ -193,7 +195,7 @@ const IpamRedesPage = () => {
         }),
         onSubmit: async (values, { resetForm }) => {
             try {
-                await axios.post('/api/informatica/segmentos', values);
+                await crearSegmento(values);
                 enqueueSnackbar('Segmento creado con éxito', { variant: 'success' });
                 fetchSegmentos();
                 setOpenSegModal(false);
@@ -210,7 +212,7 @@ const IpamRedesPage = () => {
     const deleteIp = async (id: string) => {
         if (!window.confirm("¿Seguro que desea eliminar esta asignación de IP?")) return;
         try {
-            await axios.delete(`/api/informatica/ips/${id}`);
+            await eliminarIp(id);
             enqueueSnackbar('Asignación eliminada', { variant: 'success' });
             if (selectedSegmento) fetchIps(selectedSegmento.id);
         } catch (err) {

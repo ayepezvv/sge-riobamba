@@ -14,7 +14,7 @@ import {
     IconPlus, IconRefresh, IconEdit, IconCurrencyDollar
 } from '@tabler/icons-react';
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarEscalasSalariales, crearEscalaSalarial, actualizarEscalaSalarial } from 'api/rrhh';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TIPOS
@@ -56,9 +56,9 @@ export default function EscalasSalariales() {
     const cargar = useCallback(async () => {
         setLoading(true); setError(null);
         try {
-            const res = await axios.get('/api/rrhh/escalas-salariales');
-            const raw: EscalaSalarial[] = Array.isArray(res.data) ? res.data
-                : (res.data?.items ?? res.data?.data ?? []);
+            const res = await listarEscalasSalariales();
+            const raw: EscalaSalarial[] = Array.isArray(res) ? res
+                : (res?.items ?? res?.data ?? []);
             setEscalas(
                 raw
                     .filter((e): e is EscalaSalarial => e !== null && e !== undefined)
@@ -112,9 +112,9 @@ export default function EscalasSalariales() {
             };
 
             if (editTarget) {
-                await axios.put(`/api/rrhh/escalas-salariales/${editTarget.id_escala}`, payload);
+                await actualizarEscalaSalarial(editTarget.id_escala, payload);
             } else {
-                await axios.post('/api/rrhh/escalas-salariales', payload);
+                await crearEscalaSalarial(payload);
             }
 
             setOpenModal(false);

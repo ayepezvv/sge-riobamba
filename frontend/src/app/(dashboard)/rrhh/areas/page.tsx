@@ -14,7 +14,7 @@ import {
     IconPlus, IconRefresh, IconSitemap, IconEdit, IconToggleLeft
 } from '@tabler/icons-react';
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarAreas, crearArea, actualizarArea } from 'api/rrhh';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TIPOS
@@ -71,9 +71,9 @@ export default function AreasOrganizacionales() {
     const cargar = useCallback(async () => {
         setLoading(true); setError(null);
         try {
-            const res = await axios.get('/api/rrhh/areas');
-            const raw: Area[] = Array.isArray(res.data) ? res.data
-                : (res.data?.items ?? res.data?.data ?? []);
+            const res = await listarAreas();
+            const raw: Area[] = Array.isArray(res) ? res
+                : (res?.items ?? res?.data ?? []);
             setAreas(
                 raw
                     .filter((a): a is Area => a !== null && a !== undefined)
@@ -127,9 +127,9 @@ export default function AreasOrganizacionales() {
             };
 
             if (editTarget) {
-                await axios.put(`/api/rrhh/areas/${editTarget.id_area}`, payload);
+                await actualizarArea(editTarget.id_area, payload);
             } else {
-                await axios.post('/api/rrhh/areas', payload);
+                await crearArea(payload);
             }
 
             setOpenModal(false);
@@ -145,7 +145,7 @@ export default function AreasOrganizacionales() {
     const handleToggleEstado = async (area: Area) => {
         const nuevoEstado = area.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
         try {
-            await axios.put(`/api/rrhh/areas/${area.id_area}`, { estado: nuevoEstado });
+            await actualizarArea(area.id_area, { estado: nuevoEstado });
             await cargar();
         } catch (e: any) {
             alert(e.response?.data?.detail ?? 'Error al cambiar estado');

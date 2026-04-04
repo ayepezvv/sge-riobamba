@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarRoles, crearRol, actualizarRol, listarPermisos } from 'api/roles';
 
 // ==============================|| GESTIÓN DE ROLES ||============================== //
 
@@ -33,8 +33,8 @@ export default function RolesPage() {
   const fetchRoles = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/roles/');
-      setRoles(response.data);
+      const data = await listarRoles();
+      setRoles(data);
     } catch (error) {
       console.error("Error fetching roles:", error);
     } finally {
@@ -44,8 +44,8 @@ export default function RolesPage() {
 
   const fetchPermissions = async () => {
     try {
-      const response = await axios.get('/api/permissions/');
-      setPermissions(response.data);
+      const data = await listarPermisos();
+      setPermissions(data);
     } catch (error) {
       console.error("Error fetching permissions:", error);
     }
@@ -97,10 +97,10 @@ export default function RolesPage() {
       };
 
       if (editingId) {
-        await axios.put(`/api/roles/${editingId}`, payload);
+        await actualizarRol(editingId, payload);
         setToast({ open: true, message: 'Rol actualizado exitosamente', severity: 'success' });
       } else {
-        await axios.post('/api/roles/', payload);
+        await crearRol(payload);
         setToast({ open: true, message: 'Rol creado exitosamente', severity: 'success' });
       }
       

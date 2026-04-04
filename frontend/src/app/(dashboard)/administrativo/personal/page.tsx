@@ -11,7 +11,7 @@ import { IconUserPlus, IconEye, IconUserX } from '@tabler/icons-react';
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarEmpleadosAdministrativo, listarUnidades, listarPuestos, crearEmpleadoAdministrativo, eliminarEmpleadoAdministrativo } from 'api/administrativo';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // TIPOS
@@ -97,14 +97,14 @@ const DirectorioPersonalPage = () => {
         setLoading(true);
         setError(null);
         try {
-            const [resEmp, resUnid, resPuest] = await Promise.all([
-                axios.get('/administrativo/empleados'),
-                axios.get('/administrativo/unidades'),
-                axios.get('/administrativo/puestos'),
+            const [rawEmp, rawUnid, rawPuest] = await Promise.all([
+                listarEmpleadosAdministrativo(),
+                listarUnidades(),
+                listarPuestos(),
             ]);
-            setEmpleados(resEmp.data);
-            setUnidades(resUnid.data);
-            setPuestos(resPuest.data);
+            setEmpleados(rawEmp);
+            setUnidades(rawUnid);
+            setPuestos(rawPuest);
         } catch (err: any) {
             setError(err.response?.data?.detail || 'Error al cargar datos del servidor');
         } finally {
@@ -123,7 +123,7 @@ const DirectorioPersonalPage = () => {
     const handleDesvincular = async (id: number) => {
         if (!confirm('¿Confirma la desvinculación de este empleado? La acción es reversible desde administración.')) return;
         try {
-            await axios.delete(`/administrativo/empleados/${id}`);
+            await eliminarEmpleadoAdministrativo(id);
             await cargarDatos();
         } catch (err: any) {
             alert(err.response?.data?.detail || 'Error al desvincular empleado');
@@ -138,7 +138,7 @@ const DirectorioPersonalPage = () => {
         setSavingForm(true);
         setFormError(null);
         try {
-            await axios.post('/administrativo/empleados', {
+            await crearEmpleadoAdministrativo({
                 ...form,
                 unidad_id: Number(form.unidad_id),
                 puesto_id: form.puesto_id ? Number(form.puesto_id) : null,

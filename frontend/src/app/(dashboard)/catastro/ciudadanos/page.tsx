@@ -27,7 +27,7 @@ import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import WcIcon from '@mui/icons-material/Wc';
 
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarCiudadanos, crearCiudadano, actualizarCiudadano, cambiarEstadoCiudadano } from 'api/catastro';
 
 // Componente helper para las pestañas
 interface TabPanelProps {
@@ -93,8 +93,8 @@ export default function CiudadanosPage() {
 
   const fetchCiudadanos = async () => {
     try {
-      const response = await axios.get('/api/ciudadanos/');
-      setCiudadanos(response.data);
+      const data = await listarCiudadanos();
+      setCiudadanos(data);
       
       // Update selected user if it was modified
       if (selectedUser) {
@@ -173,7 +173,7 @@ export default function CiudadanosPage() {
       }
 
       if (editingId) {
-        await axios.put(`/api/ciudadanos/${editingId}`, payload);
+        await actualizarCiudadano(editingId, payload);
         setToast({ open: true, message: 'Ciudadano actualizado exitosamente', severity: 'success' });
       } else {
         payload.referencias = [];
@@ -185,7 +185,7 @@ export default function CiudadanosPage() {
             identificacion: formData.ref_identificacion || null
           });
         }
-        await axios.post('/api/ciudadanos/', payload);
+        await crearCiudadano(payload);
         setToast({ open: true, message: 'Ciudadano registrado exitosamente', severity: 'success' });
       }
       
@@ -200,7 +200,7 @@ export default function CiudadanosPage() {
   const handleConfirmStatusChange = async () => {
     if (!selectedUser) return;
     try {
-      await axios.patch(`/api/ciudadanos/${selectedUser.id}/status`);
+      await cambiarEstadoCiudadano(selectedUser.id);
       setToast({ open: true, message: 'Estado modificado exitosamente', severity: 'success' });
       setConfirmOpen(false);
       fetchCiudadanos();

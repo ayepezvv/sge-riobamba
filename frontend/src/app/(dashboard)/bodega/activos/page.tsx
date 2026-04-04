@@ -9,7 +9,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
 import { IconDeviceDesktop, IconPrinter, IconRouter, IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
-import axios from 'utils/axios';
+import { listarActivos, crearActivo, listarCategorias } from 'api/bodega';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useSnackbar } from 'notistack';
@@ -45,8 +45,8 @@ const ActivosFijosPage = () => {
     const fetchActivos = async () => {
         setIsLoading(true);
         try {
-            const res = await axios.get('/api/bodega/activos');
-            setActivos(res.data);
+            const data = await listarActivos();
+            setActivos(data);
         } catch (error) {
             enqueueSnackbar('Error al cargar activos fijos', { variant: 'error' });
         } finally {
@@ -56,8 +56,8 @@ const ActivosFijosPage = () => {
 
     const fetchCategorias = async () => {
         try {
-            const res = await axios.get('/api/bodega/categorias');
-            setCategorias(res.data);
+            const data = await listarCategorias();
+            setCategorias(data);
         } catch (error) {
             console.error(error);
         }
@@ -87,7 +87,7 @@ const ActivosFijosPage = () => {
         }),
         onSubmit: async (values, { resetForm }) => {
             try {
-                await axios.post('/api/bodega/activos', {
+                await crearActivo({
                     ...values,
                     costo_inicial: values.costo_inicial ? parseFloat(values.costo_inicial as string) : null,
                     is_active: true

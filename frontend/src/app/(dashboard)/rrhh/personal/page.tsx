@@ -17,7 +17,10 @@ import {
     IconPhone, IconMail, IconUser, IconClipboardList
 } from '@tabler/icons-react';
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import {
+    listarEmpleados, listarAreas, listarCargos,
+    crearEmpleado, crearHistorialEmpleado, desvincularEmpleado,
+} from 'api/rrhh';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TIPOS
@@ -180,23 +183,22 @@ export default function DirectorioPersonalRRHH() {
     const cargarDatos = useCallback(async () => {
         setLoading(true); setError(null);
         try {
-            const [r1, r2, r3] = await Promise.all([
-                axios.get('/api/rrhh/empleados'),
-                axios.get('/api/rrhh/areas'),
-                axios.get('/api/rrhh/cargos'),
+            const [rawEmpleados, rawAreas, rawCargos] = await Promise.all([
+                listarEmpleados(),
+                listarAreas(),
+                listarCargos(),
             ]);
 
             const toArray = (d: any) =>
                 Array.isArray(d) ? d : (d?.items ?? d?.data ?? []);
 
-            const rawEmpleados: Empleado[] = toArray(r1.data);
             setEmpleados(
-                rawEmpleados
-                    .filter((e): e is Empleado => e !== null && e !== undefined)
-                    .map(e => ({ ...e, historial: e.historial ?? [], id: e.id_empleado }))
+                toArray(rawEmpleados)
+                    .filter((e: any): e is Empleado => e !== null && e !== undefined)
+                    .map((e: Empleado) => ({ ...e, historial: e.historial ?? [], id: e.id_empleado }))
             );
-            setAreas(toArray(r2.data).filter((a: any) => a !== null));
-            setCargos(toArray(r3.data).filter((c: any) => c !== null));
+            setAreas(toArray(rawAreas).filter((a: any) => a !== null));
+            setCargos(toArray(rawCargos).filter((c: any) => c !== null));
         } catch (e: any) {
             setError(e.response?.data?.detail ?? 'Error al cargar datos del directorio');
         } finally {
@@ -254,7 +256,7 @@ export default function DirectorioPersonalRRHH() {
             // Limpieza de nulos para evitar 422 de Pydantic
             const nullIfEmpty = (v: string) => v.trim() || null;
 
-            const empRes = await axios.post('/api/rrhh/empleados', {
+            const nuevoEmpleado = await crearEmpleado({
                 tipo_identificacion:     form.tipo_identificacion,
                 identificacion:          form.identificacion.trim(),
                 nombres:                 form.nombres.trim(),
@@ -272,9 +274,9 @@ export default function DirectorioPersonalRRHH() {
                 acumula_decimos:         form.acumula_decimos,
             });
 
-            const nuevoId: number = empRes.data.id_empleado;
+            const nuevoId: number = nuevoEmpleado.id_empleado;
 
-            await axios.post(`/api/rrhh/empleados/${nuevoId}/historial`, {
+            await crearHistorialEmpleado(nuevoId, {
                 id_empleado:     nuevoId,
                 id_area:         Number(form.id_area),
                 id_cargo:        Number(form.id_cargo),
@@ -300,7 +302,7 @@ export default function DirectorioPersonalRRHH() {
     const handleDesvincular = async (id: number) => {
         if (!confirm('¿Confirma la desvinculación (borrado lógico)?')) return;
         try {
-            await axios.delete(`/api/rrhh/empleados/${id}`);
+            await desvincularEmpleado(id);
             await cargarDatos();
         } catch (e: any) {
             alert(e.response?.data?.detail ?? 'Error al desvincular');

@@ -9,7 +9,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { obtenerProceso, listarPlantillas, obtenerEsquemaPlantilla, obtenerDatosDocumento, crearDocumento, regenerarDocumento, descargarDocumento } from 'api/contratacion';
 
 export default function ProcesoDetailPage() {
   const params = useParams();
@@ -56,12 +56,11 @@ export default function ProcesoDetailPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const resProc = await axios.get(`/api/contratacion/procesos/${procesoId}`);
-      const proc = resProc.data;
+      const proc = await obtenerProceso(Number(procesoId));
       setProceso(proc);
-      
-      const resPlan = await axios.get(`/api/contratacion/plantillas?tipo_proceso_id=${proc.tipo_proceso_id}&is_activa=true`);
-      setPlantillas(resPlan.data);
+
+      const rawPlantillas = await listarPlantillas({ tipo_proceso_id: proc.tipo_proceso_id, is_activa: true });
+      setPlantillas(rawPlantillas);
     } catch (error) {
       console.error(error);
     } finally {
@@ -77,15 +76,15 @@ export default function ProcesoDetailPage() {
       const fetchEsquema = async () => {
         setLoadingEsquema(true);
         try {
-          const res = await axios.get(`/api/contratacion/plantillas/${selectedPlantillaId}/esquema`);
-          setEsquemaVariables(res.data.variables || []);
+          const res = await obtenerEsquemaPlantilla(Number(selectedPlantillaId));
+          setEsquemaVariables(res.variables || []);
           
           // Persistencia de memoria: Si el expediente ya tiene datos guardados, usarlos. Si no, pre-poblar.
           if (proceso?.datos_formulario && Object.keys(proceso.datos_formulario).length > 0) {
             setDinamicData(proceso.datos_formulario);
           } else {
             const initialData: any = {};
-            res.data.variables.forEach((v: any) => {
+            res.variables.forEach((v: any) => {
               const k = v.nombre.toLowerCase();
               if (v.nombre === 'nombre_proyecto' || v.nombre === 'objeto_contratacion') {
                 initialData[v.nombre] = proceso?.nombre_proyecto || '';
@@ -133,12 +132,11 @@ export default function ProcesoDetailPage() {
       setSelectedPlantillaId(doc.plantilla_id);
       
       // 1. Pedir el esquema de la plantilla (aunque sea historica)
-      const resEsquema = await axios.get(`/api/contratacion/plantillas/${doc.plantilla_id}/esquema`);
-      setEsquemaVariables(resEsquema.data.variables || []);
-      
-      // 2. Pedir los datos crudos que se guardaron en la BD
-      const resDatos = await axios.get(`/api/contratacion/documento/${doc.id}/datos`);
-      setDinamicData(resDatos.data);
+      const resEsquema = await obtenerEsquemaPlantilla(doc.plantilla_id);
+      setEsquemaVariables(resEsquema.variables || []);
+
+      const datos = await obtenerDatosDocumento(doc.id);
+      setDinamicData(datos);
       
       setOpenDoc(true);
     } catch (error) {
@@ -238,9 +236,7 @@ export default function ProcesoDetailPage() {
   const handleDocSubmit = async () => {
     try {
       if (editingDocId) {
-        const response = await axios.put(`/api/contratacion/documento/${editingDocId}/regenerar`, { datos: dinamicData }, {
-            responseType: 'blob'
-        });
+        const response = await regenerarDocumento(editingDocId, dinamicData);
         
         if (response.data instanceof Blob || response.headers['content-type']?.includes('wordprocessingml') || response.headers['content-type']?.includes('octet-stream')) {
           const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -262,12 +258,10 @@ export default function ProcesoDetailPage() {
           setToast({ open: true, message: 'El servidor no devolvió un archivo válido.', severity: 'error' });
         }
       } else {
-        const response = await axios.post('/api/contratacion/documento', {
+        const response = await crearDocumento({
           proceso_contratacion_id: parseInt(procesoId as string),
           plantilla_id: parseInt(selectedPlantillaId),
           datos: dinamicData
-        }, {
-            responseType: 'blob'
         });
         
         if (response.data instanceof Blob || response.headers['content-type']?.includes('wordprocessingml') || response.headers['content-type']?.includes('octet-stream')) {
@@ -313,7 +307,7 @@ export default function ProcesoDetailPage() {
 
   const handleDownload = async (docId: number, version: number) => {
     try {
-      const response = await axios.get(`/api/contratacion/documento/${docId}/descargar`, { responseType: 'blob' });
+      const response = await descargarDocumento(docId);
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;

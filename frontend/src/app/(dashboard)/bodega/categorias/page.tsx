@@ -9,7 +9,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
 import { IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
-import axios from 'utils/axios';
+import { listarCategorias, crearCategoria, actualizarCategoria, eliminarCategoria } from 'api/bodega';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useSnackbar } from 'notistack';
@@ -31,8 +31,8 @@ const CategoriasBodegaPage = () => {
     const fetchCategorias = async () => {
         setIsLoading(true);
         try {
-            const res = await axios.get('/api/bodega/categorias');
-            setCategorias(res.data);
+            const data = await listarCategorias();
+            setCategorias(data);
         } catch (error) {
             enqueueSnackbar('Error al cargar categorías', { variant: 'error' });
         } finally {
@@ -55,10 +55,10 @@ const CategoriasBodegaPage = () => {
         onSubmit: async (values, { resetForm }) => {
             try {
                 if (editId) {
-                    await axios.put(`/api/bodega/categorias/${editId}`, values);
+                    await actualizarCategoria(editId, values);
                     enqueueSnackbar('Categoría actualizada exitosamente', { variant: 'success' });
                 } else {
-                    await axios.post('/api/bodega/categorias', { ...values, is_active: true });
+                    await crearCategoria({ ...values, is_active: true });
                     enqueueSnackbar('Categoría creada exitosamente', { variant: 'success' });
                 }
                 setOpenModal(false);
@@ -88,7 +88,7 @@ const CategoriasBodegaPage = () => {
     const handleDelete = async (id: number) => {
         if (!window.confirm("¿Seguro que desea eliminar esta categoría? Si tiene activos asignados, esta acción podría fallar.")) return;
         try {
-            await axios.delete(`/api/bodega/categorias/${id}`);
+            await eliminarCategoria(id);
             enqueueSnackbar('Categoría eliminada', { variant: 'success' });
             fetchCategorias();
         } catch (error) {

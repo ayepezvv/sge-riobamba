@@ -7,7 +7,7 @@ import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextFie
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarProcesos, crearProceso, listarTiposProceso } from 'api/contratacion';
 import { API_BASE_URL } from 'config/api';
 
 export default function ProcesosPage() {
@@ -61,12 +61,12 @@ export default function ProcesosPage() {
   const fetchProcesos = async () => {
     setLoading(true);
     try {
-      const [resProc, resTipos] = await Promise.all([
-        axios.get('/api/contratacion/procesos'),
-        axios.get('/api/contratacion/tipos')
+      const [rawProc, rawTipos] = await Promise.all([
+        listarProcesos(),
+        listarTiposProceso()
       ]);
-      setProcesos(resProc.data);
-      setTiposProceso(resTipos.data);
+      setProcesos(rawProc);
+      setTiposProceso(rawTipos);
     } catch (error) {
       console.error(error);
     } finally {
@@ -99,7 +99,7 @@ export default function ProcesosPage() {
         descripcion: `[${tipoRecomendado?.nombre || 'Proceso'}] ${wizardData.descripcion}`,
         tipo_proceso_id: tipoRecomendado?.id || null
       };
-      await axios.post('/api/contratacion/procesos', payload);
+      await crearProceso(payload);
       setToast({ open: true, message: 'Expediente creado correctamente', severity: 'success' });
       setOpen(false);
       setActiveStep(0);

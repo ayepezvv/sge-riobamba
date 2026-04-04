@@ -20,7 +20,7 @@ import PhoneTwoToneIcon from '@mui/icons-material/PhoneTwoTone';
 import AddIcon from '@mui/icons-material/Add';
 
 import MainCard from 'ui-component/cards/MainCard';
-import axios from 'utils/axios';
+import { listarUsuarios, crearUsuario, actualizarUsuario, cambiarEstadoUsuario, listarRoles } from 'api/usuarios';
 
 const initialFormData = {
   cedula: '',
@@ -55,8 +55,8 @@ export default function UsuariosPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('/api/users/');
-      setUsers(response.data);
+      const data = await listarUsuarios();
+      setUsers(data);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -64,8 +64,8 @@ export default function UsuariosPage() {
 
   const fetchRoles = async () => {
     try {
-      const response = await axios.get('/api/roles/');
-      setRoles(response.data);
+      const data = await listarRoles();
+      setRoles(data);
     } catch (error) {
       console.error("Error fetching roles:", error);
     }
@@ -117,10 +117,10 @@ export default function UsuariosPage() {
         if (!payload.password) {
           delete payload.password;
         }
-        await axios.put(`/api/users/${editingId}`, payload);
+        await actualizarUsuario(editingId, payload);
         setToast({ open: true, message: 'Usuario actualizado exitosamente', severity: 'success' });
       } else {
-        await axios.post('/api/users/', payload);
+        await crearUsuario(payload);
         setToast({ open: true, message: 'Usuario creado exitosamente', severity: 'success' });
       }
       
@@ -142,7 +142,7 @@ export default function UsuariosPage() {
   const handleConfirmStatusChange = async () => {
     if (!selectedUserForStatus) return;
     try {
-      await axios.patch(`/api/users/${selectedUserForStatus.id}/status`);
+      await cambiarEstadoUsuario(selectedUserForStatus.id);
       setToast({ open: true, message: 'Estado del usuario modificado exitosamente', severity: 'success' });
       setConfirmOpen(false);
       fetchUsers();

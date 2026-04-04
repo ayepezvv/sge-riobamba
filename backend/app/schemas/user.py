@@ -21,8 +21,17 @@ class UserUpdate(BaseModel):
     is_active: Optional[bool] = None
     role_id: Optional[int] = None
 
+class RoleBasico(BaseModel):
+    id: int
+    nombre_rol: str
+
+    class Config:
+        from_attributes = True
+
+
 class UserResponse(UserBase):
     id: int
+    role: Optional[RoleBasico] = None
 
     class Config:
         from_attributes = True
