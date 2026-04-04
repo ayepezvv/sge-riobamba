@@ -199,8 +199,13 @@ def aprobar_factura(
     if factura.estado != EstadoFactura.BORRADOR:
         raise HTTPException(400, f"Solo se pueden aprobar facturas en BORRADOR (estado actual: {factura.estado})")
 
-    tipo_doc = db.query(TipoDocumentoConfig).filter(
-        TipoDocumentoConfig.id == factura.tipo_documento_id).first()
+    # BL2: with_for_update() evita race condition en la secuencia de numeración
+    tipo_doc = (
+        db.query(TipoDocumentoConfig)
+        .with_for_update()
+        .filter(TipoDocumentoConfig.id == factura.tipo_documento_id)
+        .first()
+    )
 
     if datos.numero:
         # Verificar que no exista

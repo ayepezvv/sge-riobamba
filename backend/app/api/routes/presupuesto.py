@@ -405,6 +405,22 @@ def crear_devengado(req: DevengadoCrear, db: Session = Depends(deps.get_db), _: 
         raise HTTPException(status_code=404, detail="Compromiso no encontrado")
     if comp.estado not in ("ACTIVO",):
         raise HTTPException(status_code=400, detail="El compromiso debe estar ACTIVO")
+
+    # RN-PRES-04: validar que monto_devengado no supere el saldo disponible del compromiso
+    devengado_previo = db.query(func.coalesce(func.sum(Devengado.monto_devengado), Decimal("0"))).filter(
+        Devengado.id_compromiso == comp.id_compromiso,
+        Devengado.estado != "ANULADO",
+    ).scalar()
+    saldo_compromiso = Decimal(str(comp.monto_comprometido)) - Decimal(str(devengado_previo))
+    if Decimal(str(req.monto_devengado)) > saldo_compromiso:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"RN-PRES-04: Monto devengado ({req.monto_devengado}) supera el saldo disponible "
+                f"del compromiso ({saldo_compromiso}). Sobregiro presupuestario no permitido."
+            ),
+        )
+
     obj = Devengado(**req.model_dump())
     comp.estado = "DEVENGADO"
     # Actualizar asignación

@@ -321,10 +321,22 @@ def cambiar_estado_periodo(
     estados_validos = {e.value for e in EstadoPeriodo}
     if datos.estado not in estados_validos:
         raise HTTPException(status_code=400, detail=f"Estado inválido. Válidos: {estados_validos}")
-    # RN-10: No se puede reabrir un período BLOQUEADO
-    if periodo.estado == EstadoPeriodo.BLOQUEADO and datos.estado == EstadoPeriodo.ABIERTO:
-        raise HTTPException(status_code=400, detail="No se puede reabrir un período BLOQUEADO (RN-10)")
-    periodo.estado = datos.estado
+    # RN-10: Máquina de estados estricta — transiciones unidireccionales
+    TRANSICIONES_VALIDAS = {
+        EstadoPeriodo.ABIERTO: {EstadoPeriodo.CERRADO},
+        EstadoPeriodo.CERRADO: {EstadoPeriodo.BLOQUEADO},
+        EstadoPeriodo.BLOQUEADO: set(),
+    }
+    destino = datos.estado if isinstance(datos.estado, EstadoPeriodo) else EstadoPeriodo(datos.estado)
+    if destino not in TRANSICIONES_VALIDAS.get(periodo.estado, set()):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Transición no permitida: {periodo.estado} → {destino} (RN-10). "
+                "El flujo válido es ABIERTO → CERRADO → BLOQUEADO (unidireccional)."
+            ),
+        )
+    periodo.estado = destino
     periodo.actualizado_por_id = usuario.id
     db.commit()
     db.refresh(periodo)
@@ -474,11 +486,17 @@ def publicar_asiento(
         raise HTTPException(status_code=400, detail=f"Asiento no cuadra: Debe={total_debe} ≠ Haber={total_haber}")
 
     # Generar número definitivo: DIARIO-ANIO-MES-SEQ
-    seq = db.query(func.count(AsientoContable.id)).filter(
-        AsientoContable.diario_id == asiento.diario_id,
-        AsientoContable.periodo_id == asiento.periodo_id,
-        AsientoContable.estado == EstadoAsiento.PUBLICADO,
-    ).scalar() + 1
+    # BL2: with_for_update() evita race condition en numeración concurrente
+    seq = (
+        db.query(func.count(AsientoContable.id))
+        .with_for_update()
+        .filter(
+            AsientoContable.diario_id == asiento.diario_id,
+            AsientoContable.periodo_id == asiento.periodo_id,
+            AsientoContable.estado == EstadoAsiento.PUBLICADO,
+        )
+        .scalar()
+    ) + 1
     diario = db.query(Diario).filter(Diario.id == asiento.diario_id).first()
     asiento.numero = f"{diario.codigo}/{periodo.anio}/{periodo.mes:02d}/{seq:05d}"
     asiento.estado = EstadoAsiento.PUBLICADO
@@ -500,12 +518,75 @@ def anular_asiento(
     db: Session = Depends(get_db),
     usuario: User = Depends(_require_contabilidad),
 ):
-    """RN-11: Anulación de asiento — estado permanente, no se elimina físicamente."""
-    asiento = db.query(AsientoContable).filter(AsientoContable.id == asiento_id).first()
+    """RN-11: Anulación de asiento — estado permanente, no se elimina físicamente.
+    NIIF/NEC: Si el asiento está PUBLICADO, se crea asiento de reverso con debe/haber
+    invertidos en el mismo período antes de marcar el original como ANULADO.
+    """
+    asiento = (
+        db.query(AsientoContable)
+        .options(selectinload(AsientoContable.lineas))
+        .filter(AsientoContable.id == asiento_id)
+        .first()
+    )
     if not asiento:
         raise HTTPException(status_code=404, detail="Asiento no encontrado")
     if asiento.estado == EstadoAsiento.ANULADO:
         raise HTTPException(status_code=400, detail="El asiento ya está ANULADO")
+
+    # NIIF/NEC: asiento de reverso solo para asientos PUBLICADOS
+    if asiento.estado == EstadoAsiento.PUBLICADO:
+        periodo = db.query(PeriodoContable).filter(PeriodoContable.id == asiento.periodo_id).first()
+        if not periodo or periodo.estado != EstadoPeriodo.ABIERTO:
+            raise HTTPException(
+                status_code=400,
+                detail=f"No se puede anular: el período '{periodo.nombre if periodo else '?'}' no está ABIERTO. "
+                       "Un período ABIERTO es requerido para registrar el asiento de reverso (NIIF/NEC).",
+            )
+        diario = db.query(Diario).filter(Diario.id == asiento.diario_id).first()
+        # Número secuencial del reverso con for_update para evitar race condition
+        seq_reverso = (
+            db.query(func.count(AsientoContable.id))
+            .with_for_update()
+            .filter(
+                AsientoContable.diario_id == asiento.diario_id,
+                AsientoContable.periodo_id == asiento.periodo_id,
+                AsientoContable.estado == EstadoAsiento.PUBLICADO,
+            )
+            .scalar()
+        ) + 1
+        numero_reverso = f"{diario.codigo}/{periodo.anio}/{periodo.mes:02d}/{seq_reverso:05d}-REV"
+
+        reverso = AsientoContable(
+            numero=numero_reverso,
+            diario_id=asiento.diario_id,
+            periodo_id=asiento.periodo_id,
+            fecha=datetime.now(timezone.utc).date(),
+            referencia=f"REVERSO-{asiento.numero}",
+            concepto=f"Reverso por anulación de {asiento.numero}: {datos.motivo_anulacion}",
+            estado=EstadoAsiento.PUBLICADO,
+            total_debe=asiento.total_haber,
+            total_haber=asiento.total_debe,
+            fecha_publicacion=datetime.now(timezone.utc),
+            usuario_id=usuario.id,
+            creado_por_id=usuario.id,
+            actualizado_por_id=usuario.id,
+        )
+        db.add(reverso)
+        db.flush()
+
+        for linea_orig in asiento.lineas:
+            linea_rev = LineaAsiento(
+                asiento_id=reverso.id,
+                cuenta_id=linea_orig.cuenta_id,
+                descripcion=f"Reverso: {linea_orig.descripcion or ''}",
+                debe=linea_orig.haber,
+                haber=linea_orig.debe,
+                orden=linea_orig.orden,
+                creado_por_id=usuario.id,
+                actualizado_por_id=usuario.id,
+            )
+            db.add(linea_rev)
+
     asiento.estado = EstadoAsiento.ANULADO
     asiento.motivo_anulacion = datos.motivo_anulacion
     asiento.actualizado_por_id = usuario.id
