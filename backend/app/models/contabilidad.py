@@ -267,3 +267,55 @@ class LineaAsiento(AuditMixin, Base):
     # Relaciones
     asiento = relationship("AsientoContable", back_populates="lineas")
     cuenta = relationship("CuentaContable", back_populates="lineas_asiento")
+
+
+# ---------------------------------------------------------------------------
+# ParametroContable — Parámetros de configuración para asientos automáticos
+# (YXP-21: auto-asientos)
+# ---------------------------------------------------------------------------
+
+class ParametroContable(AuditMixin, Base):
+    """
+    Tabla de parámetros clave→cuenta/diario para generación automática de asientos.
+
+    Claves predefinidas:
+      CUENTA_CXC            — Cuenta por cobrar (AR) por defecto
+      CUENTA_CXP            — Cuenta por pagar (AP) por defecto
+      CUENTA_IVA_COBRADO    — IVA en ventas (haber al aprobar factura cliente)
+      CUENTA_IVA_PAGADO     — IVA en compras (debe al aprobar factura proveedor)
+      CUENTA_CAJA_RECAUDACION — Caja de recaudación diaria
+      CUENTA_BCE_CUT        — Cuenta Única del Tesoro BCE
+      DIARIO_VENTAS         — Diario para facturas de venta
+      DIARIO_COMPRAS        — Diario para facturas de compra
+      DIARIO_BANCO          — Diario para pagos/cobros bancarios
+      DIARIO_CAJA           — Diario para operaciones de caja
+      DIARIO_PRESUPUESTO    — Diario para asientos de ejecución presupuestaria
+    """
+    __tablename__ = "parametros_contables"
+    __table_args__ = (
+        UniqueConstraint("clave", name="uq_parametros_contables_clave"),
+        {"schema": "contabilidad"},
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    clave = Column(String(50), nullable=False, index=True,
+                   comment="Identificador único del parámetro, ej: CUENTA_CXC")
+    descripcion = Column(String(255), nullable=True)
+
+    # Un parámetro puede apuntar a una cuenta o a un diario (solo uno a la vez)
+    cuenta_id = Column(
+        Integer,
+        ForeignKey("contabilidad.cuentas_contables.id", ondelete="RESTRICT"),
+        nullable=True,
+        comment="Cuenta contable asociada (NULL si es parámetro de diario)"
+    )
+    diario_id = Column(
+        Integer,
+        ForeignKey("contabilidad.diarios.id", ondelete="RESTRICT"),
+        nullable=True,
+        comment="Diario asociado (NULL si es parámetro de cuenta)"
+    )
+
+    # Relaciones
+    cuenta = relationship("CuentaContable", foreign_keys=[cuenta_id])
+    diario = relationship("Diario", foreign_keys=[diario_id])

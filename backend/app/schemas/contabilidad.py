@@ -227,3 +227,40 @@ class AsientoContableRespuesta(AsientoContableBase):
 class AnularAsiento(BaseModel):
     motivo_anulacion: str = Field(..., min_length=10,
                                    description="Motivo obligatorio (RN-11)")
+
+
+# ---------------------------------------------------------------------------
+# ParametroContable — Schemas (YXP-21)
+# ---------------------------------------------------------------------------
+
+class ParametroContableCrear(BaseModel):
+    clave: str = Field(..., max_length=50, description="Ej: CUENTA_CXC, DIARIO_VENTAS")
+    descripcion: Optional[str] = Field(None, max_length=255)
+    cuenta_id: Optional[int] = None
+    diario_id: Optional[int] = None
+
+    @model_validator(mode="after")
+    def validar_cuenta_o_diario(self):
+        if self.cuenta_id is None and self.diario_id is None:
+            raise ValueError("Debe indicar cuenta_id o diario_id")
+        if self.cuenta_id is not None and self.diario_id is not None:
+            raise ValueError("Solo puede indicar cuenta_id O diario_id, no ambos")
+        return self
+
+
+class ParametroContableActualizar(BaseModel):
+    descripcion: Optional[str] = Field(None, max_length=255)
+    cuenta_id: Optional[int] = None
+    diario_id: Optional[int] = None
+
+
+class ParametroContableRespuesta(BaseModel):
+    id: int
+    clave: str
+    descripcion: Optional[str]
+    cuenta_id: Optional[int]
+    diario_id: Optional[int]
+    creado_en: datetime
+    actualizado_en: datetime
+
+    model_config = {"from_attributes": True}

@@ -15,6 +15,12 @@ from app.models.financiero import (
     CierreRecaudacion, EstadoFactura, EstadoPago,
 )
 from app.models.user import User
+from app.services.auto_asientos import (
+    generar_asiento_factura,
+    generar_asiento_pago,
+    generar_asientos_cierre_recaudacion,
+)
+
 from app.schemas.financiero import (
     TipoDocumentoCrear, TipoDocumentoActualizar, TipoDocumentoRespuesta,
     FacturaCrear, FacturaActualizar, FacturaRespuesta, ResumenFactura,
@@ -212,6 +218,21 @@ def aprobar_factura(
     factura.actualizado_por_id = usuario.id
     db.commit()
     db.refresh(factura)
+
+    # RN-F05: Generar asiento contable automático (YXP-21)
+    from sqlalchemy.orm import selectinload
+    factura = (
+        db.query(Factura)
+        .options(selectinload(Factura.lineas))
+        .filter(Factura.id == factura_id)
+        .first()
+    )
+    asiento = generar_asiento_factura(db, factura, usuario.id)
+    if asiento:
+        factura.asiento_contable_id = asiento.id
+        db.commit()
+        db.refresh(factura)
+
     return factura
 
 
@@ -354,6 +375,21 @@ def confirmar_pago(
     pago.actualizado_por_id = usuario.id
     db.commit()
     db.refresh(pago)
+
+    # RN-F05: Generar asiento de cancelación (YXP-21)
+    from sqlalchemy.orm import selectinload
+    pago = (
+        db.query(Pago)
+        .options(selectinload(Pago.lineas))
+        .filter(Pago.id == pago_id)
+        .first()
+    )
+    asiento = generar_asiento_pago(db, pago, usuario.id)
+    if asiento:
+        pago.asiento_contable_id = asiento.id
+        db.commit()
+        db.refresh(pago)
+
     return pago
 
 
@@ -430,6 +466,17 @@ def crear_cierre_recaudacion(
     db.add(cierre)
     db.commit()
     db.refresh(cierre)
+
+    # RN-F03: Doble asiento contable automático (YXP-21)
+    asiento_rec, asiento_tral = generar_asientos_cierre_recaudacion(db, cierre, usuario.id)
+    if asiento_rec:
+        cierre.asiento_recaudacion_id = asiento_rec.id
+    if asiento_tral:
+        cierre.asiento_traslado_bce_id = asiento_tral.id
+    if asiento_rec or asiento_tral:
+        db.commit()
+        db.refresh(cierre)
+
     return cierre
 
 

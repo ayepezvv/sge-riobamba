@@ -509,3 +509,84 @@ def anular_asiento(
     db.commit()
     db.refresh(asiento)
     return asiento
+
+
+# ===========================================================================
+# PARÁMETROS CONTABLES (para auto-asientos, YXP-21)
+# ===========================================================================
+
+from app.models.contabilidad import ParametroContable
+from app.schemas.contabilidad import (
+    ParametroContableCrear, ParametroContableActualizar, ParametroContableRespuesta
+)
+
+
+@router.get("/parametros-contables", response_model=List[ParametroContableRespuesta],
+            tags=["Contabilidad - Parámetros"])
+def listar_parametros_contables(db: Session = Depends(get_db)):
+    """Lista todos los parámetros configurados para generación automática de asientos."""
+    return db.query(ParametroContable).order_by(ParametroContable.clave).all()
+
+
+@router.get("/parametros-contables/{clave}", response_model=ParametroContableRespuesta,
+            tags=["Contabilidad - Parámetros"])
+def obtener_parametro_contable(clave: str, db: Session = Depends(get_db)):
+    param = db.query(ParametroContable).filter(ParametroContable.clave == clave).first()
+    if not param:
+        raise HTTPException(status_code=404, detail=f"Parámetro '{clave}' no encontrado")
+    return param
+
+
+@router.post("/parametros-contables", response_model=ParametroContableRespuesta,
+             status_code=status.HTTP_201_CREATED, tags=["Contabilidad - Parámetros"])
+def crear_parametro_contable(
+    datos: ParametroContableCrear,
+    db: Session = Depends(get_db),
+    usuario: User = Depends(get_current_user),
+):
+    existente = db.query(ParametroContable).filter(
+        ParametroContable.clave == datos.clave).first()
+    if existente:
+        raise HTTPException(400, f"Ya existe el parámetro '{datos.clave}'")
+    param = ParametroContable(
+        **datos.model_dump(),
+        creado_por_id=usuario.id,
+        actualizado_por_id=usuario.id,
+    )
+    db.add(param)
+    db.commit()
+    db.refresh(param)
+    return param
+
+
+@router.put("/parametros-contables/{clave}", response_model=ParametroContableRespuesta,
+            tags=["Contabilidad - Parámetros"])
+def actualizar_parametro_contable(
+    clave: str,
+    datos: ParametroContableActualizar,
+    db: Session = Depends(get_db),
+    usuario: User = Depends(get_current_user),
+):
+    param = db.query(ParametroContable).filter(ParametroContable.clave == clave).first()
+    if not param:
+        raise HTTPException(404, f"Parámetro '{clave}' no encontrado")
+    for campo, valor in datos.model_dump(exclude_none=True).items():
+        setattr(param, campo, valor)
+    param.actualizado_por_id = usuario.id
+    db.commit()
+    db.refresh(param)
+    return param
+
+
+@router.delete("/parametros-contables/{clave}", status_code=status.HTTP_204_NO_CONTENT,
+               tags=["Contabilidad - Parámetros"])
+def eliminar_parametro_contable(
+    clave: str,
+    db: Session = Depends(get_db),
+    usuario: User = Depends(get_current_user),
+):
+    param = db.query(ParametroContable).filter(ParametroContable.clave == clave).first()
+    if not param:
+        raise HTTPException(404, f"Parámetro '{clave}' no encontrado")
+    db.delete(param)
+    db.commit()
