@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_db, get_current_user, require_role
 from app.models.contabilidad import (
     TipoCuenta, CuentaContable, Diario, PeriodoContable,
     AsientoContable, LineaAsiento,
@@ -27,6 +27,9 @@ from app.schemas.contabilidad import (
 
 router = APIRouter()
 
+# Solo SuperAdmin o Contabilidad pueden registrar/modificar movimientos contables
+_require_contabilidad = require_role(["SuperAdmin", "Contabilidad"])
+
 
 # ===========================================================================
 # TIPOS DE CUENTA
@@ -42,7 +45,7 @@ def listar_tipos_cuenta(db: Session = Depends(get_db)):
 def crear_tipo_cuenta(
     datos: TipoCuentaCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     existente = db.query(TipoCuenta).filter(TipoCuenta.codigo == datos.codigo).first()
     if existente:
@@ -59,7 +62,7 @@ def actualizar_tipo_cuenta(
     tipo_id: int,
     datos: TipoCuentaActualizar,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     tipo = db.query(TipoCuenta).filter(TipoCuenta.id == tipo_id).first()
     if not tipo:
@@ -171,7 +174,7 @@ def saldo_cuenta(
 def crear_cuenta(
     datos: CuentaContableCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     existente = db.query(CuentaContable).filter(CuentaContable.codigo == datos.codigo).first()
     if existente:
@@ -196,7 +199,7 @@ def actualizar_cuenta(
     cuenta_id: int,
     datos: CuentaContableActualizar,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     cuenta = db.query(CuentaContable).filter(CuentaContable.id == cuenta_id).first()
     if not cuenta:
@@ -237,7 +240,7 @@ def obtener_diario(diario_id: int, db: Session = Depends(get_db)):
 def crear_diario(
     datos: DiarioCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     existente = db.query(Diario).filter(Diario.codigo == datos.codigo).first()
     if existente:
@@ -254,7 +257,7 @@ def actualizar_diario(
     diario_id: int,
     datos: DiarioActualizar,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     diario = db.query(Diario).filter(Diario.id == diario_id).first()
     if not diario:
@@ -290,7 +293,7 @@ def listar_periodos(
 def crear_periodo(
     datos: PeriodoContableCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     existente = db.query(PeriodoContable).filter(
         PeriodoContable.anio == datos.anio, PeriodoContable.mes == datos.mes
@@ -310,7 +313,7 @@ def cambiar_estado_periodo(
     periodo_id: int,
     datos: CambioEstadoPeriodo,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     periodo = db.query(PeriodoContable).filter(PeriodoContable.id == periodo_id).first()
     if not periodo:
@@ -375,7 +378,7 @@ def obtener_asiento(asiento_id: int, db: Session = Depends(get_db)):
 def crear_asiento(
     datos: AsientoContableCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     # Validar período abierto
     periodo = db.query(PeriodoContable).filter(PeriodoContable.id == datos.periodo_id).first()
@@ -445,7 +448,7 @@ def crear_asiento(
 def publicar_asiento(
     asiento_id: int,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     """Valida y publica el asiento. Genera número definitivo y verifica cuadre."""
     asiento = (
@@ -495,7 +498,7 @@ def anular_asiento(
     asiento_id: int,
     datos: AnularAsiento,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     """RN-11: Anulación de asiento — estado permanente, no se elimina físicamente."""
     asiento = db.query(AsientoContable).filter(AsientoContable.id == asiento_id).first()
@@ -542,7 +545,7 @@ def obtener_parametro_contable(clave: str, db: Session = Depends(get_db)):
 def crear_parametro_contable(
     datos: ParametroContableCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     existente = db.query(ParametroContable).filter(
         ParametroContable.clave == datos.clave).first()
@@ -565,7 +568,7 @@ def actualizar_parametro_contable(
     clave: str,
     datos: ParametroContableActualizar,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     param = db.query(ParametroContable).filter(ParametroContable.clave == clave).first()
     if not param:
@@ -583,7 +586,7 @@ def actualizar_parametro_contable(
 def eliminar_parametro_contable(
     clave: str,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(_require_contabilidad),
 ):
     param = db.query(ParametroContable).filter(ParametroContable.clave == clave).first()
     if not param:

@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, List
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import jwt
@@ -31,3 +31,26 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuario inactivo")
     return user
+
+def require_superadmin(current_user: User = Depends(get_current_user)) -> User:
+    """Dependencia: solo usuarios con rol SuperAdmin pueden continuar."""
+    if not current_user.role or current_user.role.nombre_rol != "SuperAdmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Se requiere rol SuperAdmin para esta operación",
+        )
+    return current_user
+
+def require_role(roles: List[str]):
+    """
+    Fábrica de dependencias para RBAC.
+    Uso: current_user: User = Depends(deps.require_role(["SuperAdmin", "RRHH"]))
+    """
+    def _check_role(current_user: User = Depends(get_current_user)) -> User:
+        if not current_user.role or current_user.role.nombre_rol not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Rol requerido: {', '.join(roles)}",
+            )
+        return current_user
+    return _check_role

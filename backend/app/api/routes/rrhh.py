@@ -27,6 +27,8 @@ from app.schemas.rrhh import (
 
 router = APIRouter(tags=["RRHH V3"])
 
+_ROLES_RRHH = ["SuperAdmin", "RRHH"]
+
 
 # =========================================================================
 # ÁREA ORGANIZACIONAL
@@ -38,7 +40,7 @@ def listar_areas(db: Session = Depends(deps.get_db),
 
 @router.post("/areas", response_model=AreaOrganizacionalResponse, status_code=201)
 def crear_area(req: AreaOrganizacionalCreate, db: Session = Depends(deps.get_db),
-               _: User = Depends(deps.get_current_user)):
+               _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = AreaOrganizacional(**req.model_dump())
     db.add(obj); db.commit(); db.refresh(obj)
     return obj
@@ -46,7 +48,7 @@ def crear_area(req: AreaOrganizacionalCreate, db: Session = Depends(deps.get_db)
 @router.put("/areas/{area_id}", response_model=AreaOrganizacionalResponse)
 def actualizar_area(area_id: int, req: AreaOrganizacionalUpdate,
                     db: Session = Depends(deps.get_db),
-                    _: User = Depends(deps.get_current_user)):
+                    _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = db.query(AreaOrganizacional).filter(AreaOrganizacional.id_area == area_id).first()
     if not obj:
         raise HTTPException(404, "Área no encontrada")
@@ -66,7 +68,7 @@ def listar_escalas(db: Session = Depends(deps.get_db),
 
 @router.post("/escalas-salariales", response_model=EscalaSalarialResponse, status_code=201)
 def crear_escala(req: EscalaSalarialCreate, db: Session = Depends(deps.get_db),
-                 _: User = Depends(deps.get_current_user)):
+                 _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = EscalaSalarial(**req.model_dump())
     db.add(obj); db.commit(); db.refresh(obj)
     return obj
@@ -74,7 +76,7 @@ def crear_escala(req: EscalaSalarialCreate, db: Session = Depends(deps.get_db),
 @router.put("/escalas-salariales/{escala_id}", response_model=EscalaSalarialResponse)
 def actualizar_escala(escala_id: int, req: EscalaSalarialCreate,
                       db: Session = Depends(deps.get_db),
-                      _: User = Depends(deps.get_current_user)):
+                      _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = db.query(EscalaSalarial).filter(EscalaSalarial.id_escala == escala_id).first()
     if not obj:
         raise HTTPException(404, "Escala salarial no encontrada")
@@ -95,7 +97,7 @@ def listar_cargos(db: Session = Depends(deps.get_db),
 
 @router.post("/cargos", response_model=CargoResponse, status_code=201)
 def crear_cargo(req: CargoCreate, db: Session = Depends(deps.get_db),
-                _: User = Depends(deps.get_current_user)):
+                _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = Cargo(**req.model_dump())
     db.add(obj); db.commit(); db.refresh(obj)
     return obj
@@ -103,7 +105,7 @@ def crear_cargo(req: CargoCreate, db: Session = Depends(deps.get_db),
 @router.put("/cargos/{cargo_id}", response_model=CargoResponse)
 def actualizar_cargo(cargo_id: int, req: CargoUpdate,
                      db: Session = Depends(deps.get_db),
-                     _: User = Depends(deps.get_current_user)):
+                     _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = db.query(Cargo).filter(Cargo.id_cargo == cargo_id).first()
     if not obj:
         raise HTTPException(404, "Cargo no encontrado")
@@ -118,7 +120,7 @@ def actualizar_cargo(cargo_id: int, req: CargoUpdate,
 # =========================================================================
 @router.get("/empleados", response_model=List[EmpleadoResponse])
 def listar_empleados(db: Session = Depends(deps.get_db),
-                     _: User = Depends(deps.get_current_user)):
+                     _: User = Depends(deps.require_role(_ROLES_RRHH))):
     return (
         db.query(Empleado)
         .options(
@@ -134,7 +136,7 @@ def listar_empleados(db: Session = Depends(deps.get_db),
 
 @router.get("/empleados/{empleado_id}", response_model=EmpleadoResponse)
 def obtener_empleado(empleado_id: int, db: Session = Depends(deps.get_db),
-                     _: User = Depends(deps.get_current_user)):
+                     _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = (
         db.query(Empleado)
         .options(
@@ -152,7 +154,7 @@ def obtener_empleado(empleado_id: int, db: Session = Depends(deps.get_db),
 
 @router.post("/empleados", response_model=EmpleadoResponse, status_code=201)
 def crear_empleado(req: EmpleadoCreate, db: Session = Depends(deps.get_db),
-                   current_user: User = Depends(deps.get_current_user)):
+                   current_user: User = Depends(deps.require_role(_ROLES_RRHH))):
     if db.query(Empleado).filter(Empleado.identificacion == req.identificacion).first():
         raise HTTPException(400, f"Ya existe un empleado con identificación {req.identificacion}")
     data = req.model_dump()
@@ -163,7 +165,7 @@ def crear_empleado(req: EmpleadoCreate, db: Session = Depends(deps.get_db),
 @router.put("/empleados/{empleado_id}", response_model=EmpleadoResponse)
 def actualizar_empleado(empleado_id: int, req: EmpleadoUpdate,
                         db: Session = Depends(deps.get_db),
-                        current_user: User = Depends(deps.get_current_user)):
+                        current_user: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = db.query(Empleado).filter(Empleado.id_empleado == empleado_id).first()
     if not obj:
         raise HTTPException(404, "Empleado no encontrado")
@@ -175,7 +177,7 @@ def actualizar_empleado(empleado_id: int, req: EmpleadoUpdate,
 
 @router.delete("/empleados/{empleado_id}", status_code=204)
 def desvincular_empleado(empleado_id: int, db: Session = Depends(deps.get_db),
-                         current_user: User = Depends(deps.get_current_user)):
+                         current_user: User = Depends(deps.require_role(_ROLES_RRHH))):
     """Soft Delete: registra eliminado_en + estado DESVINCULADO."""
     obj = db.query(Empleado).filter(Empleado.id_empleado == empleado_id).first()
     if not obj:
@@ -193,7 +195,7 @@ def desvincular_empleado(empleado_id: int, db: Session = Depends(deps.get_db),
              response_model=HistorialLaboralResponse, status_code=201)
 def registrar_historial(empleado_id: int, req: HistorialLaboralCreate,
                         db: Session = Depends(deps.get_db),
-                        _: User = Depends(deps.get_current_user)):
+                        _: User = Depends(deps.require_role(_ROLES_RRHH))):
     """
     Implementa Effective Dating:
     1. Cierra registro activo anterior (fecha_fin = hoy).
@@ -216,7 +218,7 @@ def registrar_historial(empleado_id: int, req: HistorialLaboralCreate,
 @router.get("/empleados/{empleado_id}/historial",
             response_model=List[HistorialLaboralResponse])
 def historial_empleado(empleado_id: int, db: Session = Depends(deps.get_db),
-                       _: User = Depends(deps.get_current_user)):
+                       _: User = Depends(deps.require_role(_ROLES_RRHH))):
     return (db.query(HistorialLaboral)
             .options(joinedload(HistorialLaboral.area),
                      joinedload(HistorialLaboral.cargo))
@@ -232,7 +234,7 @@ def historial_empleado(empleado_id: int, db: Session = Depends(deps.get_db),
              response_model=CargaFamiliarResponse, status_code=201)
 def agregar_carga(empleado_id: int, req: CargaFamiliarCreate,
                   db: Session = Depends(deps.get_db),
-                  _: User = Depends(deps.get_current_user)):
+                  _: User = Depends(deps.require_role(_ROLES_RRHH))):
     if not db.query(Empleado).filter(Empleado.id_empleado == empleado_id).first():
         raise HTTPException(404, "Empleado no encontrado")
     obj = EmpleadoCargaFamiliar(**req.model_dump())
@@ -241,7 +243,7 @@ def agregar_carga(empleado_id: int, req: CargaFamiliarCreate,
 
 @router.delete("/cargas/{carga_id}", status_code=204)
 def eliminar_carga(carga_id: int, db: Session = Depends(deps.get_db),
-                   _: User = Depends(deps.get_current_user)):
+                   _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = db.query(EmpleadoCargaFamiliar).filter(
         EmpleadoCargaFamiliar.id_carga == carga_id).first()
     if not obj:
@@ -269,7 +271,7 @@ def detalle_contrato(contrato_id: int, db: Session = Depends(deps.get_db),
 
 @router.post("/contratos", response_model=ContratoResponse, status_code=201)
 def crear_contrato(req: ContratoCreate, db: Session = Depends(deps.get_db),
-                   _: User = Depends(deps.get_current_user)):
+                   _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = Contrato(**req.model_dump())
     db.add(obj); db.commit(); db.refresh(obj)
     return obj
@@ -277,7 +279,7 @@ def crear_contrato(req: ContratoCreate, db: Session = Depends(deps.get_db),
 @router.put("/contratos/{contrato_id}", response_model=ContratoResponse)
 def actualizar_contrato(contrato_id: int, req: ContratoUpdate,
                         db: Session = Depends(deps.get_db),
-                        _: User = Depends(deps.get_current_user)):
+                        _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = db.query(Contrato).filter(Contrato.id_contrato == contrato_id).first()
     if not obj: raise HTTPException(404, "Contrato no encontrado")
     for k, v in req.model_dump(exclude_unset=True).items():
@@ -295,7 +297,7 @@ def listar_parametros(db: Session = Depends(deps.get_db),
 
 @router.post("/parametros-calculo", response_model=ParametroCalculoResponse, status_code=201)
 def crear_parametro(req: ParametroCalculoCreate, db: Session = Depends(deps.get_db),
-                    _: User = Depends(deps.get_current_user)):
+                    _: User = Depends(deps.require_role(_ROLES_RRHH))):
     # validar uq
     exists = db.query(ParametroCalculo).filter(
         ParametroCalculo.anio_vigencia == req.anio_vigencia,
@@ -309,7 +311,7 @@ def crear_parametro(req: ParametroCalculoCreate, db: Session = Depends(deps.get_
 @router.put("/parametros-calculo/{param_id}", response_model=ParametroCalculoResponse)
 def actualizar_parametro(param_id: int, req: ParametroCalculoCreate,
                          db: Session = Depends(deps.get_db),
-                         _: User = Depends(deps.get_current_user)):
+                         _: User = Depends(deps.require_role(_ROLES_RRHH))):
     obj = db.query(ParametroCalculo).filter(ParametroCalculo.id_parametro == param_id).first()
     if not obj: raise HTTPException(404, "Parámetro no encontrado")
     for k, v in req.model_dump().items():
