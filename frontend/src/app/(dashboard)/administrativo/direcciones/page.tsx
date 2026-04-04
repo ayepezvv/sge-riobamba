@@ -22,7 +22,7 @@ import {
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 export default function DireccionesPage() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
   const [formData, setFormData] = useState<any>({ nombre: '', descripcion: '', es_activo: true });
@@ -37,7 +37,7 @@ export default function DireccionesPage() {
 
   useEffect(() => { fetchDirecciones(); }, []);
 
-  const handleOpen = (item = null) => {
+  const handleOpen = (item: any = null) => {
     if (item) {
       setEditingId(item.id);
       setFormData(item);
