@@ -20,6 +20,7 @@ import {
   Alert
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { API_BASE_URL } from 'config/api';
 
 export default function PuestosPage() {
   const [data, setData] = useState([]);
@@ -32,7 +33,7 @@ export default function PuestosPage() {
 
   const fetchPuestos = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/administrativo/puestos', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
+      const res = await fetch(`${API_BASE_URL}/api/administrativo/puestos`, { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) setData(await res.json());
     } catch (e) { console.error(e); }
   };
@@ -51,7 +52,7 @@ export default function PuestosPage() {
   };
 
   const handleSave = async () => {
-    const url = editingId ? `http://192.168.1.15:8000/api/administrativo/puestos/${editingId}` : 'http://192.168.1.15:8000/api/administrativo/puestos';
+    const url = editingId ? `${API_BASE_URL}/api/administrativo/puestos/${editingId}` : `${API_BASE_URL}/api/administrativo/puestos`;
     const method = editingId ? 'PUT' : 'POST';
     try {
       const payload = { ...formData, remuneracion_mensual: parseFloat(formData.remuneracion_mensual) || 0 };

@@ -8,6 +8,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
 import MainCard from 'ui-component/cards/MainCard';
 import axios from 'utils/axios';
+import { API_BASE_URL } from 'config/api';
 
 export default function ProcesosPage() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function ProcesosPage() {
 
     const fetchPacItems = async () => {
     try {
-      const res = await fetch('http://192.168.1.15:8000/api/contratacion/pac', { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
+      const res = await fetch(`${API_BASE_URL}/api/contratacion/pac`, { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) {
         const pacs = await res.json();
         // Extract active pac items

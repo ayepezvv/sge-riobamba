@@ -25,6 +25,13 @@ def create_role(role_in: RoleCreate, db: Session = Depends(deps.get_db), current
     db.refresh(db_role)
     return db_role
 
+@router.get("/{rol_id}", response_model=RoleResponse)
+def obtener_rol_por_id(rol_id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    rol = db.query(Role).filter(Role.id == rol_id).first()
+    if not rol:
+        raise HTTPException(status_code=404, detail="Rol no encontrado")
+    return rol
+
 @router.put("/{role_id}", response_model=RoleResponse)
 def update_role(role_id: int, role_in: RoleUpdate, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
     db_role = db.query(Role).filter(Role.id == role_id).first()
