@@ -36,7 +36,7 @@ _require_contabilidad = require_role(["SuperAdmin", "Contabilidad"])
 # ===========================================================================
 
 @router.get("/tipos-cuenta", response_model=List[TipoCuentaRespuesta], tags=["Contabilidad - Tipos Cuenta"])
-def listar_tipos_cuenta(db: Session = Depends(get_db)):
+def listar_tipos_cuenta(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     return db.query(TipoCuenta).order_by(TipoCuenta.codigo).all()
 
 
@@ -87,6 +87,7 @@ def listar_cuentas(
     estado: Optional[str] = None,
     q: Optional[str] = None,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     query = db.query(CuentaContable)
     if tipo_cuenta_id:
@@ -105,7 +106,7 @@ def listar_cuentas(
 
 
 @router.get("/cuentas/arbol", response_model=List[CuentaContableArbol], tags=["Contabilidad - Cuentas"])
-def arbol_cuentas(db: Session = Depends(get_db)):
+def arbol_cuentas(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     """Retorna el árbol de cuentas raíz (nivel 1) con sus subcuentas anidadas."""
     raices = (
         db.query(CuentaContable)
@@ -118,7 +119,7 @@ def arbol_cuentas(db: Session = Depends(get_db)):
 
 
 @router.get("/cuentas/{cuenta_id}", response_model=CuentaContableRespuesta, tags=["Contabilidad - Cuentas"])
-def obtener_cuenta(cuenta_id: int, db: Session = Depends(get_db)):
+def obtener_cuenta(cuenta_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     cuenta = db.query(CuentaContable).filter(CuentaContable.id == cuenta_id).first()
     if not cuenta:
         raise HTTPException(status_code=404, detail="Cuenta contable no encontrada")
@@ -132,6 +133,7 @@ def saldo_cuenta(
     fecha_desde: Optional[str] = None,
     fecha_hasta: Optional[str] = None,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     """Calcula el saldo de una cuenta a partir de sus líneas de asiento PUBLICADAS."""
     cuenta = db.query(CuentaContable).filter(CuentaContable.id == cuenta_id).first()
@@ -220,6 +222,7 @@ def actualizar_cuenta(
 def listar_diarios(
     solo_activos: bool = True,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(Diario)
     if solo_activos:
@@ -228,7 +231,7 @@ def listar_diarios(
 
 
 @router.get("/diarios/{diario_id}", response_model=DiarioRespuesta, tags=["Contabilidad - Diarios"])
-def obtener_diario(diario_id: int, db: Session = Depends(get_db)):
+def obtener_diario(diario_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     diario = db.query(Diario).filter(Diario.id == diario_id).first()
     if not diario:
         raise HTTPException(status_code=404, detail="Diario no encontrado")
@@ -279,6 +282,7 @@ def listar_periodos(
     anio: Optional[int] = None,
     estado: Optional[str] = None,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(PeriodoContable)
     if anio:
@@ -357,6 +361,7 @@ def listar_asientos(
     skip: int = 0,
     limit: int = Query(50, le=200),
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(AsientoContable).options(selectinload(AsientoContable.lineas))
     if periodo_id:
@@ -373,7 +378,7 @@ def listar_asientos(
 
 
 @router.get("/asientos/{asiento_id}", response_model=AsientoContableRespuesta, tags=["Contabilidad - Asientos"])
-def obtener_asiento(asiento_id: int, db: Session = Depends(get_db)):
+def obtener_asiento(asiento_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     asiento = (
         db.query(AsientoContable)
         .options(selectinload(AsientoContable.lineas))
@@ -607,14 +612,14 @@ from app.schemas.contabilidad import (
 
 @router.get("/parametros-contables", response_model=List[ParametroContableRespuesta],
             tags=["Contabilidad - Parámetros"])
-def listar_parametros_contables(db: Session = Depends(get_db)):
+def listar_parametros_contables(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     """Lista todos los parámetros configurados para generación automática de asientos."""
     return db.query(ParametroContable).order_by(ParametroContable.clave).all()
 
 
 @router.get("/parametros-contables/{clave}", response_model=ParametroContableRespuesta,
             tags=["Contabilidad - Parámetros"])
-def obtener_parametro_contable(clave: str, db: Session = Depends(get_db)):
+def obtener_parametro_contable(clave: str, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     param = db.query(ParametroContable).filter(ParametroContable.clave == clave).first()
     if not param:
         raise HTTPException(status_code=404, detail=f"Parámetro '{clave}' no encontrado")

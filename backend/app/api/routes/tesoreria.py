@@ -9,7 +9,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_db, get_current_user, require_role
+
+_ROLES_TESORERIA = ["SuperAdmin", "Tesoreria"]
 from app.models.tesoreria import (
     EntidadBancaria, CuentaBancaria, ExtractoBancario, LineaExtracto,
     ConciliacionBancaria, MarcaConciliacion, CajaChica, MovimientoCaja,
@@ -39,6 +41,7 @@ router = APIRouter()
 def listar_entidades_bancarias(
     solo_activas: bool = True,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(EntidadBancaria)
     if solo_activas:
@@ -51,7 +54,7 @@ def listar_entidades_bancarias(
 def crear_entidad_bancaria(
     datos: EntidadBancariaCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     existente = db.query(EntidadBancaria).filter(EntidadBancaria.codigo == datos.codigo).first()
     if existente:
@@ -70,7 +73,7 @@ def actualizar_entidad_bancaria(
     entidad_id: int,
     datos: EntidadBancariaActualizar,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     entidad = db.query(EntidadBancaria).filter(EntidadBancaria.id == entidad_id).first()
     if not entidad:
@@ -93,6 +96,7 @@ def listar_cuentas_bancarias(
     entidad_bancaria_id: Optional[int] = None,
     solo_activas: bool = True,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(CuentaBancaria)
     if entidad_bancaria_id:
@@ -107,7 +111,7 @@ def listar_cuentas_bancarias(
 def crear_cuenta_bancaria(
     datos: CuentaBancariaCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     existente = db.query(CuentaBancaria).filter(
         CuentaBancaria.numero_cuenta == datos.numero_cuenta).first()
@@ -123,7 +127,7 @@ def crear_cuenta_bancaria(
 
 @router.get("/cuentas-bancarias/{cuenta_id}", response_model=CuentaBancariaRespuesta,
              tags=["Tesorería - Cuentas Bancarias"])
-def obtener_cuenta_bancaria(cuenta_id: int, db: Session = Depends(get_db)):
+def obtener_cuenta_bancaria(cuenta_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     cuenta = db.query(CuentaBancaria).filter(CuentaBancaria.id == cuenta_id).first()
     if not cuenta:
         raise HTTPException(404, "Cuenta bancaria no encontrada")
@@ -136,7 +140,7 @@ def actualizar_cuenta_bancaria(
     cuenta_id: int,
     datos: CuentaBancariaActualizar,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     cuenta = db.query(CuentaBancaria).filter(CuentaBancaria.id == cuenta_id).first()
     if not cuenta:
@@ -161,6 +165,7 @@ def listar_extractos(
     fecha_desde: Optional[date] = None,
     fecha_hasta: Optional[date] = None,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(ExtractoBancario)
     if cuenta_bancaria_id:
@@ -179,7 +184,7 @@ def listar_extractos(
 def crear_extracto(
     datos: ExtractoBancarioCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     # Verificar que no haya solapamiento de periodos para la misma cuenta
     solapado = db.query(ExtractoBancario).filter(
@@ -209,7 +214,7 @@ def crear_extracto(
 
 @router.get("/extractos/{extracto_id}", response_model=ExtractoBancarioRespuesta,
              tags=["Tesorería - Extractos"])
-def obtener_extracto(extracto_id: int, db: Session = Depends(get_db)):
+def obtener_extracto(extracto_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     extracto = db.query(ExtractoBancario).filter(ExtractoBancario.id == extracto_id).first()
     if not extracto:
         raise HTTPException(404, "Extracto no encontrado")
@@ -221,7 +226,7 @@ def obtener_extracto(extracto_id: int, db: Session = Depends(get_db)):
 def confirmar_extracto(
     extracto_id: int,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     extracto = db.query(ExtractoBancario).filter(ExtractoBancario.id == extracto_id).first()
     if not extracto:
@@ -245,6 +250,7 @@ def listar_conciliaciones(
     cuenta_bancaria_id: Optional[int] = None,
     estado: Optional[str] = None,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(ConciliacionBancaria)
     if cuenta_bancaria_id:
@@ -259,7 +265,7 @@ def listar_conciliaciones(
 def crear_conciliacion(
     datos: ConciliacionBancariaCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     diferencia = datos.saldo_banco - datos.saldo_libro
     conciliacion = ConciliacionBancaria(
@@ -276,7 +282,7 @@ def crear_conciliacion(
 
 @router.get("/conciliaciones/{conciliacion_id}", response_model=ConciliacionBancariaRespuesta,
              tags=["Tesorería - Conciliaciones"])
-def obtener_conciliacion(conciliacion_id: int, db: Session = Depends(get_db)):
+def obtener_conciliacion(conciliacion_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     conc = db.query(ConciliacionBancaria).filter(
         ConciliacionBancaria.id == conciliacion_id).first()
     if not conc:
@@ -291,7 +297,7 @@ def cerrar_conciliacion(
     conciliacion_id: int,
     datos: CerrarConciliacion,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     """RN-T04: CERRADO es definitivo — no se puede reabrir."""
     conc = db.query(ConciliacionBancaria).filter(
@@ -317,7 +323,7 @@ def agregar_marca(
     conciliacion_id: int,
     datos: MarcaConciliacionCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     """RN-T01: Marcado de líneas de extracto como conciliadas."""
     conc = db.query(ConciliacionBancaria).filter(
@@ -360,6 +366,7 @@ def agregar_marca(
 def listar_cajas(
     solo_activas: bool = False,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(CajaChica)
     if solo_activas:
@@ -372,7 +379,7 @@ def listar_cajas(
 def crear_caja(
     datos: CajaChicaCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     existente = db.query(CajaChica).filter(CajaChica.codigo == datos.codigo).first()
     if existente:
@@ -391,7 +398,7 @@ def registrar_movimiento_caja(
     caja_id: int,
     datos: MovimientoCajaCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_TESORERIA)),
 ):
     caja = db.query(CajaChica).filter(CajaChica.id == caja_id).first()
     if not caja:
@@ -421,6 +428,7 @@ def listar_movimientos_caja(
     fecha_desde: Optional[date] = None,
     fecha_hasta: Optional[date] = None,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(MovimientoCaja).filter(MovimientoCaja.caja_id == caja_id)
     if fecha_desde:

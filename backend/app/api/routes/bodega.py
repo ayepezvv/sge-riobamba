@@ -14,7 +14,7 @@ router = APIRouter(tags=["Bodega y Activos Fijos"])
 
 # --- Categorias ---
 @router.get("/categorias", response_model=List[CategoriaBienSchema])
-def get_categorias(db: Session = Depends(get_db)):
+def get_categorias(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     from sqlalchemy import text
     try:
         db.execute(text("CREATE SCHEMA IF NOT EXISTS bodega;"))
@@ -60,7 +60,7 @@ def delete_categoria(id: int, db: Session = Depends(get_db), _: User = Depends(g
 
 # --- Activos Fijos ---
 @router.get("/activos", response_model=List[ActivoFijoSchema])
-def get_activos(db: Session = Depends(get_db)):
+def get_activos(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     return db.query(ActivoFijo).options(joinedload(ActivoFijo.categoria)).all()
 
 @router.post("/activos", response_model=ActivoFijoSchema, status_code=status.HTTP_201_CREATED)

@@ -10,6 +10,8 @@ from sqlalchemy import func
 
 from app.api import deps
 from app.models.user import User
+
+_ROLES_PRESUPUESTO = ["SuperAdmin", "Presupuesto"]
 from app.models.presupuesto import (
     PartidaPresupuestaria,
     PresupuestoAnual,
@@ -52,6 +54,7 @@ def listar_partidas(
     tipo: Optional[str] = Query(None, description="INGRESO o GASTO"),
     solo_hojas: bool = Query(False),
     db: Session = Depends(deps.get_db),
+    _: User = Depends(deps.get_current_user),
 ):
     q = db.query(PartidaPresupuestaria)
     if tipo:
@@ -62,7 +65,7 @@ def listar_partidas(
 
 
 @router.post("/partidas", response_model=PartidaPresupuestariaRespuesta, status_code=201, tags=["Presupuesto"])
-def crear_partida(req: PartidaPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
+def crear_partida(req: PartidaPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))):
     if db.query(PartidaPresupuestaria).filter_by(codigo=req.codigo).first():
         raise HTTPException(status_code=400, detail=f"Partida con código {req.codigo} ya existe")
     obj = PartidaPresupuestaria(**req.model_dump())
@@ -73,7 +76,7 @@ def crear_partida(req: PartidaPresupuestariaCrear, db: Session = Depends(deps.ge
 
 
 @router.get("/partidas/{partida_id}", response_model=PartidaPresupuestariaRespuesta, tags=["Presupuesto"])
-def obtener_partida(partida_id: int, db: Session = Depends(deps.get_db)):
+def obtener_partida(partida_id: int, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     obj = db.query(PartidaPresupuestaria).get(partida_id)
     if not obj:
         raise HTTPException(status_code=404, detail="Partida no encontrada")
@@ -82,7 +85,7 @@ def obtener_partida(partida_id: int, db: Session = Depends(deps.get_db)):
 
 @router.put("/partidas/{partida_id}", response_model=PartidaPresupuestariaRespuesta, tags=["Presupuesto"])
 def actualizar_partida(
-    partida_id: int, req: PartidaPresupuestariaActualizar, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)
+    partida_id: int, req: PartidaPresupuestariaActualizar, db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))
 ):
     obj = db.query(PartidaPresupuestaria).get(partida_id)
     if not obj:
@@ -103,6 +106,7 @@ def listar_presupuestos(
     anio: Optional[int] = Query(None),
     estado: Optional[str] = Query(None),
     db: Session = Depends(deps.get_db),
+    _: User = Depends(deps.get_current_user),
 ):
     q = db.query(PresupuestoAnual)
     if anio:
@@ -113,7 +117,7 @@ def listar_presupuestos(
 
 
 @router.post("/presupuestos", response_model=PresupuestoAnualRespuesta, status_code=201, tags=["Presupuesto"])
-def crear_presupuesto(req: PresupuestoAnualCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
+def crear_presupuesto(req: PresupuestoAnualCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))):
     existente = db.query(PresupuestoAnual).filter(
         PresupuestoAnual.anio_fiscal == req.anio_fiscal,
         PresupuestoAnual.estado == "APROBADO"
@@ -134,7 +138,7 @@ def crear_presupuesto(req: PresupuestoAnualCrear, db: Session = Depends(deps.get
 
 
 @router.get("/presupuestos/{presupuesto_id}", response_model=PresupuestoAnualRespuesta, tags=["Presupuesto"])
-def obtener_presupuesto(presupuesto_id: int, db: Session = Depends(deps.get_db)):
+def obtener_presupuesto(presupuesto_id: int, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     obj = db.query(PresupuestoAnual).get(presupuesto_id)
     if not obj:
         raise HTTPException(status_code=404, detail="Presupuesto no encontrado")
@@ -143,7 +147,7 @@ def obtener_presupuesto(presupuesto_id: int, db: Session = Depends(deps.get_db))
 
 @router.patch("/presupuestos/{presupuesto_id}", response_model=PresupuestoAnualRespuesta, tags=["Presupuesto"])
 def actualizar_presupuesto(
-    presupuesto_id: int, req: PresupuestoAnualActualizar, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)
+    presupuesto_id: int, req: PresupuestoAnualActualizar, db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))
 ):
     obj = db.query(PresupuestoAnual).get(presupuesto_id)
     if not obj:
@@ -166,7 +170,7 @@ def actualizar_presupuesto(
     response_model=List[AsignacionPresupuestariaRespuesta],
     tags=["Presupuesto"],
 )
-def listar_asignaciones(presupuesto_id: int, db: Session = Depends(deps.get_db)):
+def listar_asignaciones(presupuesto_id: int, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     return (
         db.query(AsignacionPresupuestaria)
         .filter_by(id_presupuesto=presupuesto_id)
@@ -180,7 +184,7 @@ def listar_asignaciones(presupuesto_id: int, db: Session = Depends(deps.get_db))
     status_code=201,
     tags=["Presupuesto"],
 )
-def crear_asignacion(req: AsignacionPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
+def crear_asignacion(req: AsignacionPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))):
     existente = db.query(AsignacionPresupuestaria).filter_by(
         id_presupuesto=req.id_presupuesto, id_partida=req.id_partida
     ).first()
@@ -203,7 +207,7 @@ def crear_asignacion(req: AsignacionPresupuestariaCrear, db: Session = Depends(d
     tags=["Presupuesto"],
 )
 def crear_reforma(
-    asignacion_id: int, req: ReformaPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)
+    asignacion_id: int, req: ReformaPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))
 ):
     asig = db.query(AsignacionPresupuestaria).get(asignacion_id)
     if not asig:
@@ -237,6 +241,7 @@ def listar_certificados(
     estado: Optional[str] = Query(None),
     anio: Optional[int] = Query(None),
     db: Session = Depends(deps.get_db),
+    _: User = Depends(deps.get_current_user),
 ):
     q = db.query(CertificadoPresupuestario)
     if estado:
@@ -253,7 +258,7 @@ def listar_certificados(
 @router.post(
     "/certificados", response_model=CertificadoPresupuestariaRespuesta, status_code=201, tags=["Presupuesto"]
 )
-def crear_certificado(req: CertificadoPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
+def crear_certificado(req: CertificadoPresupuestariaCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))):
     asig = db.query(AsignacionPresupuestaria).get(req.id_asignacion)
     if not asig:
         raise HTTPException(status_code=404, detail="Asignación presupuestaria no encontrada")
@@ -282,7 +287,7 @@ def crear_certificado(req: CertificadoPresupuestariaCrear, db: Session = Depends
 @router.get(
     "/certificados/{cert_id}", response_model=CertificadoPresupuestariaRespuesta, tags=["Presupuesto"]
 )
-def obtener_certificado(cert_id: int, db: Session = Depends(deps.get_db)):
+def obtener_certificado(cert_id: int, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     obj = db.query(CertificadoPresupuestario).get(cert_id)
     if not obj:
         raise HTTPException(status_code=404, detail="Certificado no encontrado")
@@ -295,7 +300,7 @@ def obtener_certificado(cert_id: int, db: Session = Depends(deps.get_db)):
     tags=["Presupuesto"],
 )
 def cambiar_estado_certificado(
-    cert_id: int, req: CertificadoPresupuestariaEstado, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)
+    cert_id: int, req: CertificadoPresupuestariaEstado, db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))
 ):
     obj = db.query(CertificadoPresupuestario).get(cert_id)
     if not obj:
@@ -321,6 +326,7 @@ def cambiar_estado_certificado(
 def listar_compromisos(
     estado: Optional[str] = Query(None),
     db: Session = Depends(deps.get_db),
+    _: User = Depends(deps.get_current_user),
 ):
     q = db.query(Compromiso)
     if estado:
@@ -329,7 +335,7 @@ def listar_compromisos(
 
 
 @router.post("/compromisos", response_model=CompromisoRespuesta, status_code=201, tags=["Presupuesto"])
-def crear_compromiso(req: CompromisoCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
+def crear_compromiso(req: CompromisoCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))):
     cert = db.query(CertificadoPresupuestario).get(req.id_certificado)
     if not cert:
         raise HTTPException(status_code=404, detail="Certificado no encontrado")
@@ -363,7 +369,7 @@ def crear_compromiso(req: CompromisoCrear, db: Session = Depends(deps.get_db), _
 
 
 @router.patch("/compromisos/{comp_id}/anular", response_model=CompromisoRespuesta, tags=["Presupuesto"])
-def anular_compromiso(comp_id: int, motivo: str = Query(...), db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
+def anular_compromiso(comp_id: int, motivo: str = Query(...), db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))):
     obj = db.query(Compromiso).get(comp_id)
     if not obj:
         raise HTTPException(status_code=404, detail="Compromiso no encontrado")
@@ -391,6 +397,7 @@ def anular_compromiso(comp_id: int, motivo: str = Query(...), db: Session = Depe
 def listar_devengados(
     estado: Optional[str] = Query(None),
     db: Session = Depends(deps.get_db),
+    _: User = Depends(deps.get_current_user),
 ):
     q = db.query(Devengado)
     if estado:
@@ -399,7 +406,7 @@ def listar_devengados(
 
 
 @router.post("/devengados", response_model=DevengadoRespuesta, status_code=201, tags=["Presupuesto"])
-def crear_devengado(req: DevengadoCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
+def crear_devengado(req: DevengadoCrear, db: Session = Depends(deps.get_db), _: User = Depends(deps.require_role(_ROLES_PRESUPUESTO))):
     comp = db.query(Compromiso).get(req.id_compromiso)
     if not comp:
         raise HTTPException(status_code=404, detail="Compromiso no encontrado")
@@ -442,7 +449,7 @@ def crear_devengado(req: DevengadoCrear, db: Session = Depends(deps.get_db), _: 
     response_model=List[EjecucionPresupuestariaRespuesta],
     tags=["Presupuesto"],
 )
-def reporte_ejecucion(anio_fiscal: int, db: Session = Depends(deps.get_db)):
+def reporte_ejecucion(anio_fiscal: int, db: Session = Depends(deps.get_db), _: User = Depends(deps.get_current_user)):
     rows = (
         db.query(
             PresupuestoAnual.anio_fiscal,

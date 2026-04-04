@@ -9,7 +9,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_db, get_current_user, require_role
+
+_ROLES_FINANCIERO = ["SuperAdmin", "Financiero"]
 from app.models.financiero import (
     TipoDocumentoConfig, Factura, LineaFactura, Pago, LineaPago,
     CierreRecaudacion, EstadoFactura, EstadoPago,
@@ -43,6 +45,7 @@ def listar_tipos_documento(
     solo_activos: bool = True,
     tipo: Optional[str] = None,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(TipoDocumentoConfig)
     if solo_activos:
@@ -57,7 +60,7 @@ def listar_tipos_documento(
 def crear_tipo_documento(
     datos: TipoDocumentoCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_FINANCIERO)),
 ):
     existente = db.query(TipoDocumentoConfig).filter(
         TipoDocumentoConfig.codigo == datos.codigo).first()
@@ -84,6 +87,7 @@ def listar_facturas(
     identificacion_tercero: Optional[str] = None,
     q_texto: Optional[str] = Query(None, alias="q"),
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(Factura)
     if tipo:
@@ -109,7 +113,7 @@ def listar_facturas(
 def crear_factura(
     datos: FacturaCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_FINANCIERO)),
 ):
     # Verificar tipo de documento existe
     tipo_doc = db.query(TipoDocumentoConfig).filter(
@@ -174,7 +178,7 @@ def crear_factura(
 
 
 @router.get("/facturas/{factura_id}", response_model=FacturaRespuesta, tags=["Financiero - Facturas"])
-def obtener_factura(factura_id: int, db: Session = Depends(get_db)):
+def obtener_factura(factura_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     factura = db.query(Factura).filter(Factura.id == factura_id).first()
     if not factura:
         raise HTTPException(404, "Factura no encontrada")
@@ -187,7 +191,7 @@ def aprobar_factura(
     factura_id: int,
     datos: AprobarFactura,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_FINANCIERO)),
 ):
     """
     Aprueba la factura y genera número secuencial definitivo.
@@ -247,7 +251,7 @@ def anular_factura(
     factura_id: int,
     datos: AnularFactura,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_FINANCIERO)),
 ):
     """RN-F04: Estado ANULADA es permanente (no se puede revertir)."""
     factura = db.query(Factura).filter(Factura.id == factura_id).first()
@@ -277,6 +281,7 @@ def listar_pagos(
     fecha_hasta: Optional[date] = None,
     identificacion_tercero: Optional[str] = None,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(Pago)
     if tipo:
@@ -297,7 +302,7 @@ def listar_pagos(
 def crear_pago(
     datos: PagoCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_FINANCIERO)),
 ):
     lineas_data = datos.lineas
     pago_data = datos.model_dump(exclude={"lineas"})
@@ -345,7 +350,7 @@ def crear_pago(
 
 
 @router.get("/pagos/{pago_id}", response_model=PagoRespuesta, tags=["Financiero - Pagos"])
-def obtener_pago(pago_id: int, db: Session = Depends(get_db)):
+def obtener_pago(pago_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     pago = db.query(Pago).filter(Pago.id == pago_id).first()
     if not pago:
         raise HTTPException(404, "Pago no encontrado")
@@ -358,7 +363,7 @@ def confirmar_pago(
     pago_id: int,
     datos: ConfirmarPago,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_FINANCIERO)),
 ):
     """
     Confirma el pago y genera número secuencial.
@@ -403,7 +408,7 @@ def anular_pago(
     pago_id: int,
     datos: AnularPago,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_FINANCIERO)),
 ):
     """RN-F04: Estado ANULADO permanente."""
     pago = db.query(Pago).filter(Pago.id == pago_id).first()
@@ -440,6 +445,7 @@ def listar_cierres_recaudacion(
     fecha_desde: Optional[date] = None,
     fecha_hasta: Optional[date] = None,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     q = db.query(CierreRecaudacion)
     if fecha_desde:
@@ -455,7 +461,7 @@ def listar_cierres_recaudacion(
 def crear_cierre_recaudacion(
     datos: CierreRecaudacionCrear,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(require_role(_ROLES_FINANCIERO)),
 ):
     """
     RN-F02: Un solo cierre por día (UNIQUE date).
@@ -487,7 +493,7 @@ def crear_cierre_recaudacion(
 
 @router.get("/cierres-recaudacion/{cierre_id}", response_model=CierreRecaudacionRespuesta,
              tags=["Financiero - Cierres Recaudación"])
-def obtener_cierre_recaudacion(cierre_id: int, db: Session = Depends(get_db)):
+def obtener_cierre_recaudacion(cierre_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     cierre = db.query(CierreRecaudacion).filter(CierreRecaudacion.id == cierre_id).first()
     if not cierre:
         raise HTTPException(404, "Cierre de recaudación no encontrado")

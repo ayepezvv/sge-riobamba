@@ -18,11 +18,11 @@ router = APIRouter()
 # --- SegmentoRed Endpoints ---
 
 @router.get("/segmentos", response_model=List[SegmentoRedSchema])
-def get_segmentos(db: Session = Depends(get_db)):
+def get_segmentos(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     return db.query(SegmentoRed).order_by(SegmentoRed.nombre).all()
 
 @router.get("/segmentos/{id}", response_model=SegmentoRedSchema)
-def get_segmento(id: str, db: Session = Depends(get_db)):
+def get_segmento(id: str, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     segmento = db.query(SegmentoRed).filter(SegmentoRed.id == id).first()
     if not segmento:
         raise HTTPException(status_code=404, detail="Segmento no encontrado")
@@ -79,7 +79,7 @@ def delete_segmento(id: str, db: Session = Depends(get_db), _: User = Depends(ge
 # --- DireccionIpAsignada Endpoints ---
 
 @router.get("/segmentos/{segmento_id}/ips", response_model=List[DireccionIpSchema])
-def get_ips_by_segmento(segmento_id: str, db: Session = Depends(get_db)):
+def get_ips_by_segmento(segmento_id: str, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     return db.query(DireccionIpAsignada).options(joinedload(DireccionIpAsignada.personal), joinedload(DireccionIpAsignada.activo)).filter(DireccionIpAsignada.segmento_id == segmento_id).all()
 
 @router.post("/ips", response_model=DireccionIpSchema)
@@ -158,7 +158,7 @@ def delete_ip(id: str, db: Session = Depends(get_db), _: User = Depends(get_curr
     return {"ok": True}
 
 @router.get("/stats", response_model=dict)
-def get_ipam_stats(db: Session = Depends(get_db)):
+def get_ipam_stats(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     segmentos = db.query(SegmentoRed).count()
     ips = db.query(DireccionIpAsignada).count()
     return {"total_segmentos": segmentos, "total_ips_asignadas": ips}
