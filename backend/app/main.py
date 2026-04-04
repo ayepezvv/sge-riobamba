@@ -36,3 +36,6 @@ app.include_router(rrhh.router, prefix="/api/rrhh", tags=["RRHH V3"])
 from app.api.routes import bodega
 app.include_router(bodega.router, prefix="/api/bodega", tags=["bodega"])
 
+
+from app.api.routes import contabilidad
+app.include_router(contabilidad.router, prefix="/api/contabilidad", tags=["Contabilidad"])

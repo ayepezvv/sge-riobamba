@@ -17,3 +17,4 @@ from .rrhh import (
 )
 from .informatica import SegmentoRed, DireccionIpAsignada
 from .bodega import CategoriaBien, ActivoFijo, EstadoFisico
+from .contabilidad import TipoCuenta, CuentaContable, Diario, PeriodoContable, AsientoContable, LineaAsiento
