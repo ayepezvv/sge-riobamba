@@ -9,12 +9,13 @@ import bodega from './bodega';
 import contabilidad from './contabilidad';
 import tesoreria from './tesoreria';
 import financiero from './financiero';
+import presupuesto from './presupuesto';
 import { NavItemType } from 'types';
 
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems: { items: NavItemType[] } = {
-  items: [admin, administrativo, rrhh, contratacion, catastro, gis, informatica, bodega, contabilidad, tesoreria, financiero]
+  items: [admin, administrativo, rrhh, contratacion, catastro, gis, informatica, bodega, contabilidad, tesoreria, financiero, presupuesto]
 };
 
 export default menuItems;
