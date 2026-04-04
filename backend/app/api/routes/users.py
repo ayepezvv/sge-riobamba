@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.api import deps
 from app.models.user import User
+from app.models.role import Role
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.core.security import get_password_hash
 
@@ -58,6 +59,23 @@ def toggle_user_status(user_id: int, db: Session = Depends(deps.get_db), current
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    # BUG-01: Protección contra bloqueo del único SuperAdmin activo
+    if user.is_active and user.role and user.role.nombre_rol == "SuperAdmin":
+        otros_superadmin_activos = (
+            db.query(User)
+            .join(Role, User.role_id == Role.id)
+            .filter(
+                Role.nombre_rol == "SuperAdmin",
+                User.is_active == True,
+                User.id != user.id,
+            )
+            .count()
+        )
+        if otros_superadmin_activos == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="No se puede desactivar al único SuperAdmin activo del sistema",
+            )
     user.is_active = not user.is_active
     db.add(user)
     db.commit()
