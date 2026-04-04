@@ -48,3 +48,6 @@ app.include_router(financiero.router, prefix="/api/financiero", tags=["Financier
 
 from app.api.routes import presupuesto
 app.include_router(presupuesto.router, prefix='/api/presupuesto', tags=['Presupuesto'])
+
+from app.api.routes import compras_publicas
+app.include_router(compras_publicas.router, prefix='/api/compras', tags=['Compras Públicas'])
