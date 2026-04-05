@@ -15,6 +15,10 @@ from app.models.rrhh import (
     Empleado, Contrato, RubroNomina, ParametroCalculo, ImpuestoRentaEscala,
     RolPago, LineaRolPago, DetalleLineaRol,
 )
+from app.models.contabilidad import (
+    AsientoContable, LineaAsiento, PeriodoContable, Diario,
+    ParametroContable, EstadoAsiento, EstadoPeriodo,
+)
 
 CUANTIA = Decimal("0.01")
 
@@ -342,3 +346,107 @@ def generar_archivo_spi(
 
 
     return "\n".join(filas)
+
+
+# ---------------------------------------------------------------------------
+# Integración Contable Automática de Nómina (YXP-48)
+# ---------------------------------------------------------------------------
+
+def _obtener_parametro_contable(db: Session, clave: str) -> Optional[int]:
+    """Retorna cuenta_id del ParametroContable para la clave dada, o None."""
+    param = db.query(ParametroContable).filter(
+        ParametroContable.clave == clave
+    ).first()
+    return param.cuenta_id if param else None
+
+
+def _obtener_diario_nomina(db: Session) -> Optional[int]:
+    """Retorna id del diario para nómina (DIARIO_NOMINA → DIARIO_GENERAL fallback)."""
+    param = db.query(ParametroContable).filter(
+        ParametroContable.clave == "DIARIO_NOMINA"
+    ).first()
+    if param and param.diario_id:
+        return param.diario_id
+    # Fallback: primer diario de tipo GENERAL
+    diario = db.query(Diario).filter(Diario.tipo == "GENERAL").first()
+    return diario.id if diario else None
+
+
+def _obtener_periodo_activo(db: Session, anio: int, mes: int) -> Optional[int]:
+    """Retorna id del periodo contable ABIERTO que cubra año/mes del rol."""
+    from datetime import date
+    fecha_ref = date(anio, mes, 1)
+    periodo = (
+        db.query(PeriodoContable)
+        .filter(
+            PeriodoContable.estado == EstadoPeriodo.ABIERTO,
+            PeriodoContable.fecha_inicio <= fecha_ref,
+            PeriodoContable.fecha_fin >= fecha_ref,
+        )
+        .first()
+    )
+    return periodo.id if periodo else None
+
+
+def generar_asiento_nomina(db: Session, rol: RolPago) -> Optional[AsientoContable]:
+    """
+    Genera automáticamente el asiento contable cuando un RolPago pasa a CERRADO.
+
+    Asiento:
+      DEBE  → CUENTA_GASTOS_PERSONAL  (gasto por remuneraciones)
+      HABER → CUENTA_CXP_EMPLEADOS    (obligación con empleados)
+
+    Retorna el AsientoContable creado, o None si faltan parámetros contables
+    (no debe bloquear el cierre del rol).
+    """
+    cuenta_gasto_id = _obtener_parametro_contable(db, "CUENTA_GASTOS_PERSONAL")
+    cuenta_cxp_id = _obtener_parametro_contable(db, "CUENTA_CXP_EMPLEADOS")
+    diario_id = _obtener_diario_nomina(db)
+    periodo_id = _obtener_periodo_activo(db, rol.periodo_anio, rol.periodo_mes)
+
+    if not all([cuenta_gasto_id, cuenta_cxp_id, diario_id, periodo_id]):
+        # Parámetros contables incompletos — no bloquear el cierre
+        return None
+
+    total_ingresos = sum(
+        linea.total_ingresos for linea in rol.lineas
+    )
+    if total_ingresos <= 0:
+        return None
+
+    monto = _redondear(Decimal(str(total_ingresos)))
+    periodo_label = f"{rol.periodo_anio}/{rol.periodo_mes:02d}"
+    numero_asiento = f"NOM/{rol.periodo_anio}{rol.periodo_mes:02d}/{rol.id_rol_pago}"
+
+    asiento = AsientoContable(
+        numero=numero_asiento,
+        diario_id=diario_id,
+        periodo_id=periodo_id,
+        fecha=rol.fecha_aprobacion or rol.fecha_generacion,
+        referencia=f"ROL-{rol.tipo_rol}-{periodo_label}",
+        concepto=f"Nómina {rol.tipo_rol} {periodo_label} — cierre automático",
+        estado=EstadoAsiento.PUBLICADO,
+        total_debe=monto,
+        total_haber=monto,
+    )
+    db.add(asiento)
+    db.flush()
+
+    db.add(LineaAsiento(
+        asiento_id=asiento.id,
+        cuenta_id=cuenta_gasto_id,
+        descripcion=f"Gasto nómina {rol.tipo_rol} {periodo_label}",
+        debe=monto,
+        haber=Decimal("0"),
+        orden=1,
+    ))
+    db.add(LineaAsiento(
+        asiento_id=asiento.id,
+        cuenta_id=cuenta_cxp_id,
+        descripcion=f"CxP empleados nómina {rol.tipo_rol} {periodo_label}",
+        debe=Decimal("0"),
+        haber=monto,
+        orden=2,
+    ))
+
+    return asiento

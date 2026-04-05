@@ -339,3 +339,105 @@ class MovimientoCaja(AuditMixin, Base):
     )
 
     caja = relationship("CajaChica", back_populates="movimientos")
+
+
+# ---------------------------------------------------------------------------
+# Enumeraciones SPI
+# ---------------------------------------------------------------------------
+
+class EstadoArchivoSpi(str, enum.Enum):
+    BORRADOR = "BORRADOR"
+    GENERADO = "GENERADO"
+    ENVIADO = "ENVIADO"
+    CONFIRMADO = "CONFIRMADO"
+    RECHAZADO = "RECHAZADO"
+
+
+class TipoPagoSpi(str, enum.Enum):
+    NOMINA = "NOMINA"
+    PROVEEDOR = "PROVEEDOR"
+    IMPUESTO = "IMPUESTO"
+    OTRO = "OTRO"
+
+
+class EstadoLineaSpi(str, enum.Enum):
+    PENDIENTE = "PENDIENTE"
+    PROCESADO = "PROCESADO"
+    RECHAZADO = "RECHAZADO"
+
+
+class OrigenLineaSpi(str, enum.Enum):
+    NOMINA = "NOMINA"
+    CXP = "CXP"
+    OTRO = "OTRO"
+
+
+# ---------------------------------------------------------------------------
+# ArchivoSpi — Cabecera de cada lote SPI enviado al BCE
+# ---------------------------------------------------------------------------
+
+class ArchivoSpi(AuditMixin, Base):
+    __tablename__ = "archivo_spi"
+    __table_args__ = (
+        UniqueConstraint("numero_lote", name="uq_archivo_spi_numero_lote"),
+        {"schema": "tesoreria"},
+    )
+
+    id_archivo_spi = Column(BigInteger, primary_key=True, autoincrement=True)
+    numero_lote = Column(String(30), nullable=False, index=True)
+    fecha_envio = Column(Date, nullable=True)
+    estado = Column(String(20), nullable=False, default=EstadoArchivoSpi.BORRADOR,
+                    comment="BORRADOR|GENERADO|ENVIADO|CONFIRMADO|RECHAZADO")
+    monto_total = Column(Numeric(18, 2), nullable=False, default=0)
+    id_cuenta_bancaria = Column(
+        Integer,
+        ForeignKey("tesoreria.cuentas_bancarias.id", ondelete="RESTRICT"),
+        nullable=False,
+        comment="Cuenta bancaria origen del pago"
+    )
+    tipo_pago = Column(String(20), nullable=False,
+                       comment="NOMINA|PROVEEDOR|IMPUESTO|OTRO")
+    ruta_archivo = Column(String(500), nullable=True,
+                          comment="Ruta en el servidor del TXT generado")
+    nombre_archivo = Column(String(200), nullable=True)
+    creado_en = Column(DateTime(timezone=True), server_default=func.now())
+
+    cuenta_bancaria = relationship("CuentaBancaria")
+    lineas = relationship("LineaSpi", back_populates="archivo_spi",
+                          cascade="all, delete-orphan",
+                          order_by="LineaSpi.id_linea_spi")
+
+
+# ---------------------------------------------------------------------------
+# LineaSpi — Cada fila del archivo SPI
+# ---------------------------------------------------------------------------
+
+class LineaSpi(AuditMixin, Base):
+    __tablename__ = "linea_spi"
+    __table_args__ = (
+        {"schema": "tesoreria"},
+    )
+
+    id_linea_spi = Column(BigInteger, primary_key=True, autoincrement=True)
+    id_archivo_spi = Column(
+        BigInteger,
+        ForeignKey("tesoreria.archivo_spi.id_archivo_spi", ondelete="CASCADE"),
+        nullable=False
+    )
+    ruc_beneficiario = Column(String(20), nullable=False)
+    nombre_beneficiario = Column(String(200), nullable=False)
+    banco_destino = Column(String(100), nullable=False)
+    cuenta_destino = Column(String(30), nullable=False)
+    tipo_cuenta = Column(String(20), nullable=False, default="CORRIENTE",
+                         comment="CORRIENTE|AHORROS")
+    valor = Column(Numeric(12, 2), nullable=False)
+    referencia = Column(String(50), nullable=True)
+    descripcion = Column(String(200), nullable=True)
+    estado = Column(String(20), nullable=False, default=EstadoLineaSpi.PENDIENTE,
+                    comment="PENDIENTE|PROCESADO|RECHAZADO")
+    origen_tipo = Column(String(10), nullable=False, default=OrigenLineaSpi.OTRO,
+                         comment="NOMINA|CXP|OTRO")
+    origen_id = Column(BigInteger, nullable=True,
+                       comment="ID del objeto origen (id_linea_rol, id factura, etc.)")
+
+    archivo_spi = relationship("ArchivoSpi", back_populates="lineas")

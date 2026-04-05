@@ -235,3 +235,66 @@ class MovimientoCajaRespuesta(MovimientoCajaBase):
     creado_en: datetime
 
     model_config = {"from_attributes": True}
+
+
+# ---------------------------------------------------------------------------
+# ArchivoSpi
+# ---------------------------------------------------------------------------
+
+class LineaSpiBase(BaseModel):
+    ruc_beneficiario: str = Field(..., max_length=20)
+    nombre_beneficiario: str = Field(..., max_length=200)
+    banco_destino: str = Field(..., max_length=100)
+    cuenta_destino: str = Field(..., max_length=30)
+    tipo_cuenta: str = Field("CORRIENTE", max_length=20)
+    valor: Decimal = Field(..., gt=0)
+    referencia: Optional[str] = Field(None, max_length=50)
+    descripcion: Optional[str] = Field(None, max_length=200)
+    origen_tipo: str = Field("OTRO", description="NOMINA|CXP|OTRO")
+    origen_id: Optional[int] = None
+
+
+class LineaSpiCrear(LineaSpiBase):
+    pass
+
+
+class LineaSpiRespuesta(LineaSpiBase):
+    id_linea_spi: int
+    id_archivo_spi: int
+    estado: str
+
+    model_config = {"from_attributes": True}
+
+
+class ArchivoSpiCrear(BaseModel):
+    id_cuenta_bancaria: int
+    tipo_pago: str = Field(..., description="NOMINA|PROVEEDOR|IMPUESTO|OTRO")
+    lineas: List[LineaSpiCrear] = Field(..., min_length=1)
+
+
+class ArchivoSpiRespuesta(BaseModel):
+    id_archivo_spi: int
+    numero_lote: str
+    fecha_envio: Optional[date]
+    estado: str
+    monto_total: Decimal
+    id_cuenta_bancaria: int
+    tipo_pago: str
+    nombre_archivo: Optional[str]
+    creado_en: datetime
+    lineas: List[LineaSpiRespuesta] = []
+
+    model_config = {"from_attributes": True}
+
+
+class ArchivoSpiResumen(BaseModel):
+    id_archivo_spi: int
+    numero_lote: str
+    fecha_envio: Optional[date]
+    estado: str
+    monto_total: Decimal
+    tipo_pago: str
+    nombre_archivo: Optional[str]
+    creado_en: datetime
+
+    model_config = {"from_attributes": True}

@@ -21,7 +21,7 @@ from app.schemas.rrhh import (
     LineaRolPagoUpdate, LineaRolPagoResponse,
     RubroNominaCreate, RubroNominaResponse,
 )
-from app.services.servicio_nomina import generar_rol, generar_archivo_spi
+from app.services.servicio_nomina import generar_rol, generar_archivo_spi, generar_asiento_nomina
 
 router = APIRouter(tags=["Nómina / Rol de Pagos"])
 _ROLES_RRHH = ["SuperAdmin", "RRHH"]
@@ -151,7 +151,10 @@ def cerrar_rol(id_rol: int, db: Session = Depends(deps.get_db),
     if obj.estado != "APROBADO":
         raise HTTPException(400, f"Solo se pueden cerrar roles en estado APROBADO (actual: {obj.estado})")
     obj.estado = "CERRADO"
-    db.commit(); db.refresh(obj)
+    db.flush()
+    generar_asiento_nomina(db, obj)
+    db.commit()
+    db.refresh(obj)
     return obj
 
 
