@@ -9,19 +9,16 @@ import './../scss/style.scss';
 import ProviderWrapper from 'store/ProviderWrapper';
 
 export const metadata: Metadata = {
-  title: ' Berry - React MUI Admin Dashboard Template',
-  description:
-    'Berry is a fully customizable and powerful admin dashboard template built with React.js, MUI, and Next.js for your next project.'
+  title: 'SGE — Sistema de Gestión Empresarial · EP Riobamba',
+  description: 'Sistema de Gestión Empresarial de la Empresa Pública EP Riobamba.'
 };
 
 // ==============================|| ROOT LAYOUT ||============================== //
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script defer src="https://fomo.codedthemes.com/pixel/jAgJNY0WuNyOO0aM7ql1AqLRKRH5d737"></script>
-      </head>
+    <html lang="es" suppressHydrationWarning>
+      <head></head>
       <body>
         <ProviderWrapper>{children}</ProviderWrapper>
       </body>
