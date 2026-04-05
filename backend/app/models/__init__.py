@@ -23,3 +23,4 @@ from .tesoreria import EntidadBancaria, CuentaBancaria, ExtractoBancario, LineaE
 from .financiero import TipoDocumentoConfig, Factura, LineaFactura, Pago, LineaPago, CierreRecaudacion
 from .compras_publicas import CarpetaAnual, ProcesoCompra, SeguimientoProceso, PlazoProceso, ChecklistDocumental
 from .presupuesto import PartidaPresupuestaria, PresupuestoAnual, AsignacionPresupuestaria, ReformaPresupuestaria, CertificadoPresupuestario, Compromiso, Devengado
+from .inventario import CuentaContableInventario, ArticuloInventario, Movimiento, MovimientoDetalle, Destino, Encargado, Proveedor, UnidadGestion
