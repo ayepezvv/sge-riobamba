@@ -42,9 +42,11 @@ ROLES_BASURA = [
 
 CORREO_BASURA = "hacker@evil.com"
 
-# Usuario admin (id=1) — nombre corrompido por IDOR testing
+# Usuario admin (id=1) — restaurar solo si el nombre fue corrompido por IDOR testing.
+# No sobreescribir si el nombre fue cambiado legítimamente en producción.
 ADMIN_ID = 1
 ADMIN_NOMBRES_CORRECTO = "Admin"
+ADMIN_NOMBRES_CONTAMINADOS = {"IDORtest", "hacker", "test", "IDOR", "pwned"}
 
 
 # ─── Funciones ────────────────────────────────────────────────────────────────
@@ -100,16 +102,17 @@ def cleanup_usuarios_basura(db):
     else:
         print(f"  ✓ No encontrado (OK): {CORREO_BASURA}")
 
-    # 2. Restaurar nombres del admin (id=1) si fue corrompido por IDOR
+    # 2. Restaurar nombres del admin (id=1) SOLO si fue corrompido por IDOR testing.
+    # Si el nombre es cualquier otro valor (legítimo en producción), NO se sobreescribe.
     admin = db.query(User).filter(User.id == ADMIN_ID).first()
     if admin:
-        if admin.nombres != ADMIN_NOMBRES_CORRECTO:
-            print(f"  ~ Restaurando nombres admin: '{admin.nombres}' → '{ADMIN_NOMBRES_CORRECTO}'")
+        if admin.nombres in ADMIN_NOMBRES_CONTAMINADOS:
+            print(f"  ~ Restaurando nombres admin (contaminado): '{admin.nombres}' → '{ADMIN_NOMBRES_CORRECTO}'")
             admin.nombres = ADMIN_NOMBRES_CORRECTO
             db.commit()
             print(f"  ✓ Admin restaurado.")
         else:
-            print(f"  ✓ Nombres del admin ya son correctos: '{admin.nombres}'")
+            print(f"  ✓ Nombres del admin intactos (no sobreescribir): '{admin.nombres}'")
     else:
         print(f"  ! ADVERTENCIA: No se encontró usuario con id={ADMIN_ID}")
 

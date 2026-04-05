@@ -580,16 +580,21 @@ def reformar_pac(id: int, req: ReformaPacCreate, db: Session = Depends(deps.get_
             item_orig.status = StatusItemPac.MODIFICADO_POR_REFORMA
 
     # 5. Crear items destino e inyectar genealogía
-    for nuevo_item_req in req.nuevos_items:
+    n_nuevos = len(req.nuevos_items)
+    for idx, nuevo_item_req in enumerate(req.nuevos_items):
         nuevo_item = ItemPac(**nuevo_item_req.dict(), pac_anual_id=id, status=StatusItemPac.ACTIVO)
         db.add(nuevo_item)
         db.flush() # Obtener nuevo_item.id
-        
-        # Enlazar genealogía prorrateando el monto entre todos los nuevos items
-        n_nuevos = len(req.nuevos_items)
+
+        # Enlazar genealogía prorrateando el monto entre todos los nuevos items.
+        # El último ítem absorbe el sobrante de redondeo para garantizar cuadre exacto (NIIF).
         for mov in req.movimientos:
             if mov.monto_transferido > 0:
-                monto_por_item = round(mov.monto_transferido / n_nuevos, 2)
+                monto_base = round(mov.monto_transferido / n_nuevos, 2)
+                if idx == n_nuevos - 1:
+                    monto_por_item = round(mov.monto_transferido - monto_base * (n_nuevos - 1), 2)
+                else:
+                    monto_por_item = monto_base
                 gen = GenealogiaMontoPac(
                     historico_reforma_id=reforma.id,
                     item_origen_id=mov.item_origen_id,
