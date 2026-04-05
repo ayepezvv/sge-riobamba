@@ -307,6 +307,12 @@ def generar_archivo_spi(
     referencia = f"ROL{rol.periodo_anio}{rol.periodo_mes:02d}"
     desc = f"NOMINA {rol.tipo_rol} {rol.periodo_anio}/{rol.periodo_mes:02d}"
 
+    if not rol.lineas:
+        raise ValueError(
+            f"El rol {rol.tipo_rol} {rol.periodo_anio}/{rol.periodo_mes:02d} "
+            "no tiene líneas calculadas. Ejecute el cálculo antes de generar el SPI."
+        )
+
     filas = [header]
     for linea in rol.lineas:
         if linea.liquido_a_recibir <= 0 or not linea.cuenta_bancaria:
@@ -326,5 +332,12 @@ def generar_archivo_spi(
             desc,
         ])
         filas.append(fila)
+
+    if len(filas) == 1:
+        raise ValueError(
+            f"El rol {rol.tipo_rol} {rol.periodo_anio}/{rol.periodo_mes:02d} "
+            "no tiene líneas con líquido a recibir y cuenta bancaria registrada. "
+            "Registre datos bancarios antes de generar el SPI."
+        )
 
     return "\n".join(filas)
