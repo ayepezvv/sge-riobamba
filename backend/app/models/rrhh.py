@@ -270,3 +270,102 @@ class RubroNomina(Base):
     orden_ejecucion = Column(Integer, nullable=False)
     es_imponible = Column(Boolean, default=True)
     estado = Column(String(20), default="ACTIVO")
+
+
+# ---------------------------------------------------------------------------
+# NÓMINA / ROL DE PAGOS
+# ---------------------------------------------------------------------------
+
+class RolPago(Base):
+    """
+    Cabecera del rol de pagos (nómina) por período.
+    Un registro por mes/tipo de rol.
+    Estados: BORRADOR → CALCULADO → APROBADO → CERRADO (o ANULADO)
+    """
+    __tablename__ = "rol_pago"
+    __table_args__ = (
+        UniqueConstraint("periodo_anio", "periodo_mes", "tipo_rol", name="uq_rol_pago_periodo_tipo"),
+        {"schema": "rrhh"},
+    )
+
+    id_rol_pago = Column(BigInteger, primary_key=True, autoincrement=True)
+    periodo_anio = Column(Integer, nullable=False)
+    periodo_mes = Column(Integer, nullable=False)  # 1-12
+    tipo_rol = Column(String(50), nullable=False,
+                      default="MENSUAL")  # MENSUAL|DECIMO_TERCERO|DECIMO_CUARTO|FONDOS_RESERVA|LIQUIDACION
+    estado = Column(String(30), nullable=False, default="BORRADOR")  # BORRADOR|CALCULADO|APROBADO|CERRADO|ANULADO
+    fecha_generacion = Column(Date, nullable=False)
+    fecha_aprobacion = Column(Date, nullable=True)
+    aprobado_por_id = Column(BigInteger,
+                             ForeignKey("configuracion.usuarios.id", ondelete="SET NULL"),
+                             nullable=True)
+    observaciones = Column(Text, nullable=True)
+    creado_por_id = Column(BigInteger,
+                           ForeignKey("configuracion.usuarios.id", ondelete="SET NULL"),
+                           nullable=True)
+    creado_en = Column(DateTime(timezone=True), server_default=func.now())
+
+    lineas = relationship("LineaRolPago", back_populates="rol_pago",
+                          cascade="all, delete-orphan",
+                          order_by="LineaRolPago.id_linea")
+
+
+class LineaRolPago(Base):
+    """
+    Una línea por empleado dentro de un rol de pagos.
+    Almacena los totales calculados + datos bancarios para SPI.
+    """
+    __tablename__ = "linea_rol_pago"
+    __table_args__ = (
+        UniqueConstraint("id_rol_pago", "id_empleado", name="uq_linea_rol_empleado"),
+        {"schema": "rrhh"},
+    )
+
+    id_linea = Column(BigInteger, primary_key=True, autoincrement=True)
+    id_rol_pago = Column(BigInteger,
+                         ForeignKey("rrhh.rol_pago.id_rol_pago", ondelete="CASCADE"),
+                         nullable=False)
+    id_empleado = Column(BigInteger,
+                         ForeignKey("rrhh.empleado.id_empleado", ondelete="RESTRICT"),
+                         nullable=False)
+    sueldo_base = Column(Numeric(12, 2), nullable=False)
+    dias_trabajados = Column(Integer, nullable=False, default=30)
+    total_ingresos = Column(Numeric(12, 2), nullable=False, default=0)
+    total_descuentos = Column(Numeric(12, 2), nullable=False, default=0)
+    total_provisiones = Column(Numeric(12, 2), nullable=False, default=0)
+    liquido_a_recibir = Column(Numeric(12, 2), nullable=False, default=0)
+    # Datos bancarios para SPI
+    banco_destino = Column(String(100), nullable=True)
+    cuenta_bancaria = Column(String(30), nullable=True)
+    tipo_cuenta = Column(String(20), nullable=True)  # CORRIENTE|AHORROS
+    estado = Column(String(20), nullable=False, default="ACTIVO")
+
+    rol_pago = relationship("RolPago", back_populates="lineas")
+    empleado = relationship("Empleado")
+    detalles = relationship("DetalleLineaRol", back_populates="linea",
+                            cascade="all, delete-orphan",
+                            order_by="DetalleLineaRol.id_detalle")
+
+
+class DetalleLineaRol(Base):
+    """
+    Un renglón por rubro calculado dentro de una línea de rol de pagos.
+    Permite auditoría completa del cálculo de cada concepto.
+    """
+    __tablename__ = "detalle_linea_rol"
+    __table_args__ = {"schema": "rrhh"}
+
+    id_detalle = Column(BigInteger, primary_key=True, autoincrement=True)
+    id_linea = Column(BigInteger,
+                      ForeignKey("rrhh.linea_rol_pago.id_linea", ondelete="CASCADE"),
+                      nullable=False)
+    id_rubro = Column(BigInteger,
+                      ForeignKey("rrhh.rubro_nomina.id_rubro", ondelete="RESTRICT"),
+                      nullable=False)
+    codigo_rubro = Column(String(20), nullable=False)
+    nombre_rubro = Column(String(100), nullable=False)
+    naturaleza = Column(String(20), nullable=False)  # INGRESO|DESCUENTO|PROVISION
+    valor_calculado = Column(Numeric(12, 2), nullable=False, default=0)
+    descripcion_calculo = Column(Text, nullable=True)
+
+    linea = relationship("LineaRolPago", back_populates="detalles")
