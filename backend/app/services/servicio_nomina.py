@@ -161,7 +161,12 @@ def calcular_linea_empleado(
 
         else:
             # Rubros adicionales: por fórmula genérica o porcentaje
-            if rubro.tipo_valor == "PORCENTAJE" and rubro.formula_calculo:
+            # SGE-NOM-02: rubros FORMULA sin formula_calculo se omiten con advertencia
+            if rubro.tipo_valor == "FORMULA" and not rubro.formula_calculo:
+                desc = f"Rubro {rubro.codigo_rubro} pendiente de implementación (FORMULA sin definir)"
+                # No calcular — omitir este rubro para no generar valor 0 silencioso
+                continue
+            elif rubro.tipo_valor == "PORCENTAJE" and rubro.formula_calculo:
                 try:
                     pct = Decimal(rubro.formula_calculo)
                     valor = _redondear(base_imponible * pct / Decimal("100"))
@@ -262,6 +267,22 @@ def generar_rol(
                 **det,
             )
             db.add(detalle)
+
+    # SGE-NOM-01: validar que se generaron líneas — si no hay contratos activos,
+    # el motor no puede calcular nómina real y debe rechazar la transición
+    lineas_generadas = (
+        db.query(LineaRolPago)
+        .filter(LineaRolPago.id_rol_pago == id_rol_pago)
+        .count()
+    )
+    if lineas_generadas == 0:
+        db.rollback()
+        raise ValueError(
+            "No se encontraron empleados activos con contratos vigentes "
+            f"para calcular la nómina {rol.tipo_rol} "
+            f"{rol.periodo_anio}/{rol.periodo_mes:02d}. "
+            "Verifique que existan empleados activos con contrato en estado ACTIVO."
+        )
 
     rol.estado = "CALCULADO"
     db.commit()
