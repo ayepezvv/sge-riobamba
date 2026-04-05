@@ -224,3 +224,87 @@ class ParametroCalculoCreate(ParametroCalculoBase):
 class ParametroCalculoResponse(ParametroCalculoBase):
     id_parametro: int
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------------------------------------------------------------------------
+# RUBRO NÓMINA
+# ---------------------------------------------------------------------------
+class RubroNominaBase(BaseModel):
+    codigo_rubro: str = Field(..., max_length=20)
+    nombre: str = Field(..., max_length=100)
+    naturaleza: str = Field(..., description="INGRESO|DESCUENTO|PROVISION")
+    tipo_valor: str = Field(..., description="FIJO|PORCENTAJE|FORMULA")
+    formula_calculo: Optional[str] = None
+    orden_ejecucion: int
+    es_imponible: bool = True
+    estado: str = "ACTIVO"
+
+class RubroNominaCreate(RubroNominaBase):
+    pass
+
+class RubroNominaResponse(RubroNominaBase):
+    id_rubro: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ---------------------------------------------------------------------------
+# ROL DE PAGOS
+# ---------------------------------------------------------------------------
+class RolPagoCreate(BaseModel):
+    periodo_anio: int = Field(..., ge=2020, le=2099)
+    periodo_mes: int = Field(..., ge=1, le=12)
+    tipo_rol: str = Field("MENSUAL", description="MENSUAL|DECIMO_TERCERO|DECIMO_CUARTO|FONDOS_RESERVA|LIQUIDACION")
+    observaciones: Optional[str] = None
+
+class RolPagoResponse(BaseModel):
+    id_rol_pago: int
+    periodo_anio: int
+    periodo_mes: int
+    tipo_rol: str
+    estado: str
+    fecha_generacion: Optional[date]
+    fecha_aprobacion: Optional[date]
+    observaciones: Optional[str]
+    creado_en: Optional[datetime]
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ---------------------------------------------------------------------------
+# LÍNEA ROL DE PAGOS
+# ---------------------------------------------------------------------------
+class DetalleLineaRolResponse(BaseModel):
+    id_detalle: int
+    id_rubro: int
+    codigo_rubro: str
+    nombre_rubro: str
+    naturaleza: str
+    valor_calculado: Decimal
+    descripcion_calculo: Optional[str]
+    model_config = ConfigDict(from_attributes=True)
+
+
+class LineaRolPagoUpdate(BaseModel):
+    banco_destino: Optional[str] = None
+    cuenta_bancaria: Optional[str] = None
+    tipo_cuenta: Optional[str] = None
+
+class LineaRolPagoResponse(BaseModel):
+    id_linea: int
+    id_rol_pago: int
+    id_empleado: int
+    sueldo_base: Decimal
+    dias_trabajados: int
+    total_ingresos: Decimal
+    total_descuentos: Decimal
+    total_provisiones: Decimal
+    liquido_a_recibir: Decimal
+    banco_destino: Optional[str]
+    cuenta_bancaria: Optional[str]
+    tipo_cuenta: Optional[str]
+    estado: str
+    detalles: List[DetalleLineaRolResponse] = []
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RolPagoDetalleResponse(RolPagoResponse):
+    lineas: List[LineaRolPagoResponse] = []

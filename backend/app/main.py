@@ -52,3 +52,6 @@ app.include_router(presupuesto.router, prefix='/api/presupuesto', tags=['Presupu
 
 from app.api.routes import compras_publicas
 app.include_router(compras_publicas.router, prefix='/api/compras', tags=['Compras Públicas'])
+
+from app.api.routes import nomina
+app.include_router(nomina.router, prefix='/api/rrhh/nomina', tags=['Nómina / Rol de Pagos'])
