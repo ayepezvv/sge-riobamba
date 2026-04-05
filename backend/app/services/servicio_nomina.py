@@ -163,8 +163,7 @@ def calcular_linea_empleado(
             # Rubros adicionales: por fórmula genérica o porcentaje
             # SGE-NOM-02: rubros FORMULA sin formula_calculo se omiten con advertencia
             if rubro.tipo_valor == "FORMULA" and not rubro.formula_calculo:
-                desc = f"Rubro {rubro.codigo_rubro} pendiente de implementación (FORMULA sin definir)"
-                # No calcular — omitir este rubro para no generar valor 0 silencioso
+                # SGE-NOM-02: rubro con fórmula sin definir — omitir sin generar valor 0
                 continue
             elif rubro.tipo_valor == "PORCENTAJE" and rubro.formula_calculo:
                 try:
