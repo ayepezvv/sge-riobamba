@@ -21,4 +21,5 @@ from .bodega import CategoriaBien, ActivoFijo, EstadoFisico
 from .contabilidad import TipoCuenta, CuentaContable, Diario, PeriodoContable, AsientoContable, LineaAsiento
 from .tesoreria import EntidadBancaria, CuentaBancaria, ExtractoBancario, LineaExtracto, ConciliacionBancaria, MarcaConciliacion, CajaChica, MovimientoCaja
 from .financiero import TipoDocumentoConfig, Factura, LineaFactura, Pago, LineaPago, CierreRecaudacion
+from .compras_publicas import CarpetaAnual, ProcesoCompra, SeguimientoProceso, PlazoProceso, ChecklistDocumental
 from .presupuesto import PartidaPresupuestaria, PresupuestoAnual, AsignacionPresupuestaria, ReformaPresupuestaria, CertificadoPresupuestario, Compromiso, Devengado
