@@ -14,6 +14,13 @@ router = APIRouter()
 def read_user_me(current_user: User = Depends(deps.get_current_user)):
     return current_user
 
+@router.get("/{user_id}", response_model=UserResponse)
+def obtener_usuario_por_id(user_id: int, db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    usuario = db.query(User).filter(User.id == user_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return usuario
+
 @router.get("/", response_model=List[UserResponse])
 
 def read_users(db: Session = Depends(deps.get_db), skip: int = 0, limit: int = 100, current_user: User = Depends(deps.require_superadmin)):
