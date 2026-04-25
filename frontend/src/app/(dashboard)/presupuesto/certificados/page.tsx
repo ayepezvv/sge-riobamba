@@ -179,29 +179,29 @@ const CertificadosPage = () => {
         <DialogTitle>Nuevo Certificado Presupuestario</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="ID Asignación" type="number" size="small" required
                 value={formulario.id_asignacion || ''}
                 onChange={e => setFormulario(f => ({ ...f, id_asignacion: Number(e.target.value) }))} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Monto a Certificar" type="number" size="small" required
                 value={formulario.monto_certificado || ''}
                 onChange={e => setFormulario(f => ({ ...f, monto_certificado: Number(e.target.value) }))} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField fullWidth label="Concepto" size="small" required
                 value={formulario.concepto}
                 onChange={e => setFormulario(f => ({ ...f, concepto: e.target.value }))}
                 multiline rows={2} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Fecha Solicitud" type="date" size="small"
                 value={formulario.fecha_solicitud}
                 onChange={e => setFormulario(f => ({ ...f, fecha_solicitud: e.target.value }))}
                 InputLabelProps={{ shrink: true }} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Fecha Vencimiento" type="date" size="small"
                 value={formulario.fecha_vencimiento || ''}
                 onChange={e => setFormulario(f => ({ ...f, fecha_vencimiento: e.target.value }))}

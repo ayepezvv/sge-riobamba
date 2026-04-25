@@ -111,11 +111,11 @@ export default function ArticulosPage() {
 
   return (
     <Grid container spacing={gridSpacing}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <MainCard title="Catálogo de Artículos / Insumos de Bodega">
           {/* Filtros */}
           <Grid container spacing={2} mb={2}>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Año Fiscal</InputLabel>
                 <Select
@@ -132,7 +132,7 @@ export default function ArticulosPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Estado</InputLabel>
                 <Select
@@ -148,7 +148,7 @@ export default function ArticulosPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <TextField
                 fullWidth
                 size="small"
@@ -165,7 +165,7 @@ export default function ArticulosPage() {
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid size={{ xs: 12, sm: 2 }}>
               <Button
                 fullWidth
                 variant="outlined"

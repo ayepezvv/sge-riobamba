@@ -161,7 +161,7 @@ const ExtractosPage = () => {
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <FormControl fullWidth size="small">
             <InputLabel>Cuenta Bancaria</InputLabel>
             <Select value={filtroCuenta} label="Cuenta Bancaria" onChange={e => setFiltroCuenta(e.target.value as number | '')}>
@@ -170,7 +170,7 @@ const ExtractosPage = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <FormControl fullWidth size="small">
             <InputLabel>Estado</InputLabel>
             <Select value={filtroEstado} label="Estado" onChange={e => setFiltroEstado(e.target.value)}>
@@ -200,10 +200,10 @@ const ExtractosPage = () => {
           {detalleExtracto && (
             <>
               <Grid container spacing={1} sx={{ mb: 2 }}>
-                <Grid item xs={6} md={3}><Typography variant="caption" color="textSecondary">Desde</Typography><Typography>{detalleExtracto.fecha_inicio}</Typography></Grid>
-                <Grid item xs={6} md={3}><Typography variant="caption" color="textSecondary">Hasta</Typography><Typography>{detalleExtracto.fecha_fin}</Typography></Grid>
-                <Grid item xs={6} md={3}><Typography variant="caption" color="textSecondary">Saldo Inicial</Typography><Typography>{Number(detalleExtracto.saldo_inicial).toFixed(2)}</Typography></Grid>
-                <Grid item xs={6} md={3}><Typography variant="caption" color="textSecondary">Saldo Final</Typography><Typography fontWeight={700}>{Number(detalleExtracto.saldo_final).toFixed(2)}</Typography></Grid>
+                <Grid size={{ xs: 6, md: 3 }}><Typography variant="caption" color="textSecondary">Desde</Typography><Typography>{detalleExtracto.fecha_inicio}</Typography></Grid>
+                <Grid size={{ xs: 6, md: 3 }}><Typography variant="caption" color="textSecondary">Hasta</Typography><Typography>{detalleExtracto.fecha_fin}</Typography></Grid>
+                <Grid size={{ xs: 6, md: 3 }}><Typography variant="caption" color="textSecondary">Saldo Inicial</Typography><Typography>{Number(detalleExtracto.saldo_inicial).toFixed(2)}</Typography></Grid>
+                <Grid size={{ xs: 6, md: 3 }}><Typography variant="caption" color="textSecondary">Saldo Final</Typography><Typography fontWeight={700}>{Number(detalleExtracto.saldo_final).toFixed(2)}</Typography></Grid>
               </Grid>
               <Table size="small">
                 <TableHead>
@@ -243,7 +243,7 @@ const ExtractosPage = () => {
         <DialogContent dividers>
           {errorFormulario && <Alert severity="error" sx={{ mb: 2 }}>{errorFormulario}</Alert>}
           <Grid container spacing={2} sx={{ pt: 1, mb: 2 }}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <FormControl fullWidth>
                 <InputLabel>Cuenta Bancaria *</InputLabel>
                 <Select value={formulario.cuenta_bancaria_id || ''} label="Cuenta Bancaria *"
@@ -252,19 +252,19 @@ const ExtractosPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <TextField label="Fecha Inicio *" type="date" fullWidth InputLabelProps={{ shrink: true }}
                 value={formulario.fecha_inicio} onChange={e => setFormulario({ ...formulario, fecha_inicio: e.target.value })} />
             </Grid>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <TextField label="Fecha Fin *" type="date" fullWidth InputLabelProps={{ shrink: true }}
                 value={formulario.fecha_fin} onChange={e => setFormulario({ ...formulario, fecha_fin: e.target.value })} />
             </Grid>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <TextField label="Saldo Inicial" type="number" fullWidth value={formulario.saldo_inicial}
                 onChange={e => setFormulario({ ...formulario, saldo_inicial: parseFloat(e.target.value) || 0 })} />
             </Grid>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <TextField label="Saldo Final" type="number" fullWidth value={formulario.saldo_final}
                 onChange={e => setFormulario({ ...formulario, saldo_final: parseFloat(e.target.value) || 0 })} />
             </Grid>

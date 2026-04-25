@@ -27,12 +27,12 @@ const RRHHDashboard = () => {
 
     return (
         <Grid container spacing={gridSpacing}>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Typography variant="h2" sx={{ mb: 3 }}>Panel de Gestión de Talento Humano</Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Grid container spacing={gridSpacing}>
-                    <Grid item lg={4} md={6} sm={6} xs={12}>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4 }}>
                         <TotalIncomeDarkCard 
                             isLoading={isLoading} 
                             title="Total Empleados"
@@ -40,7 +40,7 @@ const RRHHDashboard = () => {
                             count="245"
                         />
                     </Grid>
-                    <Grid item lg={4} md={6} sm={6} xs={12}>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4 }}>
                         <TotalIncomeLightCard 
                             isLoading={isLoading} 
                             title="Masa Salarial Mensual"
@@ -48,7 +48,7 @@ const RRHHDashboard = () => {
                             count="$185,420.00"
                         />
                     </Grid>
-                    <Grid item lg={4} md={12} sm={12} xs={12}>
+                    <Grid size={{ xs: 12, sm: 12, md: 12, lg: 4 }}>
                         <TotalIncomeDarkCard 
                             isLoading={isLoading} 
                             title="Contratos por Vencer"
@@ -58,7 +58,7 @@ const RRHHDashboard = () => {
                     </Grid>
                 </Grid>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <MainCard title="Distribución por Unidades">
                     <Typography variant="body2">
                         Próximamente: Gráficos dinámicos de distribución de personal por direcciones y unidades administrativas.

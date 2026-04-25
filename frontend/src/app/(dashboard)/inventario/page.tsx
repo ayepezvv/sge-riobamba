@@ -96,11 +96,11 @@ export default function InventarioDashboard() {
 
   return (
     <Grid container spacing={gridSpacing}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <MainCard title="Inventario / Existencias — Resumen Anual 2021–2025">
           <Grid container spacing={2}>
             {resumen.map((r) => (
-              <Grid item xs={12} sm={6} md={4} lg={2.4} key={r.anno_fiscal}>
+              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2.4 }} key={r.anno_fiscal}>
                 <ResumenCard {...r} />
               </Grid>
             ))}

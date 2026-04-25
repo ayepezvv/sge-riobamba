@@ -141,19 +141,19 @@ const BalancesPage = () => {
 
       {/* ── Selector de período ── */}
       <Grid container spacing={2} alignItems="flex-end" sx={{ mb: 3 }}>
-        <Grid item xs={6} md={3}>
+        <Grid size={{ xs: 6, md: 3 }}>
           <TextField
             label="Fecha Inicio" type="date" fullWidth InputLabelProps={{ shrink: true }}
             value={fechaInicio} onChange={e => setFechaInicio(e.target.value)}
           />
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid size={{ xs: 6, md: 3 }}>
           <TextField
             label="Fecha Fin" type="date" fullWidth InputLabelProps={{ shrink: true }}
             value={fechaFin} onChange={e => setFechaFin(e.target.value)}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="caption" color="textSecondary">
             Sin fechas = todos los movimientos publicados
           </Typography>

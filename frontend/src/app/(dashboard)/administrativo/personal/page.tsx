@@ -199,62 +199,62 @@ const DirectorioPersonalPage = () => {
                 <DialogContent dividers>
                     {formError && <Alert severity="error" sx={{ mb: 2 }}>{formError}</Alert>}
                     <Grid container spacing={2} sx={{ pt: 1 }}>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <TextField label="Cédula *" fullWidth value={form.cedula}
                                 onChange={e => setForm({ ...form, cedula: e.target.value })} />
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <TextField label="Nombres *" fullWidth value={form.nombres}
                                 onChange={e => setForm({ ...form, nombres: e.target.value })} />
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <TextField label="Apellidos *" fullWidth value={form.apellidos}
                                 onChange={e => setForm({ ...form, apellidos: e.target.value })} />
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <TextField label="Fecha de Nacimiento *" type="date" fullWidth
                                 InputLabelProps={{ shrink: true }} value={form.fecha_nacimiento}
                                 onChange={e => setForm({ ...form, fecha_nacimiento: e.target.value })} />
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <TextField select label="Género" fullWidth value={form.genero}
                                 onChange={e => setForm({ ...form, genero: e.target.value })}>
                                 <MenuItem value="">Sin especificar</MenuItem>
                                 {GENERO_OPCIONES.map(g => <MenuItem key={g} value={g}>{g}</MenuItem>)}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <TextField select label="Unidad *" fullWidth value={form.unidad_id}
                                 onChange={e => setForm({ ...form, unidad_id: e.target.value })}>
                                 {unidades.map(u => <MenuItem key={u.id} value={u.id}>{u.nombre}</MenuItem>)}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField select label="Puesto" fullWidth value={form.puesto_id}
                                 onChange={e => setForm({ ...form, puesto_id: e.target.value })}>
                                 <MenuItem value="">Ninguno</MenuItem>
                                 {puestos.map(p => <MenuItem key={p.id} value={p.id}>{p.denominacion}</MenuItem>)}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField select label="Régimen Legal" fullWidth value={form.regimen_legal}
                                 onChange={e => setForm({ ...form, regimen_legal: e.target.value })}>
                                 <MenuItem value="">Sin especificar</MenuItem>
                                 {REGIMEN_OPCIONES.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField select label="Tipo de Contrato" fullWidth value={form.tipo_contrato_actual}
                                 onChange={e => setForm({ ...form, tipo_contrato_actual: e.target.value })}>
                                 <MenuItem value="">Sin especificar</MenuItem>
                                 {CONTRATO_OPCIONES.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField label="Teléfono Celular" fullWidth value={form.telefono_celular}
                                 onChange={e => setForm({ ...form, telefono_celular: e.target.value })} />
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField label="Correo Personal" fullWidth value={form.correo_personal}
                                 onChange={e => setForm({ ...form, correo_personal: e.target.value })} />
                         </Grid>

@@ -168,15 +168,15 @@ const CajaPage = () => {
         <DialogContent dividers>
           {errorCaja && <Alert severity="error" sx={{ mb: 2 }}>{errorCaja}</Alert>}
           <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField label="Nombre *" fullWidth value={formularioCaja.nombre}
                 onChange={e => setFormularioCaja({ ...formularioCaja, nombre: e.target.value })} />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField label="Responsable" fullWidth value={formularioCaja.responsable || ''}
                 onChange={e => setFormularioCaja({ ...formularioCaja, responsable: e.target.value })} />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField label="Monto Autorizado *" type="number" fullWidth value={formularioCaja.monto_autorizado}
                 onChange={e => setFormularioCaja({ ...formularioCaja, monto_autorizado: parseFloat(e.target.value) || 0 })} />
             </Grid>
@@ -227,7 +227,7 @@ const CajaPage = () => {
         <DialogContent dividers>
           {errorMovimiento && <Alert severity="error" sx={{ mb: 2 }}>{errorMovimiento}</Alert>}
           <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Tipo *</InputLabel>
                 <Select value={formularioMovimiento.tipo} label="Tipo *"
@@ -236,20 +236,20 @@ const CajaPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField label="Fecha *" type="date" fullWidth InputLabelProps={{ shrink: true }}
                 value={formularioMovimiento.fecha}
                 onChange={e => setFormularioMovimiento({ ...formularioMovimiento, fecha: e.target.value })} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField label="Descripción *" fullWidth value={formularioMovimiento.descripcion}
                 onChange={e => setFormularioMovimiento({ ...formularioMovimiento, descripcion: e.target.value })} />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField label="Valor *" type="number" fullWidth value={formularioMovimiento.valor}
                 onChange={e => setFormularioMovimiento({ ...formularioMovimiento, valor: parseFloat(e.target.value) || 0 })} />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField label="Referencia" fullWidth value={formularioMovimiento.referencia || ''}
                 onChange={e => setFormularioMovimiento({ ...formularioMovimiento, referencia: e.target.value })} />
             </Grid>

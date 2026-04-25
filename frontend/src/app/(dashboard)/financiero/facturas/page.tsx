@@ -205,7 +205,7 @@ const FacturasPage = () => {
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <FormControl fullWidth size="small">
             <InputLabel>Tipo</InputLabel>
             <Select value={filtroTipo} label="Tipo" onChange={e => setFiltroTipo(e.target.value)}>
@@ -215,7 +215,7 @@ const FacturasPage = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <FormControl fullWidth size="small">
             <InputLabel>Estado</InputLabel>
             <Select value={filtroEstado} label="Estado" onChange={e => setFiltroEstado(e.target.value)}>
@@ -249,10 +249,10 @@ const FacturasPage = () => {
           {detalleFactura && (
             <>
               <Grid container spacing={1} sx={{ mb: 2 }}>
-                <Grid item xs={6} md={3}><Typography variant="caption" color="textSecondary">Tipo</Typography><Typography>{detalleFactura.tipo}</Typography></Grid>
-                <Grid item xs={6} md={3}><Typography variant="caption" color="textSecondary">Fecha Emisión</Typography><Typography>{detalleFactura.fecha_emision}</Typography></Grid>
-                <Grid item xs={12} md={6}><Typography variant="caption" color="textSecondary">Tercero</Typography><Typography>{detalleFactura.nombre_tercero} ({detalleFactura.identificacion_tercero})</Typography></Grid>
-                {detalleFactura.observaciones && <Grid item xs={12}><Typography variant="caption" color="textSecondary">Observaciones</Typography><Typography>{detalleFactura.observaciones}</Typography></Grid>}
+                <Grid size={{ xs: 6, md: 3 }}><Typography variant="caption" color="textSecondary">Tipo</Typography><Typography>{detalleFactura.tipo}</Typography></Grid>
+                <Grid size={{ xs: 6, md: 3 }}><Typography variant="caption" color="textSecondary">Fecha Emisión</Typography><Typography>{detalleFactura.fecha_emision}</Typography></Grid>
+                <Grid size={{ xs: 12, md: 6 }}><Typography variant="caption" color="textSecondary">Tercero</Typography><Typography>{detalleFactura.nombre_tercero} ({detalleFactura.identificacion_tercero})</Typography></Grid>
+                {detalleFactura.observaciones && <Grid size={12}><Typography variant="caption" color="textSecondary">Observaciones</Typography><Typography>{detalleFactura.observaciones}</Typography></Grid>}
               </Grid>
               <Table size="small">
                 <TableHead>
@@ -309,7 +309,7 @@ const FacturasPage = () => {
         <DialogContent dividers>
           {errorFormulario && <Alert severity="error" sx={{ mb: 2 }}>{errorFormulario}</Alert>}
           <Grid container spacing={2} sx={{ pt: 1, mb: 2 }}>
-            <Grid item xs={12} md={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <FormControl fullWidth>
                 <InputLabel>Tipo Documento *</InputLabel>
                 <Select value={formulario.tipo_documento_id || ''} label="Tipo Documento *"
@@ -318,7 +318,7 @@ const FacturasPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>Tipo *</InputLabel>
                 <Select value={formulario.tipo} label="Tipo *"
@@ -328,19 +328,19 @@ const FacturasPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <TextField label="Fecha Emisión *" type="date" fullWidth InputLabelProps={{ shrink: true }}
                 value={formulario.fecha_emision} onChange={e => setFormulario({ ...formulario, fecha_emision: e.target.value })} />
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <TextField label="Nombre Tercero *" fullWidth value={formulario.nombre_tercero}
                 onChange={e => setFormulario({ ...formulario, nombre_tercero: e.target.value })} />
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <TextField label="Identificación *" fullWidth value={formulario.identificacion_tercero}
                 onChange={e => setFormulario({ ...formulario, identificacion_tercero: e.target.value })} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField label="Observaciones" fullWidth value={formulario.observaciones || ''}
                 onChange={e => setFormulario({ ...formulario, observaciones: e.target.value })} />
             </Grid>

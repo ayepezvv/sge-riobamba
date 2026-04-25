@@ -208,10 +208,10 @@ export default function PacPage() {
         <DialogTitle>Aplicar Reforma al PAC</DialogTitle>
         <DialogContent dividers>
             <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <TextField fullWidth label="Resolución / Justificación de la Reforma" multiline rows={2} />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                     <Card variant="outlined" sx={{ bgcolor: 'error.light', opacity: 0.9 }}>
                         <CardHeader title="Ítems Origen (Ceden Fondos)" titleTypographyProps={{ variant: 'subtitle1', color: 'error.dark' }} />
                         <CardContent>
@@ -220,7 +220,7 @@ export default function PacPage() {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                     <Card variant="outlined" sx={{ bgcolor: 'success.light', opacity: 0.9 }}>
                         <CardHeader title="Ítems Destino (Reciben Fondos)" titleTypographyProps={{ variant: 'subtitle1', color: 'success.dark' }} />
                         <CardContent>
@@ -301,16 +301,16 @@ export default function PacPage() {
         <DialogTitle>{editingId ? 'Editar' : 'Nuevo'} PAC / Reforma</DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField fullWidth type="number" label="Año Fiscal" value={formData.anio} onChange={(e) => setFormData({ ...formData, anio: parseInt(e.target.value) })} />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField fullWidth type="number" label="Versión Reforma (0 = Inicial)" value={formData.version_reforma} onChange={(e) => setFormData({ ...formData, version_reforma: parseInt(e.target.value) })} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField fullWidth label="Descripción de la Resolución / PAC" value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Estado</InputLabel>
                 <Select value={formData.es_activo} label="Estado" onChange={(e) => setFormData({ ...formData, es_activo: e.target.value })}>
@@ -332,13 +332,13 @@ export default function PacPage() {
         <DialogTitle>Agregar Línea al PAC</DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField fullWidth label="Partida Presupuestaria" value={itemForm.partida_presupuestaria} onChange={(e) => setItemForm({ ...itemForm, partida_presupuestaria: e.target.value })} />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField fullWidth label="Código CPC" value={itemForm.cpc} onChange={(e) => setItemForm({ ...itemForm, cpc: e.target.value })} />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Tipo de Compra</InputLabel>
                 <Select value={itemForm.tipo_compra} label="Tipo de Compra" onChange={(e) => setItemForm({ ...itemForm, tipo_compra: e.target.value })}>
@@ -349,19 +349,19 @@ export default function PacPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField fullWidth label="Procedimiento Sugerido" value={itemForm.procedimiento} onChange={(e) => setItemForm({ ...itemForm, procedimiento: e.target.value })} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField fullWidth multiline rows={2} label="Descripción de la Contratación" value={itemForm.descripcion} onChange={(e) => setItemForm({ ...itemForm, descripcion: e.target.value })} />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <TextField fullWidth type="number" label="Cantidad" value={itemForm.cantidad} onChange={(e) => setItemForm({ ...itemForm, cantidad: parseFloat(e.target.value) })} />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <TextField fullWidth type="number" label="Costo Unitario ($)" value={itemForm.costo_unitario} onChange={(e) => setItemForm({ ...itemForm, costo_unitario: parseFloat(e.target.value) })} />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <TextField fullWidth disabled label="Valor Total Estimado ($)" value={`$${(itemForm.cantidad * itemForm.costo_unitario).toFixed(2)}`} />
             </Grid>
           </Grid>
@@ -402,10 +402,10 @@ export default function PacPage() {
         <DialogTitle>Aplicar Reforma al PAC</DialogTitle>
         <DialogContent dividers>
             <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <TextField fullWidth label="Resolución / Justificación de la Reforma" multiline rows={2} />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                     <Card variant="outlined" sx={{ bgcolor: 'error.light', opacity: 0.9 }}>
                         <CardHeader title="Ítems Origen (Ceden Fondos)" titleTypographyProps={{ variant: 'subtitle1', color: 'error.dark' }} />
                         <CardContent>
@@ -414,7 +414,7 @@ export default function PacPage() {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                     <Card variant="outlined" sx={{ bgcolor: 'success.light', opacity: 0.9 }}>
                         <CardHeader title="Ítems Destino (Reciben Fondos)" titleTypographyProps={{ variant: 'subtitle1', color: 'success.dark' }} />
                         <CardContent>

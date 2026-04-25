@@ -123,7 +123,7 @@ export default function ArticuloDetallePage() {
 
   return (
     <Grid container spacing={gridSpacing}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Button
           startIcon={<IconArrowLeft size={16} />}
           onClick={() => router.push("/inventario/articulos")}
@@ -144,7 +144,7 @@ export default function ArticuloDetallePage() {
           {/* Información del artículo */}
           <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <InfoRow label="Código" value={articulo.codigo_articulo} />
                 <InfoRow label="Nombre" value={articulo.nombre} />
                 <InfoRow
@@ -158,7 +158,7 @@ export default function ArticuloDetallePage() {
                 <InfoRow label="Unidad de Medida" value={articulo.unidad_medida || "—"} />
                 <InfoRow label="Código de Barras" value={articulo.codigo_barras || "—"} />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <InfoRow
                   label="Existencia Actual"
                   value={

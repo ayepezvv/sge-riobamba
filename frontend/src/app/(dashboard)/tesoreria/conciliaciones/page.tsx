@@ -137,7 +137,7 @@ const ConciliacionesPage = () => {
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <FormControl fullWidth size="small">
             <InputLabel>Cuenta Bancaria</InputLabel>
             <Select value={filtroCuenta} label="Cuenta Bancaria" onChange={e => setFiltroCuenta(e.target.value as number | '')}>
@@ -168,7 +168,7 @@ const ConciliacionesPage = () => {
         <DialogContent dividers>
           {errorFormulario && <Alert severity="error" sx={{ mb: 2 }}>{errorFormulario}</Alert>}
           <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Cuenta Bancaria *</InputLabel>
                 <Select value={formulario.cuenta_bancaria_id || ''} label="Cuenta Bancaria *"
@@ -177,7 +177,7 @@ const ConciliacionesPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth disabled={!formulario.cuenta_bancaria_id}>
                 <InputLabel>Extracto Bancario (Confirmado) *</InputLabel>
                 <Select value={formulario.extracto_id || ''} label="Extracto Bancario (Confirmado) *"
@@ -186,23 +186,23 @@ const ConciliacionesPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField label="Fecha Inicio *" type="date" fullWidth InputLabelProps={{ shrink: true }}
                 value={formulario.fecha_inicio} onChange={e => setFormulario({ ...formulario, fecha_inicio: e.target.value })} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField label="Fecha Fin *" type="date" fullWidth InputLabelProps={{ shrink: true }}
                 value={formulario.fecha_fin} onChange={e => setFormulario({ ...formulario, fecha_fin: e.target.value })} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField label="Saldo según Libros" type="number" fullWidth value={formulario.saldo_libro}
                 onChange={e => setFormulario({ ...formulario, saldo_libro: parseFloat(e.target.value) || 0 })} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField label="Saldo según Extracto" type="number" fullWidth value={formulario.saldo_extracto}
                 onChange={e => setFormulario({ ...formulario, saldo_extracto: parseFloat(e.target.value) || 0 })} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField label="Notas" multiline rows={2} fullWidth value={formulario.notas || ''}
                 onChange={e => setFormulario({ ...formulario, notas: e.target.value })} />
             </Grid>

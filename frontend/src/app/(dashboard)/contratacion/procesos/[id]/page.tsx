@@ -401,7 +401,7 @@ export default function ProcesoDetailPage() {
                 <Typography variant="subtitle1" color="primary" sx={{ mb: 2 }}>Formulario Autogenerado desde el DOCX</Typography>
                 <Grid container spacing={2}>
                   {esquemaVariables.map((v: any, index: number) => (
-                    <Grid item xs={12} sm={v.tipo === 'texto' && v.nombre.includes('fecha') ? 6 : 12} key={index}>
+                    <Grid size={{ xs: 12, sm: v.tipo === 'texto' && v.nombre.includes('fecha') ? 6 : 12 }} key={index}>
                       {v.tipo === 'texto' && (
                         <TextField 
                           label={v.nombre.replace(/_/g, ' ').toUpperCase()} 

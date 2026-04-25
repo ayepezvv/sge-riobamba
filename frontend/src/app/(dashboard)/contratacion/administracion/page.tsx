@@ -187,7 +187,7 @@ export default function AdminPlantillasPage() {
                       ) : (
                         <Grid container spacing={2}>
                           {templatesForType.map((tpl) => (
-                            <Grid item xs={12} sm={6} md={4} key={tpl.id}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={tpl.id}>
                               <Card sx={{ border: '1px solid', borderColor: tpl.is_activa ? 'success.main' : 'divider', bgcolor: tpl.is_activa ? 'success.light' : 'background.paper', opacity: tpl.is_activa ? 1 : 0.7 }}>
                                 <CardContent>
                                   <Typography variant="h5">{tpl.nombre}</Typography>

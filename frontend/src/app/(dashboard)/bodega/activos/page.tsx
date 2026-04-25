@@ -149,7 +149,7 @@ const ActivosFijosPage = () => {
 
     return (
         <Grid container spacing={gridSpacing}>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <MainCard
                     title="Catálogo de Activos Fijos y Bienes"
                     secondary={
@@ -180,7 +180,7 @@ const ActivosFijosPage = () => {
                 <DialogContent>
                     <form onSubmit={formik.handleSubmit} id="activo-form">
                         <Grid container spacing={2} sx={{ mt: 1 }}>
-                            <Grid item xs={12} sm={6}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     fullWidth label="Código de Inventario" name="codigo_inventario"
                                     value={formik.values.codigo_inventario} onChange={formik.handleChange}
@@ -188,7 +188,7 @@ const ActivosFijosPage = () => {
                                     helperText={formik.touched.codigo_inventario && formik.errors.codigo_inventario}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     select fullWidth label="Categoría" name="categoria_id"
                                     SelectProps={{ native: true }}
@@ -200,7 +200,7 @@ const ActivosFijosPage = () => {
                                     {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                                 </TextField>
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth label="Nombre del Bien" name="nombre"
                                     value={formik.values.nombre} onChange={formik.handleChange}
@@ -208,31 +208,31 @@ const ActivosFijosPage = () => {
                                     helperText={formik.touched.nombre && formik.errors.nombre}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={4}>
+                            <Grid size={{ xs: 12, sm: 4 }}>
                                 <TextField
                                     fullWidth label="Marca" name="marca"
                                     value={formik.values.marca} onChange={formik.handleChange}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={4}>
+                            <Grid size={{ xs: 12, sm: 4 }}>
                                 <TextField
                                     fullWidth label="Modelo" name="modelo"
                                     value={formik.values.modelo} onChange={formik.handleChange}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={4}>
+                            <Grid size={{ xs: 12, sm: 4 }}>
                                 <TextField
                                     fullWidth label="Número de Serie (S/N)" name="numero_serie"
                                     value={formik.values.numero_serie} onChange={formik.handleChange}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     fullWidth label="Costo Inicial ($)" name="costo_inicial" type="number"
                                     value={formik.values.costo_inicial} onChange={formik.handleChange}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     select fullWidth label="Estado Físico" name="estado_fisico"
                                     SelectProps={{ native: true }}
@@ -244,7 +244,7 @@ const ActivosFijosPage = () => {
                                     <option value="DE_BAJA">De Baja</option>
                                 </TextField>
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth label="Descripción / Observaciones" name="descripcion"
                                     multiline rows={3}

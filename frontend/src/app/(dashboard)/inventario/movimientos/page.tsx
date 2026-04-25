@@ -153,11 +153,11 @@ export default function MovimientosPage() {
 
   return (
     <Grid container spacing={gridSpacing}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <MainCard title="Movimientos de Bodega — Entradas y Salidas">
           {/* Filtros */}
           <Grid container spacing={2} mb={2}>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Año Fiscal</InputLabel>
                 <Select
@@ -172,7 +172,7 @@ export default function MovimientosPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Tipo de Movimiento</InputLabel>
                 <Select
@@ -188,7 +188,7 @@ export default function MovimientosPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid size={{ xs: 12, sm: 2 }}>
               <Button
                 fullWidth
                 variant="outlined"
@@ -240,7 +240,7 @@ export default function MovimientosPage() {
             <>
               <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
                 <Grid container spacing={1}>
-                  <Grid item xs={6}>
+                  <Grid size={6}>
                     <Typography variant="body2" color="text.secondary">Tipo</Typography>
                     <Chip
                       size="small"
@@ -248,19 +248,19 @@ export default function MovimientosPage() {
                       color={movDetalle.tipo_movimiento === "ENTRADA" ? "success" : "error"}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={6}>
                     <Typography variant="body2" color="text.secondary">Fecha</Typography>
                     <Typography variant="body2">{fmtFecha(movDetalle.fecha)}</Typography>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={6}>
                     <Typography variant="body2" color="text.secondary">N° Factura</Typography>
                     <Typography variant="body2">{movDetalle.numero_factura || "—"}</Typography>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={6}>
                     <Typography variant="body2" color="text.secondary">Costo Total</Typography>
                     <Typography variant="body2"><strong>{fmtMoneda(movDetalle.costo_total)}</strong></Typography>
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Typography variant="body2" color="text.secondary">Observación</Typography>
                     <Typography variant="body2">{movDetalle.observacion || "—"}</Typography>
                   </Grid>

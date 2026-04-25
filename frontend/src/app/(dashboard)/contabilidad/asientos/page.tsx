@@ -239,7 +239,7 @@ const AsientosContablesPage = () => {
 
       {/* ── Filtros ── */}
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <FormControl fullWidth size="small">
             <InputLabel>Filtrar por Período</InputLabel>
             <Select value={filtroPeriodo} label="Filtrar por Período" onChange={e => setFiltroPeriodo(e.target.value as number | '')}>
@@ -248,7 +248,7 @@ const AsientosContablesPage = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <FormControl fullWidth size="small">
             <InputLabel>Estado</InputLabel>
             <Select value={filtroEstado} label="Estado" onChange={e => setFiltroEstado(e.target.value)}>
@@ -289,11 +289,11 @@ const AsientosContablesPage = () => {
           {asientoDetalle && (
             <>
               <Grid container spacing={1} sx={{ mb: 2 }}>
-                <Grid item xs={6} md={3}><Typography variant="caption" color="textSecondary">Fecha</Typography><Typography>{asientoDetalle.fecha}</Typography></Grid>
-                <Grid item xs={6} md={3}><Typography variant="caption" color="textSecondary">Diario</Typography><Typography>{diarios.find(d => d.id === asientoDetalle.diario_id)?.nombre ?? '—'}</Typography></Grid>
-                <Grid item xs={12} md={6}><Typography variant="caption" color="textSecondary">Concepto</Typography><Typography>{asientoDetalle.concepto}</Typography></Grid>
-                {asientoDetalle.referencia && <Grid item xs={12}><Typography variant="caption" color="textSecondary">Referencia</Typography><Typography>{asientoDetalle.referencia}</Typography></Grid>}
-                {asientoDetalle.motivo_anulacion && <Grid item xs={12}><Alert severity="error">Motivo de anulación: {asientoDetalle.motivo_anulacion}</Alert></Grid>}
+                <Grid size={{ xs: 6, md: 3 }}><Typography variant="caption" color="textSecondary">Fecha</Typography><Typography>{asientoDetalle.fecha}</Typography></Grid>
+                <Grid size={{ xs: 6, md: 3 }}><Typography variant="caption" color="textSecondary">Diario</Typography><Typography>{diarios.find(d => d.id === asientoDetalle.diario_id)?.nombre ?? '—'}</Typography></Grid>
+                <Grid size={{ xs: 12, md: 6 }}><Typography variant="caption" color="textSecondary">Concepto</Typography><Typography>{asientoDetalle.concepto}</Typography></Grid>
+                {asientoDetalle.referencia && <Grid size={12}><Typography variant="caption" color="textSecondary">Referencia</Typography><Typography>{asientoDetalle.referencia}</Typography></Grid>}
+                {asientoDetalle.motivo_anulacion && <Grid size={12}><Alert severity="error">Motivo de anulación: {asientoDetalle.motivo_anulacion}</Alert></Grid>}
               </Grid>
               <Table size="small">
                 <TableHead>
@@ -354,7 +354,7 @@ const AsientosContablesPage = () => {
         <DialogContent dividers>
           {errorFormulario && <Alert severity="error" sx={{ mb: 2 }}>{errorFormulario}</Alert>}
           <Grid container spacing={2} sx={{ pt: 1, mb: 2 }}>
-            <Grid item xs={12} md={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <FormControl fullWidth>
                 <InputLabel>Diario *</InputLabel>
                 <Select value={formulario.diario_id || ''} label="Diario *"
@@ -363,7 +363,7 @@ const AsientosContablesPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <FormControl fullWidth>
                 <InputLabel>Período *</InputLabel>
                 <Select value={formulario.periodo_id || ''} label="Período *"
@@ -372,16 +372,16 @@ const AsientosContablesPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <TextField label="Fecha *" type="date" fullWidth InputLabelProps={{ shrink: true }}
                 value={formulario.fecha}
                 onChange={e => setFormulario({ ...formulario, fecha: e.target.value })} />
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <TextField label="Referencia" fullWidth value={formulario.referencia}
                 onChange={e => setFormulario({ ...formulario, referencia: e.target.value })} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField label="Concepto *" fullWidth value={formulario.concepto}
                 onChange={e => setFormulario({ ...formulario, concepto: e.target.value })} />
             </Grid>

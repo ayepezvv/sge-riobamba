@@ -221,7 +221,7 @@ export default function CiudadanosPage() {
       <CardContent>
         {/* HEADER BAR */}
         <Grid container spacing={2} justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={8} md={6}>
+          <Grid size={{ xs: 12, sm: 8, md: 6 }}>
             <OutlinedInput
               id="input-search-contact"
               placeholder="Buscar por nombre, cédula o RUC..."
@@ -236,7 +236,7 @@ export default function CiudadanosPage() {
               fullWidth
             />
           </Grid>
-          <Grid item xs={12} sm={4} md={6} sx={{ textAlign: 'right' }}>
+          <Grid size={{ xs: 12, sm: 4, md: 6 }} sx={{ textAlign: 'right' }}>
             <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleOpenNew}>
               Nuevo Ciudadano
             </Button>
@@ -246,7 +246,7 @@ export default function CiudadanosPage() {
         {/* SPLIT VIEW (LIST vs DETAILS) */}
         <Grid container spacing={3}>
           {/* Left Column: List */}
-          <Grid item xs={12} md={selectedUser ? 8 : 12}>
+          <Grid size={{ xs: 12, md: selectedUser ? 8 : 12 }}>
             {filteredCiudadanos.map((row: any, index) => {
               const isNatural = row.tipo_persona === 'Natural';
               const titleName = isNatural ? `${row.nombres || ''} ${row.apellidos || ''}` : row.razon_social;
@@ -268,7 +268,7 @@ export default function CiudadanosPage() {
                 >
                   <CardContent sx={{ p: 2, pb: '16px !important' }}>
                     <Grid container spacing={2} alignItems="center">
-                      <Grid item>
+                      <Grid>
                         <Avatar
                           sx={{ 
                             width: 40, height: 40, 
@@ -279,13 +279,13 @@ export default function CiudadanosPage() {
                           {isNatural ? <PersonIcon /> : <BusinessIcon />}
                         </Avatar>
                       </Grid>
-                      <Grid item xs zeroMinWidth>
+                      <Grid size="grow" sx={{ minWidth: 0 }}>
                         <Typography variant="h5" component="div">{titleName}</Typography>
                         <Typography variant="caption" color="textSecondary">{row.identificacion} • {row.tipo_persona}</Typography>
                       </Grid>
                       
                       {/* Mostrar iconos rapido en la lista si no esta seleccionado o si hay espacio */}
-                      <Grid item>
+                      <Grid>
                         <Box sx={{ display: 'flex', gap: 1 }}>
                            {isActive ? <Chip label="Activo" color="success" size="small" /> : <Chip label="Inactivo" color="error" size="small" />}
                         </Box>
@@ -299,7 +299,7 @@ export default function CiudadanosPage() {
 
           {/* Right Column: Details (Sliding Panel) */}
           {selectedUser && (
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Card sx={{ border: '1px solid', borderColor: 'divider', height: '100%', position: 'relative' }}>
                 <CardContent>
                   <IconButton 
@@ -352,7 +352,7 @@ export default function CiudadanosPage() {
                   <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Typography variant="subtitle1" color="primary">Información de Contacto</Typography>
                     <Grid container spacing={2}>
-                      <Grid item xs={12} sm={6}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <EmailTwoToneIcon color="secondary" fontSize="small" />
                           <Box>
@@ -361,7 +361,7 @@ export default function CiudadanosPage() {
                           </Box>
                         </Box>
                       </Grid>
-                      <Grid item xs={12} sm={6}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <PhoneTwoToneIcon color="secondary" fontSize="small" />
                           <Box>
@@ -377,7 +377,7 @@ export default function CiudadanosPage() {
                     
                     <Grid container spacing={2}>
                       {selectedUser.tipo_persona === 'Natural' && selectedUser.fecha_nacimiento && (
-                        <Grid item xs={12} sm={6}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <CakeIcon color="secondary" fontSize="small" />
                             <Box>
@@ -388,7 +388,7 @@ export default function CiudadanosPage() {
                         </Grid>
                       )}
                       {selectedUser.tipo_persona === 'Natural' && selectedUser.genero && (
-                        <Grid item xs={12} sm={6}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <WcIcon color="secondary" fontSize="small" />
                             <Box>
@@ -399,7 +399,7 @@ export default function CiudadanosPage() {
                         </Grid>
                       )}
                       {selectedUser.tipo_persona === 'Juridica' && selectedUser.tipo_empresa && (
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <BusinessIcon color="secondary" fontSize="small" />
                             <Box>
@@ -465,7 +465,7 @@ export default function CiudadanosPage() {
           {/* TAB 1: GENERAL */}
           <TabPanel value={tabValue} index={0}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <FormControl fullWidth>
                   <InputLabel>Tipo de Persona</InputLabel>
                   <Select name="tipo_persona" value={formData.tipo_persona} label="Tipo de Persona" onChange={handleChange} disabled={!!editingId}>
@@ -474,22 +474,22 @@ export default function CiudadanosPage() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField label="Identificación (Cédula/RUC)" name="identificacion" value={formData.identificacion} onChange={handleChange} fullWidth required />
               </Grid>
 
               {formData.tipo_persona === 'Natural' && (
                 <>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField label="Nombres" name="nombres" value={formData.nombres} onChange={handleChange} fullWidth required />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField label="Apellidos" name="apellidos" value={formData.apellidos} onChange={handleChange} fullWidth required />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField label="Fecha de Nacimiento" name="fecha_nacimiento" type="date" value={formData.fecha_nacimiento} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }} />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <InputLabel>Género</InputLabel>
                       <Select name="genero" value={formData.genero} label="Género" onChange={handleChange}>
@@ -504,10 +504,10 @@ export default function CiudadanosPage() {
 
               {formData.tipo_persona === 'Juridica' && (
                 <>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <TextField label="Razón Social" name="razon_social" value={formData.razon_social} onChange={handleChange} fullWidth required />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <InputLabel>Tipo de Empresa</InputLabel>
                       <Select name="tipo_empresa" value={formData.tipo_empresa} label="Tipo de Empresa" onChange={handleChange}>
@@ -517,7 +517,7 @@ export default function CiudadanosPage() {
                       </Select>
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <InputLabel>Naturaleza Jurídica</InputLabel>
                       <Select name="naturaleza_juridica" value={formData.naturaleza_juridica} label="Naturaleza Jurídica" onChange={handleChange}>
@@ -535,16 +535,16 @@ export default function CiudadanosPage() {
           {/* TAB 2: CONTACTO */}
           <TabPanel value={tabValue} index={1}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField label="Correo Electrónico" name="correo_principal" type="email" value={formData.correo_principal} onChange={handleChange} fullWidth />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField label="Celular" name="celular" value={formData.celular} onChange={handleChange} fullWidth />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField label="Teléfono Fijo" name="telefono_fijo" value={formData.telefono_fijo} onChange={handleChange} fullWidth />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <FormControl fullWidth>
                   <InputLabel>Preferencia de Contacto</InputLabel>
                   <Select name="preferencia_contacto" value={formData.preferencia_contacto} label="Preferencia de Contacto" onChange={handleChange}>
@@ -563,20 +563,20 @@ export default function CiudadanosPage() {
               <>
                 <Typography variant="h5" sx={{ mb: 2 }}>Beneficios de Ley</Typography>
                 <Grid container spacing={2} sx={{ mb: 4, pl: 1 }}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControlLabel
                       control={<Switch checked={formData.aplica_tercera_edad} onChange={handleChange} name="aplica_tercera_edad" color="primary" />}
                       label="Aplica Tercera Edad"
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControlLabel
                       control={<Switch checked={formData.tiene_discapacidad} onChange={handleChange} name="tiene_discapacidad" color="primary" />}
                       label="Tiene Discapacidad"
                     />
                   </Grid>
                   {formData.tiene_discapacidad && (
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <TextField label="Porcentaje de Discapacidad (%)" name="porcentaje_discapacidad" type="number" value={formData.porcentaje_discapacidad} onChange={handleChange} fullWidth />
                     </Grid>
                   )}
@@ -586,7 +586,7 @@ export default function CiudadanosPage() {
 
             <Typography variant="h5" sx={{ mb: 2 }}>Referencia ({formData.tipo_persona === 'Natural' ? 'Cónyuge / Familiar' : 'Representante Legal'})</Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Tipo de Referencia</InputLabel>
                   <Select name="ref_tipo" value={formData.ref_tipo} label="Tipo de Referencia" onChange={handleChange}>
@@ -602,13 +602,13 @@ export default function CiudadanosPage() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField label="Identificación" name="ref_identificacion" value={formData.ref_identificacion} onChange={handleChange} fullWidth />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField label="Nombres" name="ref_nombres" value={formData.ref_nombres} onChange={handleChange} fullWidth />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField label="Apellidos" name="ref_apellidos" value={formData.ref_apellidos} onChange={handleChange} fullWidth />
               </Grid>
             </Grid>

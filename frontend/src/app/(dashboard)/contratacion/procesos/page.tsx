@@ -152,11 +152,11 @@ export default function ProcesosPage() {
             
           {activeStep === 0 && (
             <Grid container spacing={3}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography variant="h6" color="primary" gutterBottom>1. Afectación Presupuestaria (PAC)</Typography>
                     <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>Selecciona las líneas del Plan Anual de Contratación de las que nace este requerimiento.</Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <FormControl fullWidth>
                     <InputLabel>Seleccionar Líneas del PAC Activo</InputLabel>
                     <Select
@@ -178,7 +178,7 @@ export default function ProcesosPage() {
                   </FormControl>
                 </Grid>
                 {selectedPacItems.length > 0 && (
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Card variant="outlined" sx={{ bgcolor: 'background.default', p: 2 }}>
                         <Typography variant="subtitle2" gutterBottom>Montos a Comprometer</Typography>
                         {selectedPacItems.map(id => {

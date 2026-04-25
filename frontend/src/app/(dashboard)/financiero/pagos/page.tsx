@@ -202,7 +202,7 @@ const PagosPage = () => {
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <FormControl fullWidth size="small">
             <InputLabel>Tipo</InputLabel>
             <Select value={filtroTipo} label="Tipo" onChange={e => setFiltroTipo(e.target.value)}>
@@ -212,7 +212,7 @@ const PagosPage = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <FormControl fullWidth size="small">
             <InputLabel>Estado</InputLabel>
             <Select value={filtroEstado} label="Estado" onChange={e => setFiltroEstado(e.target.value)}>
@@ -244,14 +244,14 @@ const PagosPage = () => {
         <DialogContent dividers>
           {detallePago && (
             <Grid container spacing={1}>
-              <Grid item xs={6}><Typography variant="caption" color="textSecondary">Tipo</Typography><Typography>{detallePago.tipo}</Typography></Grid>
-              <Grid item xs={6}><Typography variant="caption" color="textSecondary">Fecha</Typography><Typography>{detallePago.fecha_pago}</Typography></Grid>
-              <Grid item xs={12}><Typography variant="caption" color="textSecondary">Tercero</Typography><Typography>{detallePago.nombre_tercero} ({detallePago.identificacion_tercero})</Typography></Grid>
-              <Grid item xs={6}><Typography variant="caption" color="textSecondary">Método</Typography><Typography>{detallePago.tipo_pago}</Typography></Grid>
-              <Grid item xs={6}><Typography variant="caption" color="textSecondary">Monto Total</Typography><Typography fontWeight={700} color="primary">{Number(detallePago.monto_total).toFixed(2)}</Typography></Grid>
-              {detallePago.referencia_bancaria && <Grid item xs={12}><Typography variant="caption" color="textSecondary">Referencia Bancaria</Typography><Typography>{detallePago.referencia_bancaria}</Typography></Grid>}
+              <Grid size={6}><Typography variant="caption" color="textSecondary">Tipo</Typography><Typography>{detallePago.tipo}</Typography></Grid>
+              <Grid size={6}><Typography variant="caption" color="textSecondary">Fecha</Typography><Typography>{detallePago.fecha_pago}</Typography></Grid>
+              <Grid size={12}><Typography variant="caption" color="textSecondary">Tercero</Typography><Typography>{detallePago.nombre_tercero} ({detallePago.identificacion_tercero})</Typography></Grid>
+              <Grid size={6}><Typography variant="caption" color="textSecondary">Método</Typography><Typography>{detallePago.tipo_pago}</Typography></Grid>
+              <Grid size={6}><Typography variant="caption" color="textSecondary">Monto Total</Typography><Typography fontWeight={700} color="primary">{Number(detallePago.monto_total).toFixed(2)}</Typography></Grid>
+              {detallePago.referencia_bancaria && <Grid size={12}><Typography variant="caption" color="textSecondary">Referencia Bancaria</Typography><Typography>{detallePago.referencia_bancaria}</Typography></Grid>}
               {detallePago.lineas.length > 0 && (
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="subtitle2" sx={{ mt: 1 }}>Facturas Aplicadas</Typography>
                   <Table size="small">
                     <TableHead><TableRow sx={{ bgcolor: '#f8fafc' }}>
@@ -297,7 +297,7 @@ const PagosPage = () => {
         <DialogContent dividers>
           {errorFormulario && <Alert severity="error" sx={{ mb: 2 }}>{errorFormulario}</Alert>}
           <Grid container spacing={2} sx={{ pt: 1, mb: 2 }}>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>Tipo *</InputLabel>
                 <Select value={formulario.tipo} label="Tipo *"
@@ -307,19 +307,19 @@ const PagosPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <TextField label="Fecha *" type="date" fullWidth InputLabelProps={{ shrink: true }}
                 value={formulario.fecha_pago} onChange={e => setFormulario({ ...formulario, fecha_pago: e.target.value })} />
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <TextField label="Nombre Tercero *" fullWidth value={formulario.nombre_tercero}
                 onChange={e => setFormulario({ ...formulario, nombre_tercero: e.target.value })} />
             </Grid>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <TextField label="Identificación *" fullWidth value={formulario.identificacion_tercero}
                 onChange={e => setFormulario({ ...formulario, identificacion_tercero: e.target.value })} />
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{ xs: 6, md: 3 }}>
               <FormControl fullWidth>
                 <InputLabel>Método de Pago *</InputLabel>
                 <Select value={formulario.tipo_pago} label="Método de Pago *"
@@ -328,11 +328,11 @@ const PagosPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <TextField label="Monto Total *" type="number" fullWidth value={formulario.monto_total}
                 onChange={e => setFormulario({ ...formulario, monto_total: parseFloat(e.target.value) || 0 })} />
             </Grid>
-            <Grid item xs={6} md={2}>
+            <Grid size={{ xs: 6, md: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>Cuenta Bancaria</InputLabel>
                 <Select value={formulario.cuenta_bancaria_id || ''} label="Cuenta Bancaria"
@@ -342,7 +342,7 @@ const PagosPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <TextField label="Referencia Bancaria" fullWidth value={formulario.referencia_bancaria || ''}
                 onChange={e => setFormulario({ ...formulario, referencia_bancaria: e.target.value })} />
             </Grid>

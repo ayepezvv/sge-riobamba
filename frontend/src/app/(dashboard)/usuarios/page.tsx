@@ -176,7 +176,7 @@ export default function UsuariosPage() {
           const roleName = roles.find((r: any) => r.id === user.role_id)?.nombre_rol || 'Sin Rol';
 
           return (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={user.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={user.id}>
               <Card sx={{ 
                 bgcolor: theme.palette.mode === 'dark' ? 'dark.main' : 'background.paper', 
                 border: '1px solid', 

@@ -299,7 +299,7 @@ const IpamRedesPage = () => {
     return (
         <Grid container spacing={3}>
             {/* MASTER: Segmentos */}
-            <Grid item xs={12} md={selectedSegmento ? 3 : 12}>
+            <Grid size={{ xs: 12, md: selectedSegmento ? 3 : 12 }}>
                 <MainCard title="Infraestructura: VLANs y Subredes" secondary={
                     <AnimateButton>
                         <Button variant="contained" size="small" startIcon={<IconPlus />} onClick={() => setOpenSegModal(true)}>
@@ -309,7 +309,7 @@ const IpamRedesPage = () => {
                 }>
                     <Grid container spacing={2}>
                         {segmentos.map(seg => (
-                            <Grid item xs={12} sm={selectedSegmento ? 12 : 6} md={selectedSegmento ? 12 : 4} key={seg.id}>
+                            <Grid size={{ xs: 12, sm: selectedSegmento ? 12 : 6, md: selectedSegmento ? 12 : 4 }} key={seg.id}>
                                 <MainCard content={false} sx={{ border: selectedSegmento?.id === seg.id ? '2px solid' : '1px solid', borderColor: selectedSegmento?.id === seg.id ? 'primary.main' : 'divider', transition: 'all .2s ease-in-out' }}>
                                     <CardActionArea onClick={() => handleSelectSegmento(seg)} sx={{ p: 2 }}>
                                         <Typography variant="h5" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -327,7 +327,7 @@ const IpamRedesPage = () => {
 
             {/* DETAIL: IPs del segmento seleccionado */}
             {selectedSegmento && (
-                <Grid item xs={12} md={9}>
+                <Grid size={{ xs: 12, md: 9 }}>
                     <MainCard title={`IPs Asignadas: ${selectedSegmento.nombre}`} secondary={
                         <AnimateButton>
                             <Button variant="contained" color="secondary" size="small" startIcon={<IconPlus />} onClick={() => setOpenIpModal(true)}>

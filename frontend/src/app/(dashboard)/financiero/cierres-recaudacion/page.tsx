@@ -127,12 +127,12 @@ const CierresRecaudacionPage = () => {
         <DialogContent dividers>
           {detalleId && (
             <Grid container spacing={2}>
-              <Grid item xs={6}><Typography variant="caption" color="textSecondary">Fecha</Typography><Typography fontWeight={700}>{detalleId.fecha}</Typography></Grid>
-              <Grid item xs={6}><Typography variant="caption" color="textSecondary">N° Transacciones</Typography><Typography fontWeight={700}>{detalleId.numero_transacciones}</Typography></Grid>
-              <Grid item xs={12}><Typography variant="caption" color="textSecondary">Total Recaudado</Typography><Typography variant="h4" color="success.main">{Number(detalleId.total_recaudado).toFixed(2)} USD</Typography></Grid>
-              {detalleId.observaciones && <Grid item xs={12}><Typography variant="caption" color="textSecondary">Observaciones</Typography><Typography>{detalleId.observaciones}</Typography></Grid>}
-              <Grid item xs={6}><Typography variant="caption" color="textSecondary">Asiento Recaudación</Typography><Typography>{detalleId.asiento_recaudacion_id ? `#${detalleId.asiento_recaudacion_id}` : 'Pendiente'}</Typography></Grid>
-              <Grid item xs={6}><Typography variant="caption" color="textSecondary">Asiento Traslado BCE</Typography><Typography>{detalleId.asiento_traslado_bce_id ? `#${detalleId.asiento_traslado_bce_id}` : 'Pendiente'}</Typography></Grid>
+              <Grid size={6}><Typography variant="caption" color="textSecondary">Fecha</Typography><Typography fontWeight={700}>{detalleId.fecha}</Typography></Grid>
+              <Grid size={6}><Typography variant="caption" color="textSecondary">N° Transacciones</Typography><Typography fontWeight={700}>{detalleId.numero_transacciones}</Typography></Grid>
+              <Grid size={12}><Typography variant="caption" color="textSecondary">Total Recaudado</Typography><Typography variant="h4" color="success.main">{Number(detalleId.total_recaudado).toFixed(2)} USD</Typography></Grid>
+              {detalleId.observaciones && <Grid size={12}><Typography variant="caption" color="textSecondary">Observaciones</Typography><Typography>{detalleId.observaciones}</Typography></Grid>}
+              <Grid size={6}><Typography variant="caption" color="textSecondary">Asiento Recaudación</Typography><Typography>{detalleId.asiento_recaudacion_id ? `#${detalleId.asiento_recaudacion_id}` : 'Pendiente'}</Typography></Grid>
+              <Grid size={6}><Typography variant="caption" color="textSecondary">Asiento Traslado BCE</Typography><Typography>{detalleId.asiento_traslado_bce_id ? `#${detalleId.asiento_traslado_bce_id}` : 'Pendiente'}</Typography></Grid>
             </Grid>
           )}
         </DialogContent>
@@ -145,19 +145,19 @@ const CierresRecaudacionPage = () => {
         <DialogContent dividers>
           {errorFormulario && <Alert severity="error" sx={{ mb: 2 }}>{errorFormulario}</Alert>}
           <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField label="Fecha *" type="date" fullWidth InputLabelProps={{ shrink: true }}
                 value={formulario.fecha} onChange={e => setFormulario({ ...formulario, fecha: e.target.value })} />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField label="Total Recaudado *" type="number" fullWidth value={formulario.total_recaudado}
                 onChange={e => setFormulario({ ...formulario, total_recaudado: parseFloat(e.target.value) || 0 })} />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField label="N° Transacciones" type="number" fullWidth value={formulario.numero_transacciones}
                 onChange={e => setFormulario({ ...formulario, numero_transacciones: parseInt(e.target.value) || 0 })} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField label="Observaciones" multiline rows={2} fullWidth value={formulario.observaciones || ''}
                 onChange={e => setFormulario({ ...formulario, observaciones: e.target.value })} />
             </Grid>

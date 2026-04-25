@@ -159,14 +159,14 @@ const PartidasPage = () => {
         <DialogTitle>{partidaEditar ? 'Editar Partida' : 'Nueva Partida Presupuestaria'}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField
                 fullWidth label="Código SIGEF" value={formulario.codigo}
                 onChange={e => setFormulario(f => ({ ...f, codigo: e.target.value }))}
                 disabled={!!partidaEditar} required size="small"
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <FormControl fullWidth size="small" disabled={!!partidaEditar}>
                 <InputLabel>Tipo</InputLabel>
                 <Select value={formulario.tipo} label="Tipo"
@@ -175,21 +175,21 @@ const PartidasPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 fullWidth label="Nombre" value={formulario.nombre}
                 onChange={e => setFormulario(f => ({ ...f, nombre: e.target.value }))}
                 required size="small"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 fullWidth label="Descripción" value={formulario.descripcion || ''}
                 onChange={e => setFormulario(f => ({ ...f, descripcion: e.target.value }))}
                 multiline rows={2} size="small"
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid size={4}>
               <FormControl fullWidth size="small" disabled={!!partidaEditar}>
                 <InputLabel>Nivel</InputLabel>
                 <Select value={formulario.nivel} label="Nivel"
@@ -198,7 +198,7 @@ const PartidasPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={4}>
+            <Grid size={4}>
               <FormControl fullWidth size="small">
                 <InputLabel>¿Es Hoja?</InputLabel>
                 <Select value={formulario.es_hoja ? 'true' : 'false'} label="¿Es Hoja?"
@@ -208,7 +208,7 @@ const PartidasPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={4}>
+            <Grid size={4}>
               {partidaEditar && (
                 <FormControl fullWidth size="small">
                   <InputLabel>Estado</InputLabel>

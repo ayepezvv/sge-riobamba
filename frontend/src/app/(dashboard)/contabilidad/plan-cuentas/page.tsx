@@ -191,19 +191,19 @@ const PlanDeCuentasPage = () => {
         <DialogContent dividers>
           {errorFormulario && <Alert severity="error" sx={{ mb: 2 }}>{errorFormulario}</Alert>}
           <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 label="Código SIGEF *" fullWidth value={formulario.codigo} disabled={!!modoEdicion}
                 onChange={e => setFormulario({ ...formulario, codigo: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid size={{ xs: 12, md: 8 }}>
               <TextField
                 label="Nombre *" fullWidth value={formulario.nombre}
                 onChange={e => setFormulario({ ...formulario, nombre: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <FormControl fullWidth>
                 <InputLabel>Tipo de Cuenta *</InputLabel>
                 <Select
@@ -216,14 +216,14 @@ const PlanDeCuentasPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 label="Nivel (1-10)" type="number" fullWidth value={formulario.nivel} disabled={!!modoEdicion}
                 inputProps={{ min: 1, max: 10 }}
                 onChange={e => setFormulario({ ...formulario, nivel: Number(e.target.value) })}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <FormControl fullWidth>
                 <InputLabel>Estado</InputLabel>
                 <Select
@@ -236,13 +236,13 @@ const PlanDeCuentasPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 label="Partida Presupuestaria" fullWidth value={formulario.partida_presupuestaria}
                 onChange={e => setFormulario({ ...formulario, partida_presupuestaria: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 label="Descripción" fullWidth multiline rows={2} value={formulario.descripcion}
                 onChange={e => setFormulario({ ...formulario, descripcion: e.target.value })}

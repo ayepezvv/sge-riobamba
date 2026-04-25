@@ -185,17 +185,17 @@ const PresupuestosPage = () => {
         <DialogTitle>Nuevo Presupuesto Anual</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
-            <Grid item xs={4}>
+            <Grid size={4}>
               <TextField fullWidth label="Año Fiscal" type="number" size="small"
                 value={formulario.anio_fiscal}
                 onChange={e => setFormulario(f => ({ ...f, anio_fiscal: Number(e.target.value) }))} />
             </Grid>
-            <Grid item xs={8}>
+            <Grid size={8}>
               <TextField fullWidth label="Denominación" size="small" required
                 value={formulario.denominacion}
                 onChange={e => setFormulario(f => ({ ...f, denominacion: e.target.value }))} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Monto Inicial" type="number" size="small"
                 value={formulario.monto_inicial || 0}
                 onChange={e => setFormulario(f => ({ ...f, monto_inicial: Number(e.target.value) }))} />
@@ -245,14 +245,14 @@ const PresupuestosPage = () => {
         <DialogTitle>Nueva Asignación Presupuestaria</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField fullWidth label="Buscar Partida (ID)" type="number" size="small"
                 value={formularioAsig.id_partida || ''}
                 onChange={e => setFormularioAsig(f => ({ ...f, id_partida: Number(e.target.value) }))}
                 helperText="Ingrese el ID de la partida presupuestaria hoja"
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Monto Inicial" type="number" size="small"
                 value={formularioAsig.monto_inicial || 0}
                 onChange={e => setFormularioAsig(f => ({ ...f, monto_inicial: Number(e.target.value) }))} />

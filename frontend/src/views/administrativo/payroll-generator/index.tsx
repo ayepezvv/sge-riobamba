@@ -41,7 +41,7 @@ const PayrollGenerator = () => {
             case 0:
                 return (
                     <Grid container spacing={3} sx={{ mt: 2 }}>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <FormControl fullWidth>
                                 <InputLabel>Mes</InputLabel>
                                 <Select
@@ -56,7 +56,7 @@ const PayrollGenerator = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <FormControl fullWidth>
                                 <InputLabel>Año</InputLabel>
                                 <Select

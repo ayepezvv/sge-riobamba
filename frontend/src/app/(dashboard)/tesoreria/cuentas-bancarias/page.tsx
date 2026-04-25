@@ -157,7 +157,7 @@ const CuentasBancariasPage = () => {
         <DialogContent dividers>
           {errorFormulario && <Alert severity="error" sx={{ mb: 2 }}>{errorFormulario}</Alert>}
           <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Entidad Bancaria *</InputLabel>
                 <Select value={formulario.entidad_bancaria_id || ''} label="Entidad Bancaria *"
@@ -166,11 +166,11 @@ const CuentasBancariasPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField label="Número de Cuenta *" fullWidth value={formulario.numero_cuenta}
                 onChange={e => setFormulario({ ...formulario, numero_cuenta: e.target.value })} />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Tipo *</InputLabel>
                 <Select value={formulario.tipo} label="Tipo *"
@@ -179,15 +179,15 @@ const CuentasBancariasPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField label="Nombre *" fullWidth value={formulario.nombre}
                 onChange={e => setFormulario({ ...formulario, nombre: e.target.value })} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField label="Moneda" fullWidth value={formulario.moneda}
                 onChange={e => setFormulario({ ...formulario, moneda: e.target.value })} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField label="Saldo Inicial" type="number" fullWidth value={formulario.saldo_inicial}
                 onChange={e => setFormulario({ ...formulario, saldo_inicial: parseFloat(e.target.value) || 0 })} />
             </Grid>

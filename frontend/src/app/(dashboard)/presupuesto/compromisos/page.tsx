@@ -220,28 +220,28 @@ const CompromisosPage = () => {
         <DialogTitle>Nuevo Compromiso</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="ID Certificado" type="number" size="small" required
                 value={formularioComp.id_certificado || ''}
                 onChange={e => setFormularioComp(f => ({ ...f, id_certificado: Number(e.target.value) }))} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Número Compromiso" size="small" required
                 value={formularioComp.numero_compromiso}
                 onChange={e => setFormularioComp(f => ({ ...f, numero_compromiso: e.target.value }))} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Monto Comprometido" type="number" size="small" required
                 value={formularioComp.monto_comprometido || ''}
                 onChange={e => setFormularioComp(f => ({ ...f, monto_comprometido: Number(e.target.value) }))} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Fecha Compromiso" type="date" size="small"
                 value={formularioComp.fecha_compromiso}
                 onChange={e => setFormularioComp(f => ({ ...f, fecha_compromiso: e.target.value }))}
                 InputLabelProps={{ shrink: true }} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField fullWidth label="Concepto" size="small" required multiline rows={2}
                 value={formularioComp.concepto}
                 onChange={e => setFormularioComp(f => ({ ...f, concepto: e.target.value }))} />
@@ -281,28 +281,28 @@ const CompromisosPage = () => {
         <DialogTitle>Nuevo Devengado</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="ID Compromiso" type="number" size="small" required
                 value={formularioDev.id_compromiso || ''}
                 onChange={e => setFormularioDev(f => ({ ...f, id_compromiso: Number(e.target.value) }))} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Número Devengado" size="small" required
                 value={formularioDev.numero_devengado}
                 onChange={e => setFormularioDev(f => ({ ...f, numero_devengado: e.target.value }))} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Monto Devengado" type="number" size="small" required
                 value={formularioDev.monto_devengado || ''}
                 onChange={e => setFormularioDev(f => ({ ...f, monto_devengado: Number(e.target.value) }))} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <TextField fullWidth label="Fecha Devengado" type="date" size="small"
                 value={formularioDev.fecha_devengado}
                 onChange={e => setFormularioDev(f => ({ ...f, fecha_devengado: e.target.value }))}
                 InputLabelProps={{ shrink: true }} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField fullWidth label="Concepto" size="small" required multiline rows={2}
                 value={formularioDev.concepto}
                 onChange={e => setFormularioDev(f => ({ ...f, concepto: e.target.value }))} />

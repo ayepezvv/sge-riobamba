@@ -101,19 +101,19 @@ export default function PuestosPage() {
         <DialogTitle>{editingId ? 'Editar' : 'Nuevo'} Puesto</DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField fullWidth label="Denominación del Puesto" value={formData.denominacion} onChange={(e) => setFormData({ ...formData, denominacion: e.target.value })} />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField fullWidth label="Escala Ocupacional" value={formData.escala_ocupacional} onChange={(e) => setFormData({ ...formData, escala_ocupacional: e.target.value })} />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField fullWidth label="Remuneración Mensual" type="number" value={formData.remuneracion_mensual} onChange={(e) => setFormData({ ...formData, remuneracion_mensual: e.target.value })} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField fullWidth label="Partida Presupuestaria" value={formData.partida_presupuestaria} onChange={(e) => setFormData({ ...formData, partida_presupuestaria: e.target.value })} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Estado</InputLabel>
                 <Select value={formData.es_activo} label="Estado" onChange={(e) => setFormData({ ...formData, es_activo: e.target.value })}>

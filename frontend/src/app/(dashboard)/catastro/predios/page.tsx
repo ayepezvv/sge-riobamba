@@ -101,7 +101,7 @@ export default function PrediosPage() {
       <LeafletCSS />
       <Grid container spacing={3}>
         {/* LADO IZQUIERDO: MAPA INTERACTIVO */}
-        <Grid item xs={12} md={7} lg={8}>
+        <Grid size={{ xs: 12, md: 7, lg: 8 }}>
           <MainCard title="Mapa Catastral (Visión General)" sx={{ height: 'calc(100vh - 170px)', display: 'flex', flexDirection: 'column' }} contentSX={{ flexGrow: 1, p: 0 }}>
             <Box sx={{ height: '100%', minHeight: 500, width: '100%' }}>
               <PrediosMap predios={predios} />
@@ -110,7 +110,7 @@ export default function PrediosPage() {
         </Grid>
 
         {/* LADO DERECHO: LISTADO Y GESTION */}
-        <Grid item xs={12} md={5} lg={4}>
+        <Grid size={{ xs: 12, md: 5, lg: 4 }}>
           <MainCard 
             title="Lista de Predios" 
             sx={{ height: 'calc(100vh - 170px)', overflowY: 'auto' }}
@@ -122,7 +122,7 @@ export default function PrediosPage() {
           >
             <Grid container spacing={2}>
               {predios.map((p: any, idx: number) => (
-                <Grid item xs={12} key={idx}>
+                <Grid size={12} key={idx}>
                   <Card sx={{ border: '1px solid', borderColor: 'divider', '&:hover': { borderColor: 'secondary.main' } }}>
                     <CardContent sx={{ p: 2, pb: '16px !important' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -153,7 +153,7 @@ export default function PrediosPage() {
               ))}
               
               {predios.length === 0 && (
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography align="center" color="textSecondary" sx={{ mt: 4 }}>No hay predios registrados.</Typography>
                 </Grid>
               )}

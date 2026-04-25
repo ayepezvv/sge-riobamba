@@ -115,7 +115,7 @@ const CategoriasBodegaPage = () => {
 
     return (
         <Grid container spacing={gridSpacing}>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <MainCard
                     title="Diccionario de Categorías"
                     secondary={
