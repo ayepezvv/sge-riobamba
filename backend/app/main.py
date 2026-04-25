@@ -1,12 +1,22 @@
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import auth, users, roles, permissions, parametros, territorio, ciudadanos, comercial, contratacion, administrativo, informatica, rrhh
+from app.db.seed import run_startup_seed
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    run_startup_seed()
+    yield
+
 
 app = FastAPI(
     title="SGE API",
     version="1.0.0",
-    description="Backend del Sistema de Gestión Empresarial"
+    description="Backend del Sistema de Gestión Empresarial",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
