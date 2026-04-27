@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Grid,
     Typography,
@@ -24,7 +24,7 @@ import { listarPersonalAdministrativo } from 'api/administrativo';
 import { listarActivos } from 'api/bodega';
 import { useSnackbar } from 'notistack';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { IconDeviceDesktop, IconServer, IconRouter, IconPlus, IconTrash, IconDeviceLaptop } from '@tabler/icons-react';
+import { IconDeviceDesktop, IconServer, IconRouter, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
@@ -96,7 +96,7 @@ const IpamRedesPage = () => {
     const fetchIps = async (segmentoId: string) => {
         setIsLoading(true);
         try {
-            const data = await listarIpsPorSegmento(segmentoId);
+            const data = await listarIpsPorSegmento(Number(segmentoId));
             setIps(data);
         } catch (error) {
             console.error(error);
@@ -212,7 +212,7 @@ const IpamRedesPage = () => {
     const deleteIp = async (id: string) => {
         if (!window.confirm("¿Seguro que desea eliminar esta asignación de IP?")) return;
         try {
-            await eliminarIp(id);
+            await eliminarIp(Number(id));
             enqueueSnackbar('Asignación eliminada', { variant: 'success' });
             if (selectedSegmento) fetchIps(selectedSegmento.id);
         } catch (err) {

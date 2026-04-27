@@ -1,4 +1,4 @@
-import { IconUsers, IconBriefcase, IconAddressBook, IconBuilding, IconDashboard, IconReceipt2 } from '@tabler/icons-react';
+import { IconUsers, IconBriefcase, IconAddressBook, IconDashboard, IconReceipt2 } from '@tabler/icons-react';
 
 const administrativo = {
   id: 'administracion',

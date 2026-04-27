@@ -19,12 +19,10 @@ import {
   InputLabel,
   Snackbar,
   Alert,
-  Typography,
-  Divider,
-  IconButton
+  Typography
 } from '@mui/material';
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { IconTrash, IconUpload, IconExchange, IconEye, IconEdit } from '@tabler/icons-react';
+import { IconUpload, IconExchange, IconEdit } from '@tabler/icons-react';
 
 export default function PacPage() {
   const [data, setData] = useState([]);
@@ -44,7 +42,7 @@ export default function PacPage() {
   const [selectedPacId, setSelectedPacId] = useState<number | null>(null);
   const [openReforma, setOpenReforma] = useState(false);
   const [openCsv, setOpenCsv] = useState(false);
-  const [selectedPacForReforma, setSelectedPacForReforma] = useState<number | null>(null);
+  const [_selectedPacForReforma, setSelectedPacForReforma] = useState<number | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -70,7 +68,7 @@ export default function PacPage() {
     } catch (e) { console.error(e); }
   };
 
-  const handleOpen = (item = null) => {
+  const handleOpen = (item: any = null) => {
     if (item) {
       setEditingId(item.id);
       setFormData(item);
@@ -246,7 +244,7 @@ export default function PacPage() {
     <Box>
       <Card>
         <CardHeader title="Plan Anual de Contratación (PAC)" action={<Box display="flex" gap={1}>
-          <Button variant="outlined" color="success" startIcon={<IconUpload />} onClick={() => { setSelectedPacId(params.row.id); setOpenCsv(true); }}>Importar PAC</Button>
+          <Button variant="outlined" color="success" startIcon={<IconUpload />} onClick={() => { setOpenCsv(true); }}>Importar PAC</Button>
           <Button variant="contained" onClick={() => handleOpen()}>+ Crear PAC Anual</Button>
         </Box>} />
         <CardContent>
@@ -314,8 +312,8 @@ export default function PacPage() {
               <FormControl fullWidth>
                 <InputLabel>Estado</InputLabel>
                 <Select value={formData.es_activo} label="Estado" onChange={(e) => setFormData({ ...formData, es_activo: e.target.value })}>
-                  <MenuItem value={true}>Activo</MenuItem>
-                  <MenuItem value={false}>Inactivo (Histórico)</MenuItem>
+                  <MenuItem value="true">Activo</MenuItem>
+                  <MenuItem value="false">Inactivo (Histórico)</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

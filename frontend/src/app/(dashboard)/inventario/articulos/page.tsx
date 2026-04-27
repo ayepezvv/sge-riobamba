@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  Grid, Box, Button, Chip, CircularProgress, Alert,
+  Grid, Box, Button, Chip, Alert,
   TextField, MenuItem, FormControl, InputLabel, Select,
   IconButton, Tooltip,
 } from "@mui/material";

@@ -1,9 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { Box, Typography, Button } from '@mui/material';
 
 // Fix Leaflet Default Icon Issue in Next.js
 const icon = L.icon({

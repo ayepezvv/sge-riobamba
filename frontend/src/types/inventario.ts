@@ -3,6 +3,10 @@
 // Nomenclatura en español conforme a Regla Arquitectónica 2
 // ============================================================
 
+// ── Tipos de movimiento ──────────────────────────────────────
+export type ENTRADA = 'ENTRADA';
+export type SALIDA = 'SALIDA';
+
 // ── Cuenta Contable de Inventario ───────────────────────────
 export interface CuentaContableInventario {
   id: number;

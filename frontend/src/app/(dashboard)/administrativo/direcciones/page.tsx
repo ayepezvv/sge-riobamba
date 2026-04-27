@@ -106,8 +106,8 @@ export default function DireccionesPage() {
               <FormControl fullWidth>
                 <InputLabel>Estado</InputLabel>
                 <Select value={formData.es_activo} label="Estado" onChange={(e) => setFormData({ ...formData, es_activo: e.target.value })}>
-                  <MenuItem value={true}>Activo</MenuItem>
-                  <MenuItem value={false}>Inactivo</MenuItem>
+                  <MenuItem value="true">Activo</MenuItem>
+                  <MenuItem value="false">Inactivo</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert, Typography, Grid, IconButton, Tooltip, FormControl, InputLabel, Select, MenuItem, Chip, CircularProgress, Card, CardContent } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -13,8 +13,7 @@ import { obtenerProceso, listarPlantillas, obtenerEsquemaPlantilla, obtenerDatos
 
 export default function ProcesoDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const procesoId = params.id;
+const procesoId = params.id;
   
   const [proceso, setProceso] = useState<any>(null);
   const [plantillas, setPlantillas] = useState<any[]>([]);
@@ -29,7 +28,7 @@ export default function ProcesoDetailPage() {
   const [esquemaVariables, setEsquemaVariables] = useState<any[]>([]);
   const [loadingEsquema, setLoadingEsquema] = useState(false);
   const [dinamicData, setDinamicData] = useState<any>({});
-  const [miPerfil, setMiPerfil] = useState<any>(null);
+  const [miPerfil, _setMiPerfil] = useState<any>(null);
 
   const renderContexto = (contextoStr: string, variableNombre: string) => {
     if (!contextoStr) return null;
@@ -339,7 +338,7 @@ export default function ProcesoDetailPage() {
       width: 100,
       renderCell: (params) => <Chip label={`v${params.value}`} color="primary" size="small" />
     },
-    { field: 'fecha_generacion', headerName: 'Última Generación', width: 200, valueGetter: (params) => params.value ? new Date(params.value).toLocaleString('es-EC') : 'Sin fecha' },
+    { field: 'fecha_generacion', headerName: 'Última Generación', width: 200, valueGetter: (value: any) => value ? new Date(value).toLocaleString('es-EC') : 'Sin fecha' },
     {
       field: 'acciones', headerName: 'Acciones', width: 150, sortable: false,
       renderCell: (params) => (

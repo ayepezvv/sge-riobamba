@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions,
   DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem,
@@ -11,7 +11,7 @@ import { IconPlus, IconEdit } from '@tabler/icons-react';
 
 import MainCard from 'ui-component/cards/MainCard';
 import {
-  listarEntidadesBancarias, crearEntidadBancaria,
+  listarEntidadesBancarias,
   listarCuentasBancarias, crearCuentaBancaria, actualizarCuentaBancaria,
 } from 'api/tesoreria';
 import { CuentaBancaria, CuentaBancariaCrear, EntidadBancaria, TipoCuentaBancaria } from 'types/tesoreria';

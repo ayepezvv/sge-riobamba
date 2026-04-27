@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions,
   DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem,
@@ -13,7 +13,7 @@ import MainCard from 'ui-component/cards/MainCard';
 import { listarCertificados, crearCertificado, cambiarEstadoCertificado } from 'api/presupuesto';
 import {
   CertificadoPresupuestario, CertificadoPresupuestarioCrear,
-  CertificadoPresupuestarioEstado, EstadoCertificado
+  CertificadoPresupuestarioEstado
 } from 'types/presupuesto';
 
 const formatMonto = (v: number) =>

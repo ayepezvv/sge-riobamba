@@ -29,7 +29,6 @@ import useConfig from 'hooks/useConfig';
 import useMenuCollapse from 'hooks/useMenuCollapse';
 
 // third party
-import { FormattedMessage } from 'react-intl';
 
 // assets
 import { IconChevronDown, IconChevronRight, IconChevronUp } from '@tabler/icons-react';

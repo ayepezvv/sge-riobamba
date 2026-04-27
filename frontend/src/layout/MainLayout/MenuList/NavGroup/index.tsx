@@ -18,7 +18,6 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
 // third party
-import { FormattedMessage } from 'react-intl';
 
 // project imports
 import NavCollapse from '../NavCollapse';

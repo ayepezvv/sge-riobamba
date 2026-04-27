@@ -24,7 +24,6 @@ import useConfig from 'hooks/useConfig';
 import { withAlpha } from 'utils/colorUtils';
 
 // third party
-import { FormattedMessage } from 'react-intl';
 
 // assets
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';

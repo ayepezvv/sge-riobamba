@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Alert, Box, Button, CircularProgress, Grid, Tab, Table, TableBody,
   TableCell, TableHead, TableRow, Tabs, TextField, Typography
@@ -9,7 +9,7 @@ import { IconCalculator, IconReport } from '@tabler/icons-react';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { listarCuentas, listarTiposCuenta, obtenerSaldoCuenta } from 'api/contabilidad';
-import { CuentaContable, SaldoCuenta, TipoCuenta } from 'types/contabilidad';
+import { SaldoCuenta, TipoCuenta } from 'types/contabilidad';
 
 interface FilaBalance {
   codigo: string;
@@ -41,7 +41,7 @@ const BalancesPage = () => {
 
   // Balance general
   const [filasBalance, setFilasBalance] = useState<FilaBalance[]>([]);
-  const [tipos, setTipos] = useState<TipoCuenta[]>([]);
+  const [_tipos, setTipos] = useState<TipoCuenta[]>([]);
   const [generadoBalance, setGeneradoBalance] = useState(false);
 
   const generarBalanceComprobacion = async () => {

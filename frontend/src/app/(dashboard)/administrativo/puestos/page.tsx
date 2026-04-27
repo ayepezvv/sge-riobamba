@@ -40,7 +40,7 @@ export default function PuestosPage() {
 
   useEffect(() => { fetchPuestos(); }, []);
 
-  const handleOpen = (item = null) => {
+  const handleOpen = (item: any = null) => {
     if (item) {
       setEditingId(item.id);
       setFormData(item);
@@ -117,8 +117,8 @@ export default function PuestosPage() {
               <FormControl fullWidth>
                 <InputLabel>Estado</InputLabel>
                 <Select value={formData.es_activo} label="Estado" onChange={(e) => setFormData({ ...formData, es_activo: e.target.value })}>
-                  <MenuItem value={true}>Activo</MenuItem>
-                  <MenuItem value={false}>Inactivo</MenuItem>
+                  <MenuItem value="true">Activo</MenuItem>
+                  <MenuItem value="false">Inactivo</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

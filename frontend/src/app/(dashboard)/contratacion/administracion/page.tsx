@@ -17,7 +17,7 @@ import { listarTiposProceso, crearTipoProceso, actualizarTipoProceso, listarPlan
 export default function AdminPlantillasPage() {
   const [tipos, setTipos] = useState<any[]>([]);
   const [plantillas, setPlantillas] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   
   // Modals state
   const [openUpload, setOpenUpload] = useState(false);

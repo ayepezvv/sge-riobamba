@@ -11,7 +11,7 @@ import {
     GridActionsCellItem, GridRowParams
 } from '@mui/x-data-grid';
 import {
-    IconPlus, IconRefresh, IconUser, IconBriefcase,
+    IconPlus, IconRefresh, IconUser,
     IconContract, IconMoneybag, IconCheck
 } from '@tabler/icons-react';
 import MainCard from 'ui-component/cards/MainCard';

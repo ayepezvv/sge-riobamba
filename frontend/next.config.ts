@@ -1,14 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // TODO YXP-42: ignoreBuildErrors debe eliminarse antes de producción.
-  // Errores pendientes (tsc --noEmit): 344 total
-  //   - 235 × TS2769: props `item`/`xs`/`md` de Grid v5 incompatibles con MUI v6 (migración pendiente)
-  //   - 66  × TS6133: importaciones sin usar
-  //   - 43  × otros (TS2304, TS2322, TS2339, etc.)
-  // Seguimiento: YXP-55 (migración Grid MUI v5→v6)
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   // BC-05 resuelto: todos los usos de react-apexcharts ya usan dynamic({ ssr: false }),
   // que neutraliza el bug de double-mount en StrictMode.

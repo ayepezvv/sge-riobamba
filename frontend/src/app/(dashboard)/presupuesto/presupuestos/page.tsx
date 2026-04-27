@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions,
-  DialogContent, DialogTitle, Grid, Tab, Tabs, TextField, Typography
+  DialogContent, DialogTitle, Grid, TextField
 } from '@mui/material';
 import { DataGrid, GridColDef, GridToolbar, GridActionsCellItem } from '@mui/x-data-grid';
 import { IconPlus, IconListDetails } from '@tabler/icons-react';
@@ -40,7 +40,7 @@ const PresupuestosPage = () => {
   const [asignaciones, setAsignaciones] = useState<AsignacionPresupuestaria[]>([]);
   const [cargandoAsig, setCargandoAsig] = useState(false);
   const [abrirAsignaciones, setAbrirAsignaciones] = useState(false);
-  const [partidas, setPartidas] = useState<PartidaPresupuestaria[]>([]);
+  const [_partidas, setPartidas] = useState<PartidaPresupuestaria[]>([]);
   const [abrirNuevaAsig, setAbrirNuevaAsig] = useState(false);
   const [formularioAsig, setFormularioAsig] = useState<AsignacionPresupuestariaCrear>({
     id_presupuesto: 0, id_partida: 0, monto_inicial: 0,

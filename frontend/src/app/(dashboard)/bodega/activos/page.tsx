@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import {
-    Grid, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, Stack, IconButton, Box, Chip
+    Grid, Button, Dialog, DialogTitle, DialogContent, DialogActions,
+    TextField, IconButton, Box, Chip
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
-import { IconDeviceDesktop, IconPrinter, IconRouter, IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
 import { listarActivos, crearActivo, listarCategorias } from 'api/bodega';
 import { useFormik } from 'formik';
 import * as yup from 'yup';

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Alert, Box, Button, CircularProgress, LinearProgress,
   TextField, Typography
@@ -147,7 +147,7 @@ const EjecucionPage = () => {
           <DataGrid
             rows={ejecucion}
             columns={columnas}
-            getRowId={(r, i) => `${r.codigo_partida}`}
+            getRowId={(r: any) => `${r.codigo_partida}`}
             slots={{ toolbar: GridToolbar }}
             slotProps={{ toolbar: { showQuickFilter: true } }}
             autoHeight

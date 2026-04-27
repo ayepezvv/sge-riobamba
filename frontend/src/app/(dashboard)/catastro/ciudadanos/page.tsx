@@ -7,7 +7,7 @@ import {
   Chip, Box, Button, Dialog, DialogTitle, DialogContent, DialogContentText,
   DialogActions, TextField, FormControl, InputLabel, 
   Select, MenuItem, Snackbar, Alert, Typography,
-  Tabs, Tab, Grid, Switch, FormControlLabel, IconButton, Tooltip,
+  Tabs, Tab, Grid, Switch, FormControlLabel, IconButton,
   Card, CardContent, Avatar, Divider, InputAdornment, OutlinedInput
 } from '@mui/material';
 
@@ -98,7 +98,7 @@ export default function CiudadanosPage() {
       
       // Update selected user if it was modified
       if (selectedUser) {
-        const updatedUser = response.data.find((u: any) => u.id === selectedUser.id);
+        const updatedUser = data.find((u: any) => u.id === selectedUser.id);
         if (updatedUser) setSelectedUser(updatedUser);
       }
     } catch (error) {

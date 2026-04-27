@@ -19,7 +19,7 @@ const formatMoneda = (val?: number) =>
     : "—";
 
 const ResumenCard = ({
-  anno,
+  anno_fiscal,
   total_articulos,
   total_movimientos,
   total_lineas_kardex,
@@ -34,11 +34,11 @@ const ResumenCard = ({
         mb={1}
       >
         <Typography variant="h4" color="primary">
-          Año {anno}
+          Año {anno_fiscal}
         </Typography>
         <Chip
-          label={anno === 2025 ? "Actual" : String(anno)}
-          color={anno === 2025 ? "success" : "default"}
+          label={anno_fiscal === 2025 ? "Actual" : String(anno_fiscal)}
+          color={anno_fiscal === 2025 ? "success" : "default"}
           size="small"
         />
       </Box>

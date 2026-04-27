@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Chip, Typography } from '@mui/material';
-import { DataGrid, GridColDef, GridToolbar, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import { IconAddressBook, IconDeviceLaptop } from '@tabler/icons-react';
 
 // project imports
@@ -9,7 +9,7 @@ import MainCard from 'ui-component/cards/MainCard';
 // ==============================|| GESTOR DE PERSONAL ||============================== //
 
 const PersonalManager = () => {
-    const [rows, setRows] = useState([]);
+    const [rows, setRows] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -88,11 +88,11 @@ const PersonalManager = () => {
                 <DataGrid
                     rows={rows}
                     columns={columns}
-                    pageSize={10}
-                    rowsPerPageOptions={[10, 25, 50]}
+                    initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                    pageSizeOptions={[10, 25, 50]}
                     loading={loading}
                     checkboxSelection
-                    disableSelectionOnClick
+                    disableRowSelectionOnClick
                     slots={{ toolbar: GridToolbar }}
                     sx={{
                         '& .MuiDataGrid-columnHeaders': {

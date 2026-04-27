@@ -36,7 +36,7 @@ const initialFormData = {
 export default function UsuariosPage() {
   const theme = useTheme();
   const [users, setUsers] = useState([]);
-  const [roles, setRoles] = useState([]);
+  const [roles, setRoles] = useState<any[]>([]);
   
   // UI State
   const [open, setOpen] = useState(false);

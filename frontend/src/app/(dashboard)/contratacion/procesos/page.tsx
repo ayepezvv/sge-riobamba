@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert, IconButton, Tooltip, Stepper, Step, StepLabel, FormControl, InputLabel, Select, MenuItem, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert, IconButton, Tooltip, Stepper, Step, StepLabel, FormControl, InputLabel, Select, MenuItem, Typography, Grid, Card } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
 import MainCard from 'ui-component/cards/MainCard';
@@ -20,13 +20,7 @@ export default function ProcesosPage() {
   const [selectedPacItems, setSelectedPacItems] = useState<number[]>([]);
   const [pacMontos, setPacMontos] = useState<Record<number, number>>({});
 
-  const presupuestoReferencial = selectedPacItems.reduce((acc, id) => {
-    const item = pacItems.find((i: any) => i.id === id) as any;
-    const monto = pacMontos[id] ?? (item ? item.valor_total : 0);
-    return acc + monto;
-  }, 0);
-
-  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
+const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
   
   // Wizard State
   const [activeStep, setActiveStep] = useState(0);
@@ -42,7 +36,16 @@ export default function ProcesosPage() {
   
   const [tipoRecomendado, setTipoRecomendado] = useState<any>(null);
 
-    const fetchPacItems = async () => {
+  const handlePacChange = (event: any) => {
+    const value = event.target.value as number[];
+    setSelectedPacItems(value);
+  };
+
+  const handleMontoChange = (id: number, value: string) => {
+    setPacMontos(prev => ({ ...prev, [id]: parseFloat(value) || 0 }));
+  };
+
+  const fetchPacItems = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/contratacion/pac`, { headers: { 'Authorization': `Bearer ${window.localStorage.getItem('serviceToken')}` } });
       if (res.ok) {
@@ -74,7 +77,7 @@ export default function ProcesosPage() {
     }
   };
 
-  useEffect(() => { fetchProcesos(); }, []);
+  useEffect(() => { fetchProcesos(); fetchPacItems(); }, []);
 
   const handleNext = () => {
     if (activeStep === 2) {
@@ -114,7 +117,7 @@ export default function ProcesosPage() {
     { field: 'id', headerName: 'ID', width: 70 },
     { field: 'codigo_proceso', headerName: 'Código', width: 150 },
     { field: 'nombre_proyecto', headerName: 'Proyecto', flex: 1 },
-    { field: 'fecha_creacion', headerName: 'Fecha Creación', width: 200, valueGetter: (params) => params.value ? new Date(params.value).toLocaleString('es-EC') : 'Sin fecha' },
+    { field: 'fecha_creacion', headerName: 'Fecha Creación', width: 200, valueGetter: (value: any) => value ? new Date(value).toLocaleString('es-EC') : 'Sin fecha' },
     {
       field: 'acciones', headerName: 'Acciones', width: 100, sortable: false,
       renderCell: (params) => (
